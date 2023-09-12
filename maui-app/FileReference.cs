@@ -6,7 +6,7 @@ using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace ucm;
+namespace d9.ucm;
 public abstract class FileReference
 {
     // "Consider marking these as nullable": implementors will make sure this is the case
