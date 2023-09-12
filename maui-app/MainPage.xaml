@@ -9,8 +9,6 @@
             Padding="30,0"
             VerticalOptions="Center">
             <Label Text="Fuck" TextColor="White"/>
-            <Button Text="Add items" Clicked="AddItems"/>
-            <Button Text="View items" Clicked="ViewItems"/>
         </VerticalStackLayout>
     </ScrollView>
 

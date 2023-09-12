@@ -6,12 +6,5 @@ public partial class MainPage : ContentPage
 	{
         InitializeComponent();
 	}
-    private async void AddItems(object sender, EventArgs e)
-    {
-
-    }
-    private async void ViewItems(object sender, EventArgs e)
-    {
-    }
 }
 

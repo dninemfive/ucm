@@ -8,7 +8,9 @@
             Spacing="25"
             Padding="30,0"
             VerticalOptions="Center">
-            <Label Text="Fuck" TextColor="White"/>
+            <Button Text="Start" Clicked="StartAdding"/>
+            <Image x:Name="Item"/>
+            <ListView x:Name="Output"/>
         </VerticalStackLayout>
     </ScrollView>
 
