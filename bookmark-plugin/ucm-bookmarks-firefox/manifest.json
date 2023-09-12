@@ -1,0 +1,23 @@
+{
+  "manifest_version": 2,
+  "name": "ucm bookmark extractor",
+  "version": "1.0",
+  "description": "Extracts bookmarks of pages to be managed by ucm",
+  "homepage_url": "https://github.com/dninemfive",
+  "icons": {
+    "48": "icons/placeholder_48.png",
+    "96": "icons/placeholder_96.png"
+  },
+  "permissions": [
+    "bookmarks",
+    "downloads",
+    "nativeMessaging"
+  ],
+  "browser_action": {
+    "default_icon": "icons/placeholder_38.png",
+    "default_title": "ucm bookmark extractor"
+  },
+  "background": {
+    "scripts": ["script.js"]
+  }
+}

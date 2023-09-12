@@ -1,7 +1,2 @@
-.vs/
-bin/
-obj/
-Keys/
-Platforms/
 *.secret
 *.key
