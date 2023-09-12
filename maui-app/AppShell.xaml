@@ -6,13 +6,15 @@
     xmlns:local="clr-namespace:d9.ucm"
     Shell.FlyoutBehavior="Disabled">
 
-    <ShellContent
+    <TabBar>
+        <ShellContent
         Title="Home"
         ContentTemplate="{DataTemplate local:MainPage}"
         Route="MainPage" />
-    <ShellContent
+        <ShellContent
         Title="Add Items"
         ContentTemplate="{DataTemplate local:AddItems}"
         Route="AddItems" />
+    </TabBar>
 
 </Shell>
