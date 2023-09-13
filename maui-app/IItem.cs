@@ -11,14 +11,14 @@ namespace d9.ucm;
 public interface IItem
 {
     [JsonInclude]
-    public IFileReference File { get; }
+    public IFileReference FileReference { get; }
     [JsonIgnore]
-    public byte[] Hash => File.Hash;
+    public byte[] Hash => FileReference.Hash;
     [JsonInclude]
     public ItemId Id { get; }
     [JsonIgnore]
     public View View { get; }
-    public async void SaveAsync()
+    public async void Save()
     {
         await System.IO.File.WriteAllTextAsync("C:/Users/dninemfive/Pictures/misc/ucm", JsonSerializer.Serialize(this));
     }

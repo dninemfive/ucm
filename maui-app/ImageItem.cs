@@ -10,7 +10,7 @@ namespace d9.ucm;
 public class ImageItem : IItem
 {
     [JsonInclude]
-    public IFileReference File { get; private set; }
+    public IFileReference FileReference { get; private set; }
     [JsonInclude]
     public ItemId Id { get; private set; }
     [JsonIgnore]
@@ -20,18 +20,20 @@ public class ImageItem : IItem
     {
         get
         {
-            _image ??= new() { Source = File.Location };
+            _image ??= new() { Source = FileReference.Location };
             return _image;
         }
     }
-    public ImageItem(IFileReference file, ItemId? id = null)
+    public ImageItem(IFileReference fileReference, ItemId? id = null)
     {
-        File = file;
+        FileReference = fileReference;
         Id = IdManager.Register(id);
     }
-    public async void SaveAsync()
+    public void Save()
     {
         //await System.IO.File.WriteAllTextAsync(@"C:\Users\dninemfive\Pictures\misc\ucm\data", JsonSerializer.Serialize(this));
-        System.IO.File.WriteAllText(@"C:\Users\dninemfive\Pictures\misc\ucm\data", JsonSerializer.Serialize(this));
+        DirectoryInfo dinfo = new(@"C:\Users\dninemfive\Pictures\misc\ucm\data");
+        File.Create(@"C:\Users\dninemfive\Pictures\misc\ucm\data\fuck you.txt");
+        File.WriteAllText(@"C:\Users\dninemfive\Pictures\misc\ucm\data", JsonSerializer.Serialize(this));
     }
 }
