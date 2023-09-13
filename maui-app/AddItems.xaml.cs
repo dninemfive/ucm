@@ -49,9 +49,10 @@ public partial class AddItems : ContentPage
         InProgressItems.IsVisible = true;
     }
     private void NextImage()
-    {
-        ProgressLabel.Text = $"{_index}/{_pendingItems.Count}";
-        ProgressBar.Progress = _index/(float)_pendingItems.Count;
+    {        
+        float progress = _index/(float)_pendingItems.Count;
+        ProgressLabel.Text = $"{_index}/{_pendingItems.Count} ({progress:P1})";
+        ProgressBar.Progress = progress;
         Item.Source = _pendingItems[_index].Path;
         _index++;
         CurrentPath.Text = _pendingItems[_index].Path;

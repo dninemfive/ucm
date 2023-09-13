@@ -6,29 +6,20 @@
         <VerticalStackLayout
             Spacing="25"
             Padding="30,0"
-            VerticalOptions="Start">
+            VerticalOptions="StartAndExpand">
             <Button x:Name="LoadPaths" Text="Start" Clicked="LoadPaths_Clicked"/>
-            <Grid x:Name="InProgressItems" IsVisible="False" VerticalOptions="StartAndExpand">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="*"/>
-                </Grid.RowDefinitions>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition/>
-                </Grid.ColumnDefinitions>
-                <HorizontalStackLayout Grid.Column="0" Grid.Row="0">
+            <VerticalStackLayout x:Name="InProgressItems" IsVisible="False">
+                <HorizontalStackLayout>
                     <Label x:Name="ProgressLabel" Text="x/y"/>
-                    <ProgressBar x:Name="ProgressBar" Progress="0"/>
+                    <Label x:Name="CurrentPath" Grid.Column="0"/>
                 </HorizontalStackLayout>
-                <Image x:Name="Item" Aspect="AspectFit" Grid.Column="0" Grid.Row="1"/>
-                <HorizontalStackLayout Grid.Column="0" Grid.Row="2">
+                <Image x:Name="Item" Aspect="AspectFit" VerticalOptions="CenterAndExpand" HeightRequest="850"/>
+                <HorizontalStackLayout HorizontalOptions="CenterAndExpand" VerticalOptions="EndAndExpand">
                     <Button x:Name="Accept" Text="Accept" Clicked="Accept_Clicked"/>
                     <Button x:Name="Reject" Text="Reject" Clicked="Reject_Clicked"/>
                 </HorizontalStackLayout>
-                <Label x:Name="CurrentPath" Grid.Column="0" Grid.Row="3"/>
-            </Grid>
+                <ProgressBar x:Name="ProgressBar" Progress="0" VerticalOptions="Start"/>
+            </VerticalStackLayout>
         </VerticalStackLayout>
     </ScrollView>
 </ContentPage>
