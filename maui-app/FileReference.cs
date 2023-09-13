@@ -7,13 +7,12 @@ using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace d9.ucm;
-public abstract class FileReference
+public interface IFileReference
 {
-    // "Consider marking these as nullable": implementors will make sure this is the case
-    #pragma warning disable CS8618
-    public string Location { get; private set; }
+    [JsonInclude]
+    public string Location { get; }
+    [JsonInclude]
     public byte[] Hash { get; }
-    #pragma warning restore CS8618
 }
 public static class Extensions
 {
@@ -27,14 +26,14 @@ public static class Extensions
     }
     public static async Task<byte[]?> FileHashAsync(this string path) => await Task.Run(path.FileHash);
 }
-public class LocalFileReference
+public class LocalFileReference : IFileReference
 {
     [JsonInclude]
-    public string Location { get; private set; }
+    public string Location { get; protected set; }
     [JsonIgnore]
     private byte[]? _fileHash = null;
     [JsonInclude]
-    public byte[] FileHash
+    public byte[] Hash
     {
         get
         {
