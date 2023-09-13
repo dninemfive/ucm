@@ -31,6 +31,10 @@ public partial class AddItems : ContentPage
             return;
         _adding = true;
         LoadPaths.Text = "Adding...";
+        await foreach(ImageItem ii in IItem.LoadAllAsync<ImageItem>())
+        {
+            _hashes.Add(ii.FileReference.Hash);
+        }
         foreach(string s in await File.ReadAllLinesAsync(@"C:\Users\dninemfive\Documents\workspaces\misc\ucm\maui-app\localFolderList.txt.secret"))
         {
             foreach(string path in await Task.Run(() => Directory.EnumerateFiles(s.Split("\t")[0])))

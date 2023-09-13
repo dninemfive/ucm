@@ -4,7 +4,9 @@ namespace d9.ucm;
 
 public static class MauiProgram
 {
-	public static MauiApp CreateMauiApp()
+	public const string TEMP_SAVE_LOCATION = "C:/Users/dninemfive/Pictures/misc/ucm/data";
+
+    public static MauiApp CreateMauiApp()
 	{
 		var builder = MauiApp.CreateBuilder();
 		builder

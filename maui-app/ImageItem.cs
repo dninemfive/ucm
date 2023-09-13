@@ -31,6 +31,6 @@ public class ImageItem : IItem
     }
     public async void SaveAsync()
     {
-        await File.WriteAllTextAsync(@$"C:\Users\dninemfive\Pictures\misc\ucm\data\{Id}.json", JsonSerializer.Serialize(this));
+        await File.WriteAllTextAsync(@$"{MauiProgram.TEMP_SAVE_LOCATION}\{Id}.json", JsonSerializer.Serialize(this));
     }
 }
