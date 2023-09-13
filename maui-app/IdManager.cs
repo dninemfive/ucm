@@ -21,24 +21,26 @@ public readonly struct ItemId
     public static bool operator >=(ItemId a, ItemId b) => a > b || a == b;
     public static bool operator <=(ItemId a, ItemId b) => a < b || a == b;
     public static ItemId operator ++(ItemId id) => new(id._value + 1);
+    public static ItemId operator +(ItemId id, ulong val) => new(id._value + val);
     #endregion
     #region overrides
     public override bool Equals([NotNullWhen(true)] object? obj) => obj is ItemId id && id == this;
     public override int GetHashCode() => _value.GetHashCode();
-    public override string ToString() => this;
-    #endregion
-    #region implicit casts
-    public static implicit operator string(ItemId id)
+    public override string ToString()
     {
-        ulong val = id._value;
+        if (_value == 0)
+            return "0";
+        ulong val = _value;
         string result = "";
-        while(val > 0)
+        while (val > 0)
         {
             result = $"{ALPHABET[(int)(val % Base)]}{result}";
             val /= Base;
         }
         return result;
     }
+    #endregion
+    #region implicit casts
     public static implicit operator ItemId(string s)
     {
         ulong result = 0, factor = 1;
@@ -53,9 +55,8 @@ public readonly struct ItemId
     #endregion
 }
 public static class IdManager
-{    
-    private static ItemId _id = 0;
-    public static ItemId Id => _id;
+{
+    public static ItemId Id { get; private set; } = 0;
     /// <summary>
     /// Updates the manager so that the current id is always greater than the highest registered id
     /// </summary>
@@ -63,9 +64,9 @@ public static class IdManager
     /// <returns></returns>
     public static ItemId Register(ItemId? id = null)
     {
-        id ??= _id;
-        if (id >= _id)
-            _id = id + 1;
+        id ??= Id;
+        if (id >= Id)
+            Id = id.Value + 1;
         return id.Value;
     }
 }

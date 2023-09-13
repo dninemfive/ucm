@@ -62,7 +62,7 @@ public partial class AddItems : ContentPage
         _pendingItems[_index].Status = PendingItem.PIStatus.Accepted;
         IFileReference? fr = LocalFileReference.TryLoad(_pendingItems[_index].Path);
         if (fr is not null)
-            new ImageItem(fr).Save();
+            new ImageItem(fr).SaveAsync();
         NextImage();
     }
     private void Reject_Clicked(object sender, EventArgs e)

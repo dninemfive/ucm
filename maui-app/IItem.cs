@@ -18,8 +18,8 @@ public interface IItem
     public ItemId Id { get; }
     [JsonIgnore]
     public View View { get; }
-    public async void Save()
+    public async void SaveAsync()
     {
-        await System.IO.File.WriteAllTextAsync("C:/Users/dninemfive/Pictures/misc/ucm", JsonSerializer.Serialize(this));
+        await File.WriteAllTextAsync("C:/Users/dninemfive/Pictures/misc/ucm", JsonSerializer.Serialize(this));
     }
 }

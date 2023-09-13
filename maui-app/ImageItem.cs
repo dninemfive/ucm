@@ -29,11 +29,8 @@ public class ImageItem : IItem
         FileReference = fileReference;
         Id = IdManager.Register(id);
     }
-    public void Save()
+    public async void SaveAsync()
     {
-        //await System.IO.File.WriteAllTextAsync(@"C:\Users\dninemfive\Pictures\misc\ucm\data", JsonSerializer.Serialize(this));
-        DirectoryInfo dinfo = new(@"C:\Users\dninemfive\Pictures\misc\ucm\data");
-        File.Create(@"C:\Users\dninemfive\Pictures\misc\ucm\data\fuck you.txt");
-        File.WriteAllText(@"C:\Users\dninemfive\Pictures\misc\ucm\data", JsonSerializer.Serialize(this));
+        await File.WriteAllTextAsync(@$"C:\Users\dninemfive\Pictures\misc\ucm\data\{Id}.json", JsonSerializer.Serialize(this));
     }
 }
