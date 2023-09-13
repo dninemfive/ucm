@@ -1,21 +1,34 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="d9.ucm.AddItems">
-
+             x:Class="d9.ucm.AddItems">    
     <ScrollView>
         <VerticalStackLayout
             Spacing="25"
             Padding="30,0"
-            VerticalOptions="Center">
-            <Button x:Name="Button_StartAdding" Text="Start" Clicked="StartAdding"/>
-            <Image x:Name="Item"/>
-            <HorizontalStackLayout>
-                <Button x:Name="Accept" Text="Accept" Clicked="Accept_Clicked"/>
-                <Button x:Name="Reject" Text="Reject" Clicked="Reject_Clicked"/>
-            </HorizontalStackLayout>
-            <ListView x:Name="Output"/>
+            VerticalOptions="Start">
+            <Button x:Name="LoadPaths" Text="Start" Clicked="LoadPaths_Clicked"/>
+            <Grid x:Name="InProgressItems" IsVisible="False" VerticalOptions="StartAndExpand">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <HorizontalStackLayout Grid.Column="0" Grid.Row="0">
+                    <Label x:Name="ProgressLabel" Text="x/y"/>
+                    <ProgressBar x:Name="ProgressBar" Progress="0"/>
+                </HorizontalStackLayout>
+                <Image x:Name="Item" Aspect="AspectFit" Grid.Column="0" Grid.Row="1"/>
+                <HorizontalStackLayout Grid.Column="0" Grid.Row="2">
+                    <Button x:Name="Accept" Text="Accept" Clicked="Accept_Clicked"/>
+                    <Button x:Name="Reject" Text="Reject" Clicked="Reject_Clicked"/>
+                </HorizontalStackLayout>
+                <Label x:Name="CurrentPath" Grid.Column="0" Grid.Row="3"/>
+            </Grid>
         </VerticalStackLayout>
     </ScrollView>
-
 </ContentPage>
