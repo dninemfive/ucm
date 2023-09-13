@@ -11,8 +11,8 @@
             <Button x:Name="Button_StartAdding" Text="Start" Clicked="StartAdding"/>
             <Image x:Name="Item"/>
             <HorizontalStackLayout>
-                <Button x:Name="Accept" Clicked="Accept_Clicked"/>
-                <Button x:Name="Reject" Clicked="Reject_Clicked"/>
+                <Button x:Name="Accept" Text="Accept" Clicked="Accept_Clicked"/>
+                <Button x:Name="Reject" Text="Reject" Clicked="Reject_Clicked"/>
             </HorizontalStackLayout>
             <ListView x:Name="Output"/>
         </VerticalStackLayout>

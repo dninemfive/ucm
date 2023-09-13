@@ -9,7 +9,7 @@ public partial class AddItems : ContentPage
         InitializeComponent();
 	}
     private bool _adding = false;
-    private ObservableCollection<string> _items;
+    private ObservableCollection<string> _items = new();
     private string _current;
     private async void StartAdding(object sender, EventArgs e)
     {
@@ -17,12 +17,11 @@ public partial class AddItems : ContentPage
             return;
         _adding = true;
         Button_StartAdding.Text = "adding...";
-        ObservableCollection<string> items = new();
-        Output.ItemsSource = items;
+        Output.ItemsSource = _items;
         void add(string t)
         {
-            items.Add(t);
-            Button_StartAdding.Text = $"adding...{items.Count}";
+            _items.Add(t);
+            Button_StartAdding.Text = $"adding...{_items.Count}";
         }
         foreach(string s in await File.ReadAllLinesAsync(@"C:\Users\dninemfive\Documents\workspaces\misc\ucm\maui-app\localFolderList.txt.secret"))
         {
@@ -31,13 +30,13 @@ public partial class AddItems : ContentPage
                 await MainThread.InvokeOnMainThreadAsync(() => add(t));
             }
         }
-        _items = items;
-        Output.ItemsSource = _items;
+        NextImage();
     }
     private void NextImage()
     {
         _current = _items.First();
-        _items.RemoveAt(0);
+        _items = new(_items.Skip(1));
+        Output.ItemsSource = _items;
         Item.Source = _current;
     }
     private void Accept_Clicked(object sender, EventArgs e)
