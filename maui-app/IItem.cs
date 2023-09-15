@@ -20,7 +20,7 @@ public interface IItem
     public View View { get; }
     public async void SaveAsync()
     {
-        await File.WriteAllTextAsync(MauiProgram.TEMP_SAVE_LOCATION, JsonSerializer.Serialize(this));
+        await File.WriteAllTextAsync(MauiProgram.TEMP_SAVE_LOCATION, JsonSerializer.Serialize(this, new JsonSerializerOptions() { WriteIndented = true}));
     }
     public static async IAsyncEnumerable<T> LoadAllAsync<T>() where T : IItem
     {

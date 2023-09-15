@@ -7,10 +7,10 @@ using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace d9.ucm;
-public class ImageItem : IItem
+public class LocalImageItem : IItem
 {
     [JsonInclude]
-    public IFileReference FileReference { get; private set; }
+    public LocalFileReference FileReference { get; private set; }
     [JsonInclude]
     public ItemId Id { get; private set; }
     [JsonIgnore]
@@ -24,12 +24,20 @@ public class ImageItem : IItem
             return _image;
         }
     }
-    public ImageItem(IFileReference fileReference, ItemId? id = null)
+    [JsonIgnore]
+    IFileReference IItem.FileReference => FileReference;
+    public LocalImageItem(LocalFileReference fileReference)
+    {
+        FileReference = fileReference;
+        Id = IdManager.Register();
+    }
+    [JsonConstructor]
+    public LocalImageItem(LocalFileReference fileReference, ItemId id)
     {
         FileReference = fileReference;
         Id = IdManager.Register(id);
     }
-    public async void SaveAsync()
+    public async Task SaveAsync()
     {
         await File.WriteAllTextAsync(@$"{MauiProgram.TEMP_SAVE_LOCATION}\{Id}.json", JsonSerializer.Serialize(this));
     }

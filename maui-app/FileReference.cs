@@ -12,7 +12,7 @@ public interface IFileReference
     [JsonInclude]
     public string Location { get; }
     [JsonInclude]
-    public byte[] Hash { get; }
+    public byte[] Hash { get; protected set; }
 }
 public static class Extensions
 {
@@ -25,35 +25,4 @@ public static class Extensions
         return sha512.ComputeHash(fs);
     }
     public static async Task<byte[]?> FileHashAsync(this string path) => await Task.Run(path.FileHash);
-}
-public class LocalFileReference : IFileReference
-{
-    [JsonInclude]
-    public string Location { get; protected set; }
-    [JsonIgnore]
-    private byte[]? _fileHash = null;
-    [JsonInclude]
-    public byte[] Hash
-    {
-        get
-        {
-            _fileHash ??= Location.FileHash();
-            return _fileHash!;
-        }
-    }
-    private LocalFileReference(string path)
-    {
-        Location = path;
-    }
-    public static LocalFileReference? TryLoad(string path)
-    {
-        try
-        {
-            return new(path);
-        } 
-        catch
-        {
-            return null;
-        }
-    }
 }

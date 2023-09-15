@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.Text;
 
 namespace d9.ucm;
 
@@ -30,10 +31,15 @@ public partial class AddItems : ContentPage
         if (_adding)
             return;
         _adding = true;
-        LoadPaths.Text = "Adding...";
-        await foreach(ImageItem ii in IItem.LoadAllAsync<ImageItem>())
+        LoadPaths.Text = "Loading existing item hashes...";
+        await foreach(LocalImageItem ii in IItem.LoadAllAsync<LocalImageItem>())
         {
-            _hashes.Add(ii.FileReference.Hash);
+            _ = _hashes.Add(ii.FileReference.Hash);
+        }
+        LoadPaths.Text = "Loading rejected file hashes...";
+        await foreach(string s in File.ReadLinesAsync(MauiProgram.RejectedHashFile))
+        {
+            _ = _hashes.Add(Encoding.UTF8.GetBytes(s));
         }
         foreach(string s in await File.ReadAllLinesAsync(@"C:\Users\dninemfive\Documents\workspaces\misc\ucm\maui-app\localFolderList.txt.secret"))
         {
@@ -61,17 +67,18 @@ public partial class AddItems : ContentPage
         _index++;
         CurrentPath.Text = _pendingItems[_index].Path;
     }
-    private void Accept_Clicked(object sender, EventArgs e)
+    private async void Accept_Clicked(object sender, EventArgs e)
     {
         _pendingItems[_index].Status = PendingItem.PIStatus.Accepted;
-        IFileReference? fr = LocalFileReference.TryLoad(_pendingItems[_index].Path);
+        LocalFileReference? fr = LocalFileReference.TryLoad(_pendingItems[_index].Path);
         if (fr is not null)
-            new ImageItem(fr).SaveAsync();
+            await new LocalImageItem(fr).SaveAsync();
         NextImage();
     }
     private void Reject_Clicked(object sender, EventArgs e)
     {
         _pendingItems[_index].Status = PendingItem.PIStatus.Rejected;
+        File.AppendAllText(MauiProgram.RejectedHashFile, Encoding.UTF8.GetString(_pendingItems[_index].Hash));
         NextImage();
     }
 }
