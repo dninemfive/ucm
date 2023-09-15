@@ -14,7 +14,7 @@ public partial class AddItems : ContentPage
     private readonly List<PendingItem> _pendingItems = new();
     private PendingItem CurrentPendingItem => _pendingItems[_index];
     private readonly HashSet<byte[]> _hashes = new();
-    private int _index = 0;
+    private int _index = -1;
     private class PendingItem
     {
         public enum PIStatus { Pending, Accepted, Rejected }
@@ -69,17 +69,17 @@ public partial class AddItems : ContentPage
         InProgressItems.IsVisible = true;
     }
     private void NextImage()
-    {        
+    {
+        _index++;
         float progress = _index/(float)_pendingItems.Count;
         ProgressLabel.Text = $"{_index}/{_pendingItems.Count} ({progress:P1})";
         ProgressBar.Progress = progress;
         Item.Source = CurrentPendingItem.Path;
-        CurrentPath.Text = $"\t{CurrentPendingItem.Path} {JsonSerializer.Serialize(CurrentPendingItem.Hash)}";
-        _index++;        
+        CurrentPath.Text = $"\t{CurrentPendingItem.Path} {JsonSerializer.Serialize(CurrentPendingItem.Hash)}";                
     }
     private async void Accept_Clicked(object sender, EventArgs e)
     {
-        _pendingItems[_index].Status = PendingItem.PIStatus.Accepted;
+        CurrentPendingItem.Status = PendingItem.PIStatus.Accepted;
         if (File.Exists(CurrentPendingItem.Path))
             await new ImageItem(CurrentPendingItem.Path, CurrentPendingItem.Hash).SaveAsync();
         NextImage();

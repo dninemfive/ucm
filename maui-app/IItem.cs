@@ -26,11 +26,9 @@ public interface IItem
     {
         foreach(string path in await Task.Run(() => Directory.EnumerateFiles(MauiProgram.TEMP_SAVE_LOCATION)))
         {
-            File.AppendAllText($"{MauiProgram.TEMP_SAVE_LOCATION}/asdfasdfawegft.txt", $"{path}\n");
             if (System.IO.Path.GetExtension(path) is not ".json")
                 continue;
             T? item = await JsonSerializer.DeserializeAsync<T>(File.OpenRead(path));
-            File.AppendAllText($"{MauiProgram.TEMP_SAVE_LOCATION}/asdfasdfawegft.txt", $"\t{JsonSerializer.Serialize(item)}\n");
             if (item is not null)
                 yield return item;
         }
