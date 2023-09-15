@@ -7,13 +7,6 @@ using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace d9.ucm;
-public interface IFileReference
-{
-    [JsonInclude]
-    public string Location { get; }
-    [JsonInclude]
-    public byte[] Hash { get; protected set; }
-}
 public static class Extensions
 {
     public static byte[]? FileHash(this string path)

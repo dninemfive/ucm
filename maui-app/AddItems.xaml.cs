@@ -1,5 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using System.Text;
+using System.Text.Json;
 
 namespace d9.ucm;
 
@@ -11,6 +12,7 @@ public partial class AddItems : ContentPage
 	}
     private bool _adding = false;
     private readonly List<PendingItem> _pendingItems = new();
+    private PendingItem CurrentPendingItem => _pendingItems[_index];
     private readonly HashSet<byte[]> _hashes = new();
     private int _index = 0;
     private class PendingItem
@@ -32,15 +34,23 @@ public partial class AddItems : ContentPage
             return;
         _adding = true;
         LoadPaths.Text = "Loading existing item hashes...";
-        await foreach(LocalImageItem ii in IItem.LoadAllAsync<LocalImageItem>())
+        await foreach(ImageItem ii in IItem.LoadAllAsync<ImageItem>())
         {
-            _ = _hashes.Add(ii.FileReference.Hash);
+            _ = _hashes.Add(ii.Hash);
         }
         LoadPaths.Text = "Loading rejected file hashes...";
-        await foreach(string s in File.ReadLinesAsync(MauiProgram.RejectedHashFile))
+        if(File.Exists(MauiProgram.RejectedHashFile))
         {
-            _ = _hashes.Add(Encoding.UTF8.GetBytes(s));
+            await foreach (string s in File.ReadLinesAsync(MauiProgram.RejectedHashFile))
+            {
+                _ = _hashes.Add(JsonSerializer.Deserialize<byte[]>(s)!);
+            }
+        } else
+        {
+            _ = File.Create(MauiProgram.RejectedHashFile);
         }
+        await File.WriteAllLinesAsync(Path.Join(MauiProgram.TEMP_SAVE_LOCATION, "debug hashes.txt"), _hashes.Select(x => JsonSerializer.Serialize(x)));
+        LoadPaths.Text = "Loading unadded items...";
         foreach(string s in await File.ReadAllLinesAsync(@"C:\Users\dninemfive\Documents\workspaces\misc\ucm\maui-app\localFolderList.txt.secret"))
         {
             foreach(string path in await Task.Run(() => Directory.EnumerateFiles(s.Split("\t")[0])))
@@ -63,22 +73,21 @@ public partial class AddItems : ContentPage
         float progress = _index/(float)_pendingItems.Count;
         ProgressLabel.Text = $"{_index}/{_pendingItems.Count} ({progress:P1})";
         ProgressBar.Progress = progress;
-        Item.Source = _pendingItems[_index].Path;
-        _index++;
-        CurrentPath.Text = _pendingItems[_index].Path;
+        Item.Source = CurrentPendingItem.Path;
+        CurrentPath.Text = $"\t{CurrentPendingItem.Path} {JsonSerializer.Serialize(CurrentPendingItem.Hash)}";
+        _index++;        
     }
     private async void Accept_Clicked(object sender, EventArgs e)
     {
         _pendingItems[_index].Status = PendingItem.PIStatus.Accepted;
-        LocalFileReference? fr = LocalFileReference.TryLoad(_pendingItems[_index].Path);
-        if (fr is not null)
-            await new LocalImageItem(fr).SaveAsync();
+        if (File.Exists(CurrentPendingItem.Path))
+            await new ImageItem(CurrentPendingItem.Path, CurrentPendingItem.Hash).SaveAsync();
         NextImage();
     }
     private void Reject_Clicked(object sender, EventArgs e)
     {
-        _pendingItems[_index].Status = PendingItem.PIStatus.Rejected;
-        File.AppendAllText(MauiProgram.RejectedHashFile, Encoding.UTF8.GetString(_pendingItems[_index].Hash));
+        CurrentPendingItem.Status = PendingItem.PIStatus.Rejected;
+        File.AppendAllText(MauiProgram.RejectedHashFile, $"{JsonSerializer.Serialize(CurrentPendingItem.Hash)}\n");
         NextImage();
     }
 }

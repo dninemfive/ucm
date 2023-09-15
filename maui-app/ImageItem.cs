@@ -7,10 +7,12 @@ using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace d9.ucm;
-public class LocalImageItem : IItem
+public class ImageItem : IItem
 {
     [JsonInclude]
-    public LocalFileReference FileReference { get; private set; }
+    public string Path { get; private set; }
+    [JsonInclude]
+    public byte[] Hash { get; private set; }
     [JsonInclude]
     public ItemId Id { get; private set; }
     [JsonIgnore]
@@ -20,25 +22,26 @@ public class LocalImageItem : IItem
     {
         get
         {
-            _image ??= new() { Source = FileReference.Location };
+            _image ??= new() { Source = Path };
             return _image;
         }
     }
-    [JsonIgnore]
-    IFileReference IItem.FileReference => FileReference;
-    public LocalImageItem(LocalFileReference fileReference)
+    public ImageItem(string path, byte[] hash)
     {
-        FileReference = fileReference;
+        Path = path;
+        Hash = hash ?? Path.FileHash()!;
         Id = IdManager.Register();
     }
     [JsonConstructor]
-    public LocalImageItem(LocalFileReference fileReference, ItemId id)
+    public ImageItem(string path, byte[] hash, ItemId id)
     {
-        FileReference = fileReference;
+        Path = path;
+        Hash = hash ?? Path.FileHash()!;
         Id = IdManager.Register(id);
     }
     public async Task SaveAsync()
     {
-        await File.WriteAllTextAsync(@$"{MauiProgram.TEMP_SAVE_LOCATION}\{Id}.json", JsonSerializer.Serialize(this));
+        await File.WriteAllTextAsync(@$"{MauiProgram.TEMP_SAVE_LOCATION}\{Id}.json", 
+                                     JsonSerializer.Serialize(this, new JsonSerializerOptions { WriteIndented = true }));
     }
 }
