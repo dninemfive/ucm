@@ -50,13 +50,14 @@ public partial class AddItems : ContentPage
             _ = File.Create(MauiProgram.RejectedHashFile);
         }
         await File.WriteAllLinesAsync(Path.Join(MauiProgram.TEMP_SAVE_LOCATION, "debug hashes.txt"), _hashes.Select(x => JsonSerializer.Serialize(x)));
-        LoadPaths.Text = "Loading unadded items...";
+        LoadPaths.Text = "Loading unadded items...";        
         foreach(string s in await File.ReadAllLinesAsync(@"C:\Users\dninemfive\Documents\workspaces\misc\ucm\maui-app\localFolderList.txt.secret"))
         {
             foreach(string path in await Task.Run(() => Directory.EnumerateFiles(s.Split("\t")[0])))
             {
                 byte[]? curHash = await path.FileHashAsync();
-                if(curHash is null || _hashes.Contains(curHash))
+                await File.AppendAllTextAsync(Path.Join(MauiProgram.TEMP_SAVE_LOCATION, "log.log"), $"{JsonSerializer.Serialize(curHash)}\t{_hashes.Contains(curHash!)}\n");
+                if (curHash is null || _hashes.Contains(curHash))
                 {
                     continue;
                 }
