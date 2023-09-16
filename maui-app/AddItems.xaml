@@ -13,7 +13,7 @@
                     <Label x:Name="ProgressLabel" Text="x/y"/>
                     <Label x:Name="CurrentPath" Grid.Column="0"/>
                 </HorizontalStackLayout>
-                <Image x:Name="Item" Aspect="AspectFit" VerticalOptions="CenterAndExpand" HeightRequest="850"/>
+                <ScrollView x:Name="ItemHolder" VerticalOptions="Fill"/>
                 <HorizontalStackLayout HorizontalOptions="CenterAndExpand" VerticalOptions="EndAndExpand">
                     <Button x:Name="Accept" Text="Accept" Clicked="Accept_Clicked"/>
                     <Button x:Name="Skip" Text="Skip" Clicked="Skip_Clicked"/>

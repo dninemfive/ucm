@@ -52,13 +52,21 @@ public partial class AddItems : ContentPage
             _ = File.Create(MauiProgram.RejectedHashFile);
         }
         await File.WriteAllLinesAsync(Path.Join(MauiProgram.TEMP_SAVE_LOCATION, "debug hashes.txt"), _hashes);
-        LoadPaths.Text = "Loading unadded items...";        
+        LoadPaths.Text = "Loading unadded items...";
+        static IEnumerable<string> enumerateFilesRecursive(string folder)
+        {
+            foreach (string s in Directory.EnumerateFiles(folder))
+                yield return s;
+            foreach (string s in Directory.EnumerateDirectories(folder))
+                foreach (string t in enumerateFilesRecursive(s))
+                    yield return t;
+        };
         foreach(string s in await File.ReadAllLinesAsync(@"C:\Users\dninemfive\Documents\workspaces\misc\ucm\maui-app\localFolderList.txt.secret"))
         {
             string[] split = s.Split("\t");
             string srcFolder = split[0];
             string? destFolder = split.Length > 1 ? split[1] : null;
-            foreach(string path in await Task.Run(() => Directory.EnumerateFiles(srcFolder)))
+            foreach(string path in await Task.Run(() => enumerateFilesRecursive(srcFolder)))
             {
                 string? curHash = await path.FileHashAsync();
                 await File.AppendAllTextAsync(Path.Join(MauiProgram.TEMP_SAVE_LOCATION, "log.log"), $"{curHash}\t{_hashes.Contains(curHash!)}\n");
@@ -70,19 +78,20 @@ public partial class AddItems : ContentPage
                 _pendingItems.Add(new(path, curHash, destFolder));
             }
         }
-        NextImage();
+        NextItem();
         LoadPaths.IsVisible = false;
         InProgressItems.IsVisible = true;
     }
-    private void NextImage()
+    private void NextItem()
     {
+        if (_index >= _pendingItems.Count)
+            return;
         _index++;
         float progress = _index/(float)_pendingItems.Count;
         ProgressLabel.Text = $"{_index}/{_pendingItems.Count} ({progress:P1})";
         ProgressBar.Progress = progress;
-        Item.Source = CurrentPendingItem.Path;
-        Item.IsAnimationPlaying = Path.GetExtension(CurrentPendingItem.Path).ToLower() == ".gif";
-        CurrentPath.Text = $"\t{CurrentPendingItem.Path} {CurrentPendingItem.Hash}";                
+        ItemHolder.Content = CurrentPendingItem.Path.BestAvailableView();
+        CurrentPath.Text = $"\t{CurrentPendingItem.Path}";                
     }
     private async void Accept_Clicked(object sender, EventArgs e)
     {
@@ -92,7 +101,7 @@ public partial class AddItems : ContentPage
             if(CurrentPendingItem.MoveToFolder is not null)
             {
                 ItemId id = IdManager.Register();
-                string newPath = Path.Join(CurrentPendingItem.MoveToFolder, $"{id}{Path.GetExtension(CurrentPendingItem.Path)}");
+                string newPath = Path.Join(CurrentPendingItem.MoveToFolder, $"{id}{Path.GetExtension(CurrentPendingItem.Path).ToLower()}");
                 File.Copy(CurrentPendingItem.Path, newPath);
                 File.Delete(CurrentPendingItem.Path);
                 await new ImageItem(newPath, CurrentPendingItem.Hash, id).SaveAsync();
@@ -102,18 +111,18 @@ public partial class AddItems : ContentPage
                 await new ImageItem(CurrentPendingItem.Path, CurrentPendingItem.Hash).SaveAsync();
             }
         }
-        NextImage();
+        NextItem();
     }
     private void Skip_Clicked(object sender, EventArgs e)
     {
         CurrentPendingItem.Status = PendingItem.PIStatus.Pending;
-        NextImage();
+        NextItem();
     }
     private void Reject_Clicked(object sender, EventArgs e)
     {
         CurrentPendingItem.Status = PendingItem.PIStatus.Rejected;
         File.AppendAllText(MauiProgram.RejectedHashFile, $"{CurrentPendingItem.Hash}\n");
-        NextImage();
+        NextItem();
     }
 }
 

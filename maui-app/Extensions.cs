@@ -19,4 +19,12 @@ public static class Extensions
         return JsonSerializer.Serialize(sha512.ComputeHash(fs)).Replace("\"","");
     }
     public static async Task<string?> FileHashAsync(this string path) => await Task.Run(path.FileHash);
+    public static View? BestAvailableView(this string path) => Path.GetExtension(path).ToLower() switch
+    {
+        // https://devblogs.microsoft.com/dotnet/announcing-dotnet-maui-communitytoolkit-mediaelement/
+        ".mov" or ".mp4" or ".webm" => null,
+        ".json" or ".txt" => new Label() { Text = File.ReadAllText(path) },
+        _ => new Image() { Source = path, IsAnimationPlaying = true }
+
+    };
 }
