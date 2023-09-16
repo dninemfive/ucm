@@ -21,11 +21,13 @@ public partial class AddItems : ContentPage
         public PIStatus Status;
         public string Hash;
         public string Path;
-        public PendingItem(string path, string hash)
+        public string? MoveToFolder;
+        public PendingItem(string path, string hash, string? moveToFolder)
         {
             Status = PIStatus.Pending;
             Hash = hash;
             Path = path;
+            MoveToFolder = moveToFolder;
         }
     }
     private async void LoadPaths_Clicked(object sender, EventArgs e)
@@ -53,7 +55,10 @@ public partial class AddItems : ContentPage
         LoadPaths.Text = "Loading unadded items...";        
         foreach(string s in await File.ReadAllLinesAsync(@"C:\Users\dninemfive\Documents\workspaces\misc\ucm\maui-app\localFolderList.txt.secret"))
         {
-            foreach(string path in await Task.Run(() => Directory.EnumerateFiles(s.Split("\t")[0])))
+            string[] split = s.Split("\t");
+            string srcFolder = split[0];
+            string? destFolder = split.Length > 1 ? split[1] : null;
+            foreach(string path in await Task.Run(() => Directory.EnumerateFiles(srcFolder)))
             {
                 string? curHash = await path.FileHashAsync();
                 await File.AppendAllTextAsync(Path.Join(MauiProgram.TEMP_SAVE_LOCATION, "log.log"), $"{curHash}\t{_hashes.Contains(curHash!)}\n");
@@ -62,7 +67,7 @@ public partial class AddItems : ContentPage
                     continue;
                 }
                 _ = _hashes.Add(curHash);
-                _pendingItems.Add(new(path, curHash));
+                _pendingItems.Add(new(path, curHash, destFolder));
             }
         }
         NextImage();
@@ -82,7 +87,20 @@ public partial class AddItems : ContentPage
     {
         CurrentPendingItem.Status = PendingItem.PIStatus.Accepted;
         if (File.Exists(CurrentPendingItem.Path))
-            await new ImageItem(CurrentPendingItem.Path, CurrentPendingItem.Hash).SaveAsync();
+        {
+            if(CurrentPendingItem.MoveToFolder is not null)
+            {
+                ItemId id = IdManager.Register();
+                string newPath = Path.Join(CurrentPendingItem.MoveToFolder, $"{id}{Path.GetExtension(CurrentPendingItem.Path)}");
+                File.Copy(CurrentPendingItem.Path, newPath);
+                File.Delete(CurrentPendingItem.Path);
+                await new ImageItem(newPath, CurrentPendingItem.Hash, id).SaveAsync();
+            }
+            else
+            {
+                await new ImageItem(CurrentPendingItem.Path, CurrentPendingItem.Hash).SaveAsync();
+            }
+        }
         NextImage();
     }
     private void Skip_Clicked(object sender, EventArgs e)

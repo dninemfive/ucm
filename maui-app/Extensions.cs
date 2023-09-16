@@ -16,7 +16,7 @@ public static class Extensions
             return null;
         using SHA512 sha512 = SHA512.Create();
         using FileStream fs = File.OpenRead(path);
-        return JsonSerializer.Serialize(sha512.ComputeHash(fs));
+        return JsonSerializer.Serialize(sha512.ComputeHash(fs)).Replace("\"","");
     }
     public static async Task<string?> FileHashAsync(this string path) => await Task.Run(path.FileHash);
 }
