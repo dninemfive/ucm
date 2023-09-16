@@ -4,7 +4,7 @@
              x:Class="d9.ucm.AddItems">
     <VerticalStackLayout>
         <Button x:Name="LoadPaths" Text="Start" Clicked="LoadPaths_Clicked" ZIndex="1"/>
-        <Grid x:Name="InProgressItems" IsVisible="False">
+        <Grid x:Name="InProgressItems" IsVisible="False" VerticalOptions="FillAndExpand">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
@@ -12,10 +12,10 @@
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             <HorizontalStackLayout HorizontalOptions="CenterAndExpand" VerticalOptions="Start" Grid.Row="0">
-                <Label x:Name="ProgressLabel" Text="x/y" HorizontalOptions="Start"/>
+                <Label x:Name="ProgressLabel" HorizontalOptions="Start"/>
                 <Label x:Name="CurrentPath" HorizontalOptions="End"/>
             </HorizontalStackLayout>
-            <ContentView x:Name="ItemHolder" Grid.Row="1"/>
+            <ContentView x:Name="ItemHolder" Grid.Row="1" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand" HeightRequest="800"/>
             <HorizontalStackLayout HorizontalOptions="CenterAndExpand" VerticalOptions="EndAndExpand" Grid.Row="2">
                 <Button x:Name="Accept" Text="Accept" Clicked="Accept_Clicked"/>
                 <Button x:Name="Skip" Text="Skip" Clicked="Skip_Clicked"/>

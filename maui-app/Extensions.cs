@@ -24,7 +24,8 @@ public static class Extensions
         // https://devblogs.microsoft.com/dotnet/announcing-dotnet-maui-communitytoolkit-mediaelement/
         ".mov" or ".mp4" or ".webm" => null,
         ".json" or ".txt" => new Label() { Text = File.ReadAllText(path) },
-        _ => new Image() { Source = path, IsAnimationPlaying = true }
+        ".xcf" or ".pdf" => null,
+        _ => new Image() { Source = path, IsAnimationPlaying = true, Aspect = Aspect.AspectFit }
 
     };
 }

@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace d9.ucm;
 public static class IdManager
 {
-    public static ItemId Id { get; private set; } = 0;
+    public static ItemId CurrentId { get; private set; } = 0;
     /// <summary>
     /// Updates the manager so that the current id is always greater than the highest registered id
     /// </summary>
@@ -17,9 +17,9 @@ public static class IdManager
     /// <returns></returns>
     public static ItemId Register(ItemId? id = null)
     {
-        id ??= Id;
-        if (id >= Id)
-            Id = id.Value + 1;
+        id ??= CurrentId;
+        if (id >= CurrentId)
+            CurrentId = id.Value + 1;
         return id.Value;
     }
 }

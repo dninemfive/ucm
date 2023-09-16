@@ -69,8 +69,8 @@ public partial class AddItems : ContentPage
             foreach(string path in await Task.Run(() => enumerateFilesRecursive(srcFolder)))
             {
                 string? curHash = await path.FileHashAsync();
-                await File.AppendAllTextAsync(Path.Join(MauiProgram.TEMP_SAVE_LOCATION, "log.log"), $"{curHash}\t{_hashes.Contains(curHash!)}\n");
-                if (curHash is null || _hashes.Contains(curHash))
+                // await File.AppendAllTextAsync(Path.Join(MauiProgram.TEMP_SAVE_LOCATION, "log.log"), $"{curHash}\t{_hashes.Contains(curHash!)}\n");
+                if (curHash is null || _hashes.Contains(curHash) || path.BestAvailableView() is null)
                 {
                     continue;
                 }
@@ -88,7 +88,7 @@ public partial class AddItems : ContentPage
             return;
         _index++;
         float progress = _index/(float)_pendingItems.Count;
-        ProgressLabel.Text = $"{_index}/{_pendingItems.Count} ({progress:P1})";
+        ProgressLabel.Text = $"{_index}/{_pendingItems.Count} ({progress:P1}) | {IdManager.CurrentId}";
         ProgressBar.Progress = progress;
         ItemHolder.Content = CurrentPendingItem.Path.BestAvailableView();
         CurrentPath.Text = $"\t{CurrentPendingItem.Path}";                
