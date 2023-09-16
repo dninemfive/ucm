@@ -12,7 +12,7 @@ public class ImageItem : IItem
     [JsonInclude]
     public string Path { get; private set; }
     [JsonInclude]
-    public byte[] Hash { get; private set; }
+    public string Hash { get; private set; }
     [JsonInclude]
     public ItemId Id { get; private set; }
     [JsonIgnore]
@@ -26,14 +26,14 @@ public class ImageItem : IItem
             return _image;
         }
     }
-    public ImageItem(string path, byte[] hash)
+    public ImageItem(string path, string hash)
     {
         Path = path;
         Hash = hash ?? Path.FileHash()!;
         Id = IdManager.Register();
     }
     [JsonConstructor]
-    public ImageItem(string path, byte[] hash, ItemId id)
+    public ImageItem(string path, string hash, ItemId id)
     {
         Path = path;
         Hash = hash ?? Path.FileHash()!;

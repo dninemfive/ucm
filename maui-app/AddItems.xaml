@@ -16,6 +16,7 @@
                 <Image x:Name="Item" Aspect="AspectFit" VerticalOptions="CenterAndExpand" HeightRequest="850"/>
                 <HorizontalStackLayout HorizontalOptions="CenterAndExpand" VerticalOptions="EndAndExpand">
                     <Button x:Name="Accept" Text="Accept" Clicked="Accept_Clicked"/>
+                    <Button x:Name="Skip" Text="Skip" Clicked="Skip_Clicked"/>
                     <Button x:Name="Reject" Text="Reject" Clicked="Reject_Clicked"/>
                 </HorizontalStackLayout>
                 <ProgressBar x:Name="ProgressBar" Progress="0" VerticalOptions="Start"/>

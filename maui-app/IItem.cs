@@ -13,7 +13,7 @@ public interface IItem
     [JsonInclude]
     public string Path { get; }
     [JsonInclude]
-    public byte[] Hash => Path.FileHash()!;
+    public string Hash => Path.FileHash()!;
     [JsonInclude]
     public ItemId Id { get; }
     [JsonIgnore]
