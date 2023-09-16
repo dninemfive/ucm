@@ -81,6 +81,7 @@ public partial class AddItems : ContentPage
         ProgressLabel.Text = $"{_index}/{_pendingItems.Count} ({progress:P1})";
         ProgressBar.Progress = progress;
         Item.Source = CurrentPendingItem.Path;
+        Item.IsAnimationPlaying = Path.GetExtension(CurrentPendingItem.Path).ToLower() == ".gif";
         CurrentPath.Text = $"\t{CurrentPendingItem.Path} {CurrentPendingItem.Hash}";                
     }
     private async void Accept_Clicked(object sender, EventArgs e)

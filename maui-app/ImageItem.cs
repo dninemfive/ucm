@@ -22,8 +22,11 @@ public class ImageItem : IItem
     {
         get
         {
-            _image ??= new() { Source = Path };
-            _image.IsAnimationPlaying = System.IO.Path.GetExtension(Path) == ".gif";
+            _image ??= new()
+            {
+                Source = Path,
+                IsAnimationPlaying = System.IO.Path.GetExtension(Path) == ".gif"
+            };
             return _image;
         }
     }
