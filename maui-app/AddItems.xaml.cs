@@ -6,25 +6,40 @@ namespace d9.ucm;
 
 public partial class AddItems : ContentPage
 {
-	public AddItems()
-	{
+    public AddItems()
+    {
         InitializeComponent();
-	}
+    }
     private bool _adding = false;
     private readonly List<PendingItem> _pendingItems = new();
-    private PendingItem CurrentPendingItem => _pendingItems[_index];
+    private PendingItem? CurrentPendingItem
+    {
+        get
+        {
+            if (_index >= _pendingItems.Count)
+                return null;
+            return _pendingItems[Index];
+        }
+    }
     private readonly HashSet<string> _hashes = new();
     private int _index = -1;
+    public int Index
+    {
+        get => _index;
+        private set
+        {
+            _index = value;
+            if (_index >= _pendingItems.Count)
+                _index = 0;
+        }
+    }
     private class PendingItem
     {
-        public enum PIStatus { Pending, Accepted, Rejected }
-        public PIStatus Status;
         public string Hash;
         public string Path;
         public string? MoveToFolder;
         public PendingItem(string path, string hash, string? moveToFolder)
         {
-            Status = PIStatus.Pending;
             Hash = hash;
             Path = path;
             MoveToFolder = moveToFolder;
@@ -83,20 +98,19 @@ public partial class AddItems : ContentPage
         InProgressItems.IsVisible = true;
     }
     private void NextItem()
-    {
-        if (_index >= _pendingItems.Count)
+    {        
+        Index++;
+        if (CurrentPendingItem is null)
             return;
-        _index++;
-        float progress = _index/(float)_pendingItems.Count;
-        ProgressLabel.Text = $"{_index}/{_pendingItems.Count} ({progress:P1}) | {IdManager.CurrentId}";
+        float progress = Index/(float)_pendingItems.Count;
+        ProgressLabel.Text = $"{Index}/{_pendingItems.Count} ({progress:P1}) | {IdManager.CurrentId}";
         ProgressBar.Progress = progress;
         ItemHolder.Content = CurrentPendingItem.Path.BestAvailableView();
         CurrentPath.Text = $"\t{CurrentPendingItem.Path}";                
     }
     private async void Accept_Clicked(object sender, EventArgs e)
     {
-        CurrentPendingItem.Status = PendingItem.PIStatus.Accepted;
-        if (File.Exists(CurrentPendingItem.Path))
+        if (File.Exists(CurrentPendingItem!.Path))
         {
             if(CurrentPendingItem.MoveToFolder is not null)
             {
@@ -115,13 +129,11 @@ public partial class AddItems : ContentPage
     }
     private void Skip_Clicked(object sender, EventArgs e)
     {
-        CurrentPendingItem.Status = PendingItem.PIStatus.Pending;
         NextItem();
     }
     private void Reject_Clicked(object sender, EventArgs e)
     {
-        CurrentPendingItem.Status = PendingItem.PIStatus.Rejected;
-        File.AppendAllText(MauiProgram.RejectedHashFile, $"{CurrentPendingItem.Hash}\n");
+        File.AppendAllText(MauiProgram.RejectedHashFile, $"{CurrentPendingItem!.Hash}\n");
         NextItem();
     }
 }
