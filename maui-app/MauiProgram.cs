@@ -20,6 +20,7 @@ public static class MauiProgram
 #if DEBUG
 		builder.Logging.AddDebug();
 #endif
+		ItemManager.Load();
 		return builder.Build();
 	}
 }

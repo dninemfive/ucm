@@ -118,11 +118,11 @@ public partial class AddItems : ContentPage
                 string newPath = Path.Join(CurrentPendingItem.MoveToFolder, $"{id}{Path.GetExtension(CurrentPendingItem.Path).ToLower()}");
                 File.Copy(CurrentPendingItem.Path, newPath);
                 File.Delete(CurrentPendingItem.Path);
-                await new ImageItem(newPath, CurrentPendingItem.Hash, id).SaveAsync();
+                _ = await ItemManager.CreateAndSave(newPath, CurrentPendingItem.Hash, id);
             }
             else
             {
-                await new ImageItem(CurrentPendingItem.Path, CurrentPendingItem.Hash).SaveAsync();
+                _ = await ItemManager.CreateAndSave(CurrentPendingItem.Path, CurrentPendingItem.Hash);
             }
         }
         NextItem();

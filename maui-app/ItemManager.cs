@@ -1,4 +1,5 @@
 ﻿using d9.utl;
+using Microsoft.UI.Xaml.Automation.Peers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,13 +20,30 @@ public static class ItemManager
             return _dict!;
         }
     }
-    public static async void Load()
+    private static bool _loaded = false;
+    public static void Load()
     {
+        if (_loaded)
+            return;
+        _loaded = true;
         _dict = new();
-        await foreach (Item item in Item.LoadAllAsync())
+        foreach (Item item in Item.LoadAll())
         {
-            _dict[item.Id] = item;
+            Register(item);
         }
     }
+    public static void Reload()
+    {
+        _loaded = false;
+        Load();
+    }
     public static Item RandomItem => All.RandomElement();
+    public static void Register(Item item) => _dict![item.Id] = item;
+    public static async Task<Item> CreateAndSave(string path, string hash, ItemId? id = null)
+    {
+        Item item = id is null ? new(path, hash) : new(path, hash, id.Value);
+        Register(item);
+        await item.SaveAsync();
+        return item;
+    }
 }
