@@ -19,9 +19,9 @@ public class Competition
     public class Rating
     {
         [JsonInclude]
-        public int Selected { get; set; }
+        public int Selected { get; set; } = 0;
         [JsonInclude]
-        public int Total { get; set; }
+        public int Total { get; set; } = 0;
         [JsonIgnore]
         public float SelectedRatio => Selected / (float)Total;
         public void Increment(bool selected)
@@ -68,8 +68,21 @@ public class Competition
     }
     public void Choose(Side side)
     {
-        Ratings[this[side].Id].Increment(side == Side.Left);
-        Ratings[this[side.Opposite()].Id].Increment(side == Side.Right);
+        if (Ratings.TryGetValue(this[side].Id, out Rating? r))
+        {
+            r.Increment(true);
+        } else
+        {
+            Ratings[this[side].Id] = new();
+        }
+        if (Ratings.TryGetValue(this[side.Opposite()].Id, out Rating? r2))
+        {
+            r2.Increment(false);
+        }
+        else
+        {
+            Ratings[this[side.Opposite()].Id] = new();
+        }
     }
     public void NextItem(Side side) => this[side] = ItemManager.RandomItemWhere(x => !IsIrrelevant(x.Id));
     public void NextItems()
@@ -91,6 +104,7 @@ public class Competition
             return new(name);
     }
     public static string PathFor(string name) => Path.Join(MauiProgram.TEMP_COMP_LOCATION, $"{name}.json");
+    [JsonIgnore]
     public string FilePath => PathFor(Name);
     public async Task SaveAsync()
     {
