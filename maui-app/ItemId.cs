@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace d9.ucm;
+[JsonConverter(typeof(ItemIdConverter))]
 public readonly struct ItemId
 {
     [JsonIgnore]
@@ -18,6 +20,8 @@ public readonly struct ItemId
     public ulong Value { get; }
     [JsonConstructor]
     public ItemId(ulong value) { Value = value; }
+    public static ItemId FromIntString(string str) => new(ulong.Parse(str));
+    public string IntString => $"{Value}";
     #region operators
     public static bool operator >(ItemId a, ItemId b) => a.Value > b.Value;
     public static bool operator <(ItemId a, ItemId b) => a.Value < b.Value;
@@ -57,5 +61,14 @@ public readonly struct ItemId
         return result;
     }
     public static implicit operator ItemId(ulong ul) => new(ul);
+    public static implicit operator ItemId(int z) => new((ulong)z);
     #endregion
+}
+// https://learn.microsoft.com/en-us/dotnet/standard/serialization/system-text-json/converters-how-to?pivots=dotnet-7-0#sample-basic-converter
+public class ItemIdConverter : JsonConverter<ItemId>
+{
+    public override ItemId Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) 
+        => ItemId.FromIntString(reader.GetString()!);
+    public override void Write(Utf8JsonWriter writer, ItemId value, JsonSerializerOptions options)
+        => writer.WriteStringValue(value.IntString);
 }
