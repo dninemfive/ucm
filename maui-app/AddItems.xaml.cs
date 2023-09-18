@@ -51,9 +51,9 @@ public partial class AddItems : ContentPage
             return;
         _adding = true;
         LoadPaths.Text = "Loading existing item hashes...";
-        await foreach(ImageItem ii in IItem.LoadAllAsync<ImageItem>())
+        await foreach(Item item in Item.LoadAllAsync())
         {
-            _ = _hashes.Add(ii.Hash);
+            _ = _hashes.Add(item.Hash);
         }
         LoadPaths.Text = "Loading rejected file hashes...";
         if(File.Exists(MauiProgram.RejectedHashFile))
