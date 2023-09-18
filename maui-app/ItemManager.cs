@@ -38,6 +38,7 @@ public static class ItemManager
         Load();
     }
     public static Item RandomItem => All.RandomElement();
+    public static Item RandomItemWhere(Func<Item, bool> predicate) => All.Where(predicate).RandomElement();
     public static void Register(Item item) => _dict![item.Id] = item;
     public static async Task<Item> CreateAndSave(string path, string hash, ItemId? id = null)
     {

@@ -54,12 +54,24 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Reference Include="utl">
+	    <HintPath>..\..\utl\bin\Release\net7.0\utl.dll</HintPath>
+	  </Reference>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Compile Update="RankItems.xaml.cs">
+	    <DependentUpon>RankItems.xaml</DependentUpon>
+	  </Compile>
 	  <Compile Update="AddItems.xaml.cs">
 	    <DependentUpon>AddItems.xaml</DependentUpon>
 	  </Compile>
 	</ItemGroup>
 
 	<ItemGroup>
+	  <MauiXaml Update="RankItems.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="AddItems.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>

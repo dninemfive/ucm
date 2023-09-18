@@ -56,15 +56,15 @@ public partial class AddItems : ContentPage
             _ = _hashes.Add(item.Hash);
         }
         LoadPaths.Text = "Loading rejected file hashes...";
-        if(File.Exists(MauiProgram.RejectedHashFile))
+        if(File.Exists(MauiProgram.REJECTED_HASH_FILE))
         {
-            await foreach (string s in File.ReadLinesAsync(MauiProgram.RejectedHashFile))
+            await foreach (string s in File.ReadLinesAsync(MauiProgram.REJECTED_HASH_FILE))
             {
                 _ = _hashes.Add(s);
             }
         } else
         {
-            _ = File.Create(MauiProgram.RejectedHashFile);
+            _ = File.Create(MauiProgram.REJECTED_HASH_FILE);
         }
         await File.WriteAllLinesAsync(Path.Join(MauiProgram.TEMP_SAVE_LOCATION, "debug hashes.txt"), _hashes);
         LoadPaths.Text = "Loading unadded items...";
@@ -133,7 +133,7 @@ public partial class AddItems : ContentPage
     }
     private void Reject_Clicked(object sender, EventArgs e)
     {
-        File.AppendAllText(MauiProgram.RejectedHashFile, $"{CurrentPendingItem!.Hash}\n");
+        File.AppendAllText(MauiProgram.REJECTED_HASH_FILE, $"{CurrentPendingItem!.Hash}\n");
         NextItem();
     }
 }

@@ -15,6 +15,10 @@
         Title="Add Items"
         ContentTemplate="{DataTemplate local:AddItems}"
         Route="AddItems" />
+        <ShellContent
+        Title="Rank Items"
+        ContentTemplate="{DataTemplate local:RankItems}"
+        Route="RankItems" />
     </TabBar>
 
 </Shell>

@@ -3,27 +3,48 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="d9.ucm.RankItems">
     <VerticalStackLayout>
-        <Button x:Name="LoadPaths" Text="Start" Clicked="LoadPaths_Clicked" ZIndex="1"/>
-        <Grid x:Name="InProgressItems" IsVisible="False" VerticalOptions="FillAndExpand">
+        <HorizontalStackLayout x:Name="CompetitionCreation">
+            <Entry x:Name="CompetitionName" TextChanged="CompetitionName_TextChanged"/>
+            <Button x:Name="CreateCompetition" Text="Create" Clicked="CreateCompetition_Clicked"/>
+        </HorizontalStackLayout>
+        <Grid x:Name="RatingScreen" IsVisible="False" VerticalOptions="FillAndExpand">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
-            <HorizontalStackLayout HorizontalOptions="CenterAndExpand" VerticalOptions="Start" Grid.Row="0">
-                <Label x:Name="ProgressLabel" HorizontalOptions="Start"/>
-                <Label x:Name="CurrentPath" HorizontalOptions="End"/>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <HorizontalStackLayout HorizontalOptions="CenterAndExpand" VerticalOptions="Start" Grid.Row="0" Grid.Column="0">
+                <Label x:Name="LeftRating" HorizontalOptions="Start"/>
+                <Label x:Name="LeftPath" HorizontalOptions="End"/>
             </HorizontalStackLayout>
-            <ContentView x:Name="ItemHolder" Grid.Row="1" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand" HeightRequest="800"/>
-            <HorizontalStackLayout HorizontalOptions="CenterAndExpand" VerticalOptions="EndAndExpand" Grid.Row="2">
+            <HorizontalStackLayout HorizontalOptions="CenterAndExpand" VerticalOptions="Start" Grid.Row="0" Grid.Column="1">
+                <Label x:Name="RightRating" HorizontalOptions="Start"/>
+                <Label x:Name="RightPath" HorizontalOptions="End"/>
+            </HorizontalStackLayout>
+            <ContentView x:Name="LeftItemHolder" 
+                         Grid.Row="1" 
+                         Grid.Column="0" 
+                         VerticalOptions="FillAndExpand" 
+                         HorizontalOptions="FillAndExpand" 
+                         HeightRequest="800"/>
+            <ContentView x:Name="RightItemHolder" 
+                         Grid.Row="1" 
+                         Grid.Column="1" 
+                         VerticalOptions="FillAndExpand" 
+                         HorizontalOptions="FillAndExpand" 
+                         HeightRequest="800"/>
+            <HorizontalStackLayout HorizontalOptions="CenterAndExpand" VerticalOptions="EndAndExpand" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2">
                 <Button x:Name="LeftIrrelevant" Text="Irrelevant" Clicked="LeftIrrelevant_Clicked"/>
                 <Button x:Name="SelectLeft" Text="Select" Clicked="Left_Clicked"/>
                 <Button x:Name="Skip" Text="Skip" Clicked="Skip_Clicked"/>
                 <Button x:Name="Right" Text="Select" Clicked="Right_Clicked"/>
                 <Button x:Name="RightIrrelevant" Text="Irrelevant" Clicked="RightIrrelevant_Clicked"/>
             </HorizontalStackLayout>
-            <ProgressBar x:Name="ProgressBar" Progress="0" VerticalOptions="Start" Grid.Row="3"/>
         </Grid>
     </VerticalStackLayout>
 </ContentPage>
