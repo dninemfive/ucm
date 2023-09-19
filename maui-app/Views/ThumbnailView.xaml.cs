@@ -12,10 +12,12 @@ public partial class ThumbnailView : ContentView
             if (sortItem is not null)
             {
                 Label.Text = sortItem.ToString();
+				Label.IsVisible = true;
             }
         } 
 		else
 		{
+			Label.IsVisible = true;
 			Label.Text = "invalid item";
 			Label.VerticalOptions = LayoutOptions.Center;
 			Label.HorizontalOptions = LayoutOptions.Center;

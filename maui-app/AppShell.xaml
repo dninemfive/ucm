@@ -20,9 +20,9 @@
         ContentTemplate="{DataTemplate local:CompetitionPage}"
         Route="Competition" />
         <ShellContent
-        Title="View"
-        ContentTemplate="{DataTemplate local:ViewingPage}"
-        Route="Viewing" />
+        Title="Collection"
+        ContentTemplate="{DataTemplate local:CollectionPage}"
+        Route="Collection" />
     </TabBar>
 
 </Shell>
