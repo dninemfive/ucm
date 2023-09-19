@@ -27,12 +27,4 @@ public static class Extensions
         ".xcf" or ".pdf" => null,
         _ => new Image() { Source = path, IsAnimationPlaying = true, Aspect = Aspect.AspectFit }
     };
-    public static IEnumerable<string> EnumerateFilesRecursive(this string folder)
-    {
-        foreach (string s in Directory.EnumerateFiles(folder))
-            yield return s;
-        foreach (string s in Directory.EnumerateDirectories(folder))
-            foreach (string t in s.EnumerateFilesRecursive())
-                yield return t;
-    }
 }
