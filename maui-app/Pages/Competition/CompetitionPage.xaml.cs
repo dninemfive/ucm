@@ -5,11 +5,11 @@ using System.Xml.Linq;
 
 namespace d9.ucm;
 
-public partial class RankItems : ContentPage
+public partial class CompetitionPage : ContentPage
 {
     public Competition? Competition = null;
     public string CompetitionFileName => $"{MauiProgram.TEMP_SAVE_LOCATION}/competitions/{CompetitionName}.json";
-    public RankItems()
+    public CompetitionPage()
     {
         InitializeComponent();
     }
@@ -55,7 +55,7 @@ public partial class RankItems : ContentPage
     }
     private void CompetitionName_TextChanged(object sender, TextChangedEventArgs e)
     {
-        if(File.Exists(CompetitionName.Text))
+        if(File.Exists(Competition.PathFor(CompetitionName.Text)))
         {
             CreateCompetition.Text = "Load";
         } 
@@ -64,18 +64,34 @@ public partial class RankItems : ContentPage
             CreateCompetition.Text = "Create";
         }
     }
-    private async Task UpdateViews()
+    public void UnhideButtons()
     {
-        await Competition!.SaveAsync();
         SelectLeft.IsVisible = true;
         SelectRight.IsVisible = true;
         LeftIrrelevant.IsVisible = true;
         RightIrrelevant.IsVisible = true;
+    }
+    public void UpdateLeftItem()
+    {
+        if (Competition is null)
+            return;
         LeftItemHolder.Content = Competition.Left.View;
         LeftRating.Text = Competition.RatingOf(Side.Left)?.ToString() ?? "0/0";
         LeftPath.Text = Competition.Left.Path;
+    }
+    public void UpdateRightItem()
+    {
+        if (Competition is null)
+            return;
         RightItemHolder.Content = Competition.Right.View;
         RightRating.Text = Competition.RatingOf(Side.Right)?.ToString() ?? "0/0";
         RightPath.Text = Competition.Right.Path;
+    }
+    private async Task UpdateViews()
+    {
+        await Competition!.SaveAsync();
+        UnhideButtons();
+        UpdateLeftItem();
+        UpdateRightItem();        
     }
 }

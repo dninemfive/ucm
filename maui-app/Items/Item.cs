@@ -10,6 +10,7 @@ using System.IO;
 namespace d9.ucm;
 public class Item
 {
+    #region properties
     [JsonInclude]
     public string Path { get; }
     [JsonInclude]
@@ -18,6 +19,8 @@ public class Item
     public ItemId Id { get; }
     [JsonIgnore]
     public View? View => Path.BestAvailableView();
+    #endregion
+    #region constructors
     public Item(string path, string? hash)
     {
         Path = path;
@@ -31,6 +34,7 @@ public class Item
         Hash = hash;
         Id = IdManager.Register(id);
     }
+    #endregion
     public static async IAsyncEnumerable<Item> LoadAllAsync()
     {
         foreach (string path in await Task.Run(() => Directory.EnumerateFiles(MauiProgram.TEMP_SAVE_LOCATION)))
@@ -48,7 +52,7 @@ public class Item
         {
             if (System.IO.Path.GetExtension(path) is not ".json")
                 continue;
-            Item? item = JsonSerializer.Deserialize<Item>(File.OpenRead(path));
+            Item? item = JsonSerializer.Deserialize<Item>(File.ReadAllText(path));
             if (item is not null)
                 yield return item;
         }

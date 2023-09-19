@@ -14,14 +14,14 @@ public readonly struct ItemId
     [JsonIgnore]
     public const string ALPHABET = "0123456789ABCDEFGHJKLMNPQRTVWXYZ";
     [JsonIgnore]
-    public static ulong Base => (ulong)ALPHABET.Length;
-    private static ulong ValueOf(char c) => (ulong)ALPHABET.IndexOf(c);
+    public static ulong Base => (ulong)ALPHABET.Length;    
     [JsonInclude]
     public ulong Value { get; }
+    public string IntString => $"{Value}";
     [JsonConstructor]
     public ItemId(ulong value) { Value = value; }
     public static ItemId FromIntString(string str) => new(ulong.Parse(str));
-    public string IntString => $"{Value}";
+    private static ulong ValueOf(char c) => (ulong)ALPHABET.IndexOf(c); 
     #region operators
     public static bool operator >(ItemId a, ItemId b) => a.Value > b.Value;
     public static bool operator <(ItemId a, ItemId b) => a.Value < b.Value;

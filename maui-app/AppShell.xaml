@@ -12,13 +12,13 @@
         ContentTemplate="{DataTemplate local:MainPage}"
         Route="MainPage" />
         <ShellContent
-        Title="Add Items"
-        ContentTemplate="{DataTemplate local:AddItems}"
-        Route="AddItems" />
+        Title="Acquire"
+        ContentTemplate="{DataTemplate local:AcquisitionPage}"
+        Route="Acquisition" />
         <ShellContent
-        Title="Rank Items"
-        ContentTemplate="{DataTemplate local:RankItems}"
-        Route="RankItems" />
+        Title="Compete"
+        ContentTemplate="{DataTemplate local:CompetitionPage}"
+        Route="Competition" />
     </TabBar>
 
 </Shell>

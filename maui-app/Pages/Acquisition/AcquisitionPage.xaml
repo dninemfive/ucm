@@ -1,20 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="d9.ucm.AddItems">
+             x:Class="d9.ucm.AcquisitionPage">
     <VerticalStackLayout>
-        <Button x:Name="LoadPaths" Text="Start" Clicked="LoadPaths_Clicked" ZIndex="1"/>
-        <Grid x:Name="InProgressItems" IsVisible="False" VerticalOptions="FillAndExpand">
+        <Button x:Name="StartButton" Text="Start" Clicked="StartButton_Clicked" ZIndex="1"/>
+        <Grid x:Name="AcquisitionBlock" IsVisible="False" VerticalOptions="FillAndExpand">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
-            <HorizontalStackLayout HorizontalOptions="CenterAndExpand" VerticalOptions="Start" Grid.Row="0">
-                <Label x:Name="ProgressLabel" HorizontalOptions="Start"/>
-                <Label x:Name="CurrentPath" HorizontalOptions="End"/>
-            </HorizontalStackLayout>
+            <Label x:Name="CurrentPendingItemInfo" Grid.Row="0"/>
             <ContentView x:Name="ItemHolder" Grid.Row="1" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand" HeightRequest="800"/>
             <HorizontalStackLayout HorizontalOptions="CenterAndExpand" VerticalOptions="EndAndExpand" Grid.Row="2">
                 <Button x:Name="Accept" Text="Accept" Clicked="Accept_Clicked"/>
