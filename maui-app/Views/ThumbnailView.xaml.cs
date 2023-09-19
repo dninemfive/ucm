@@ -4,11 +4,14 @@ public partial class ThumbnailView : ContentView
 	public ThumbnailView(Item item, double size = 100, object? sortItem = null)
 	{
 		InitializeComponent();
-		HeightRequest = size;
-		WidthRequest = size;
+		// HeightRequest = size;
+		// WidthRequest = size;
+		Thumbnail.HeightRequest = 100;
+		Thumbnail.WidthRequest = 100;
 		if(item.Thumbnail is not null)
 		{
-			Thumbnail = item.Thumbnail;
+			// Thumbnail = item.Thumbnail;
+			Thumbnail.Source = item.Path;
             if (sortItem is not null)
             {
                 Label.Text = sortItem.ToString();
