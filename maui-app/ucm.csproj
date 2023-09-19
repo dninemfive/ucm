@@ -60,19 +60,19 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Compile Update="RankItems.xaml.cs">
-	    <DependentUpon>RankItems.xaml</DependentUpon>
+	  <Compile Update="Pages\Competition\CompetitionPage.xaml.cs">
+	    <DependentUpon>CompetitionPage.xaml</DependentUpon>
 	  </Compile>
-	  <Compile Update="AddItems.xaml.cs">
-	    <DependentUpon>AddItems.xaml</DependentUpon>
+	  <Compile Update="Pages\Acquisition\AcquisitionPage.xaml.cs">
+	    <DependentUpon>AcquisitionPage.xaml</DependentUpon>
 	  </Compile>
 	</ItemGroup>
 
 	<ItemGroup>
-	  <MauiXaml Update="RankItems.xaml">
+	  <MauiXaml Update="Pages\Competition\CompetitionPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="AddItems.xaml">
+	  <MauiXaml Update="Pages\Acquisition\AcquisitionPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	</ItemGroup>

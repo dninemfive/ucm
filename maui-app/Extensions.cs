@@ -26,7 +26,6 @@ public static class Extensions
         ".json" or ".txt" => new Label() { Text = File.ReadAllText(path) },
         ".xcf" or ".pdf" => null,
         _ => new Image() { Source = path, IsAnimationPlaying = true, Aspect = Aspect.AspectFit }
-
     };
     public static IEnumerable<string> EnumerateFilesRecursive(this string folder)
     {
@@ -35,5 +34,5 @@ public static class Extensions
         foreach (string s in Directory.EnumerateDirectories(folder))
             foreach (string t in s.EnumerateFilesRecursive())
                 yield return t;
-    };
+    }
 }

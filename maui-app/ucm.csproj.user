@@ -6,10 +6,10 @@
     <ActiveDebugProfile>Windows Machine</ActiveDebugProfile>
   </PropertyGroup>
   <ItemGroup>
-    <MauiXaml Update="RankItems.xaml">
+    <MauiXaml Update="Pages\Competition\CompetitionPage.xaml">
       <SubType>Designer</SubType>
     </MauiXaml>
-    <MauiXaml Update="AddItems.xaml">
+    <MauiXaml Update="Pages\Acquisition\AcquisitionPage.xaml">
       <SubType>Designer</SubType>
     </MauiXaml>
   </ItemGroup>

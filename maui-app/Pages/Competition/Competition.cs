@@ -86,7 +86,7 @@ public class Competition
         }
         if (Ratings.ContainsKey(rejectedId))
         {
-            Ratings[rejectedId].Increment(true);
+            Ratings[rejectedId].Increment(false);
         }
         else
         {
