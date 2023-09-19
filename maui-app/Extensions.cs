@@ -27,4 +27,17 @@ public static class Extensions
         ".xcf" or ".pdf" => null,
         _ => new Image() { Source = path, IsAnimationPlaying = true, Aspect = Aspect.AspectFit }
     };
+    public static double StandardDeviation(this IEnumerable<double> vals)
+    {
+        if (!vals.Any())
+            return 0;
+        double sum = 0;
+        double mu = vals.Average();
+        foreach (double val in vals)
+            sum += Math.Pow(val - mu, 2);
+        return Math.Sqrt(sum / (vals.Count() - 1));
+    }
+    public static double HalfIntervalSize(double z, double s, int n) => z * (s / Math.Sqrt(n));
+    public static (double lower, double upper) ConfidenceInterval(double x_bar, double z, double s, int n) =>
+        (x_bar - HalfIntervalSize(z, s, n), x_bar + HalfIntervalSize(z, s, n));
 }

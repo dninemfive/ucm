@@ -66,6 +66,9 @@
 	  <Compile Update="Pages\Acquisition\AcquisitionPage.xaml.cs">
 	    <DependentUpon>AcquisitionPage.xaml</DependentUpon>
 	  </Compile>
+	  <Compile Update="Pages\ViewingPage.xaml.cs">
+	    <DependentUpon>ViewingPage.xaml</DependentUpon>
+	  </Compile>
 	</ItemGroup>
 
 	<ItemGroup>
@@ -73,6 +76,9 @@
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Pages\Acquisition\AcquisitionPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Pages\ViewingPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	</ItemGroup>

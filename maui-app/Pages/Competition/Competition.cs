@@ -23,13 +23,11 @@ public class Competition
         [JsonInclude]
         public int Total { get; set; } = 0;
         [JsonIgnore]
-        public float SelectedRatio => Selected / (float)Total;
-        public void Increment(bool selected)
-        {
-            if (selected)
-                Selected++;
-            Total++;
-        }
+        public double Ratio => Selected / (double)Total;
+        private const double _z = 1.644853627; // result of `=NORM.S.INV(0.95)` in Excel, equivalent to Statistics2.pnormaldist(0.95)
+        [JsonIgnore]
+        public double CiLowerBound
+            => Total == 0 ? 0 : (Ratio + _z * _z / (2 * Total) - _z * Math.Sqrt((Ratio * (1 - Ratio) + _z * _z / (4 * Total)) / Total)) / (1 + _z * _z / Total);
         [JsonConstructor]
         public Rating(int selected, int total)
         {
@@ -37,6 +35,12 @@ public class Competition
             Total = total;
         }
         public override string ToString() => $"{Selected}/{Total}";
+        public void Increment(bool selected)
+        {
+            if (selected)
+                Selected++;
+            Total++;
+        }
     }
     [JsonInclude]
     public Dictionary<ItemId, Rating> Ratings { get; set; } = new();

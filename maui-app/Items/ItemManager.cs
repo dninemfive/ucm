@@ -40,8 +40,9 @@ public static class ItemManager
     {
         _loaded = false;
         Load();
-    }    
-    public static Item RandomItemWhere(Func<Item, bool> predicate) => All.Where(predicate).RandomElement();    
+    }
+    public static IEnumerable<Item> ItemsWhere(Func<Item, bool> predicate) => All.Where(predicate);
+    public static Item RandomItemWhere(Func<Item, bool> predicate) => ItemsWhere(predicate).RandomElement();
     public static async Task<Item> CreateAndSave(string path, string hash, ItemId? id = null)
     {
         Item item = id is null ? new(path, hash) : new(path, hash, id.Value);

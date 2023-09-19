@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace d9.ucm;
 [JsonConverter(typeof(ItemIdConverter))]
-public readonly struct ItemId
+public readonly struct ItemId : IComparable<ItemId>
 {
     [JsonIgnore]
     public const string ALPHABET = "0123456789ABCDEFGHJKLMNPQRTVWXYZ";
@@ -48,6 +48,7 @@ public readonly struct ItemId
         }
         return result;
     }
+    public int CompareTo(ItemId other) => Value.CompareTo(other.Value);
     #endregion
     #region implicit casts
     public static implicit operator ItemId(string s)
