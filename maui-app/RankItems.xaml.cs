@@ -31,11 +31,13 @@ public partial class RankItems : ContentPage
     private async void LeftIrrelevant_Clicked(object sender, EventArgs e)
     {
         Competition!.MarkIrrelevant(Side.Left);
+        LeftItemHolder.Content.Opacity = 0.8;
         await UpdateViews();
     }
     private async void RightIrrelevant_Clicked(object sender, EventArgs e)
     {
         Competition!.MarkIrrelevant(Side.Right);
+        LeftItemHolder.Content.Opacity = 0.8;
         await UpdateViews();
     }
     private async void CreateCompetition_Clicked(object sender, EventArgs e)

@@ -104,13 +104,12 @@ public class Competition
     public void MarkIrrelevant(Side side)
     {
         _ = IrrelevantItems.Add(this[side].Id);
-        NextItems();
     }
     public static async Task<Competition> LoadOrCreateAsync(string name)
     {
         string path = PathFor(name);
         if (File.Exists(path))
-            return await JsonSerializer.DeserializeAsync<Competition>(File.OpenRead(path));
+            return await Task.Run(() => JsonSerializer.Deserialize<Competition>(path)!);
         else
             return new(name);
     }
@@ -119,7 +118,7 @@ public class Competition
     public string FilePath => PathFor(Name);
     public async Task SaveAsync()
     {
-        await File.WriteAllTextAsync(FilePath, JsonSerializer.Serialize(this));
+        await File.WriteAllTextAsync(FilePath, JsonSerializer.Serialize(this, new JsonSerializerOptions() { WriteIndented = true}));
     }
     public Rating? RatingOf(Side side) 
         => this[this[side].Id];
