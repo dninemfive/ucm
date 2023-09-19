@@ -109,7 +109,7 @@ public class Competition
     {
         string path = PathFor(name);
         if (File.Exists(path))
-            return await Task.Run(() => JsonSerializer.Deserialize<Competition>(path)!);
+            return await Task.Run(() => JsonSerializer.Deserialize<Competition>(File.ReadAllText(path))!);
         else
             return new(name);
     }

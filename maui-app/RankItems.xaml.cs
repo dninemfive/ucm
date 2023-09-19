@@ -28,17 +28,21 @@ public partial class RankItems : ContentPage
         Competition!.Choose(Side.Right);
         await UpdateViews();
     }
-    private async void LeftIrrelevant_Clicked(object sender, EventArgs e)
+    private void LeftIrrelevant_Clicked(object sender, EventArgs e)
     {
         Competition!.MarkIrrelevant(Side.Left);
         LeftItemHolder.Content.Opacity = 0.8;
-        await UpdateViews();
+        RightRating.Text = "(irrelevant)";
+        SelectRight.IsVisible = false;
+        SelectLeft.IsVisible = false;
     }
-    private async void RightIrrelevant_Clicked(object sender, EventArgs e)
+    private void RightIrrelevant_Clicked(object sender, EventArgs e)
     {
         Competition!.MarkIrrelevant(Side.Right);
         LeftItemHolder.Content.Opacity = 0.8;
-        await UpdateViews();
+        LeftRating.Text = "(irrelevant)";
+        SelectRight.IsVisible = false;
+        SelectLeft.IsVisible = false;
     }
     private async void CreateCompetition_Clicked(object sender, EventArgs e)
     {
@@ -61,6 +65,8 @@ public partial class RankItems : ContentPage
     private async Task UpdateViews()
     {
         await Competition!.SaveAsync();
+        SelectLeft.IsVisible = true;
+        SelectRight.IsVisible = true;
         LeftItemHolder.Content = Competition.Left.View;
         LeftRating.Text = Competition.RatingOf(Side.Left)?.ToString() ?? "0/0";
         LeftPath.Text = Competition.Left.Path;

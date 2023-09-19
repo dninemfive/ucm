@@ -42,7 +42,7 @@
                 <Button x:Name="LeftIrrelevant" Text="Irrelevant" Clicked="LeftIrrelevant_Clicked"/>
                 <Button x:Name="SelectLeft" Text="Select" Clicked="Left_Clicked"/>
                 <Button x:Name="Skip" Text="Skip" Clicked="Skip_Clicked"/>
-                <Button x:Name="Right" Text="Select" Clicked="Right_Clicked"/>
+                <Button x:Name="SelectRight" Text="Select" Clicked="Right_Clicked"/>
                 <Button x:Name="RightIrrelevant" Text="Irrelevant" Clicked="RightIrrelevant_Clicked"/>
             </HorizontalStackLayout>
         </Grid>
