@@ -30,6 +30,12 @@ public class Competition
                 Selected++;
             Total++;
         }
+        [JsonConstructor]
+        public Rating(int selected, int total)
+        {
+            Selected = selected;
+            Total = total;
+        }
         public override string ToString() => $"{Selected}/{Total}";
     }
     [JsonInclude]
@@ -76,7 +82,7 @@ public class Competition
         } 
         else
         {
-            Ratings[chosenId] = new();
+            Ratings[chosenId] = new(1, 1);
         }
         if (Ratings.ContainsKey(rejectedId))
         {
@@ -84,7 +90,7 @@ public class Competition
         }
         else
         {
-            Ratings[rejectedId] = new();
+            Ratings[rejectedId] = new(0, 1);
         }
 #pragma warning restore CA1854
         NextItems();
