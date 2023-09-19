@@ -66,8 +66,8 @@
 	  <Compile Update="Pages\Acquisition\AcquisitionPage.xaml.cs">
 	    <DependentUpon>AcquisitionPage.xaml</DependentUpon>
 	  </Compile>
-	  <Compile Update="Pages\ViewingPage.xaml.cs">
-	    <DependentUpon>ViewingPage.xaml</DependentUpon>
+	  <Compile Update="Pages\CollectionPage.xaml.cs">
+	    <DependentUpon>CollectionPage.xaml</DependentUpon>
 	  </Compile>
 	  <Compile Update="Views\ThumbnailView.xaml.cs">
 	    <DependentUpon>ThumbnailView.xaml</DependentUpon>
@@ -81,7 +81,7 @@
 	  <MauiXaml Update="Pages\Acquisition\AcquisitionPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Pages\ViewingPage.xaml">
+	  <MauiXaml Update="Pages\CollectionPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Views\ThumbnailView.xaml">

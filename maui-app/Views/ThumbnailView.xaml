@@ -2,8 +2,8 @@
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="d9.ucm.ThumbnailView">
-    <VerticalStackLayout BackgroundColor="Magenta">
+    <VerticalStackLayout BackgroundColor="Magenta" HeightRequest="100" WidthRequest="100">
         <Image x:Name="Thumbnail" ZIndex="0" Aspect="AspectFit"/>
-        <Label x:Name="Label" ZIndex="1" VerticalOptions="Start" IsVisible="False"/>
+        <Label x:Name="Label" ZIndex="1" VerticalOptions="Start" IsVisible="True" Text="FUCK"/>
     </VerticalStackLayout>
 </ContentView>
