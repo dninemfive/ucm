@@ -71,4 +71,8 @@ public class ItemIdConverter : JsonConverter<ItemId>
         => ItemId.FromIntString(reader.GetString()!);
     public override void Write(Utf8JsonWriter writer, ItemId value, JsonSerializerOptions options)
         => writer.WriteStringValue(value.IntString);
+    public override ItemId ReadAsPropertyName(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        => ItemId.FromIntString(reader.GetString()!);
+    public override void WriteAsPropertyName(Utf8JsonWriter writer, ItemId value, JsonSerializerOptions options)
+        => writer.WritePropertyName(value.IntString);
 }
