@@ -69,6 +69,9 @@
 	  <Compile Update="Pages\ViewingPage.xaml.cs">
 	    <DependentUpon>ViewingPage.xaml</DependentUpon>
 	  </Compile>
+	  <Compile Update="Views\ThumbnailView.xaml.cs">
+	    <DependentUpon>ThumbnailView.xaml</DependentUpon>
+	  </Compile>
 	</ItemGroup>
 
 	<ItemGroup>
@@ -79,6 +82,9 @@
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Pages\ViewingPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Views\ThumbnailView.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	</ItemGroup>

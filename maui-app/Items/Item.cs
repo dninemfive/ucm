@@ -19,6 +19,17 @@ public class Item
     public ItemId Id { get; }
     [JsonIgnore]
     public View? View => Path.BestAvailableView();
+    [JsonIgnore]
+    private Image? _thumbnail = null;
+    [JsonIgnore]
+    public Image? Thumbnail
+    {
+        get
+        {
+            _thumbnail ??= View as Image;
+            return _thumbnail;
+        }
+    }
     #endregion
     #region constructors
     public Item(string path, string? hash)

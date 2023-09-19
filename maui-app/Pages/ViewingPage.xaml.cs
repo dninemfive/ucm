@@ -10,7 +10,7 @@ public partial class ViewingPage : ContentPage
 		{
 			if (++i > 40)
 				break;
-			Layout.Add(new Image() { Source = item.Path, HeightRequest = 100, WidthRequest = 100, Aspect = Aspect.AspectFit });
+            ItemsHolder.Add(new Image() { Source = item.Path, HeightRequest = 100, WidthRequest = 100, Aspect = Aspect.AspectFit });
 		}
 	}
 }
