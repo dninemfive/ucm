@@ -68,21 +68,26 @@ public class Competition
     }
     public void Choose(Side side)
     {
-        if (Ratings.TryGetValue(this[side].Id, out Rating? r))
+        ItemId chosenId = this[side].Id, rejectedId = this[side.Opposite()].Id;
+#pragma warning disable CA1854 // "prefer TryGetValue": need reference access to object
+        if (Ratings.ContainsKey(chosenId))
         {
-            r.Increment(true);
-        } else
+            Ratings[chosenId].Increment(true);
+        } 
+        else
         {
-            Ratings[this[side].Id] = new();
+            Ratings[chosenId] = new();
         }
-        if (Ratings.TryGetValue(this[side.Opposite()].Id, out Rating? r2))
+        if (Ratings.ContainsKey(rejectedId))
         {
-            r2.Increment(false);
+            Ratings[rejectedId].Increment(true);
         }
         else
         {
-            Ratings[this[side.Opposite()].Id] = new();
+            Ratings[rejectedId] = new();
         }
+#pragma warning restore CA1854
+        NextItems();
     }
     public void NextItem(Side side) => this[side] = ItemManager.RandomItemWhere(x => !IsIrrelevant(x.Id));
     public void NextItems()
@@ -93,7 +98,7 @@ public class Competition
     public void MarkIrrelevant(Side side)
     {
         _ = IrrelevantItems.Add(this[side].Id);
-        NextItem(side);
+        NextItems();
     }
     public static async Task<Competition> LoadOrCreateAsync(string name)
     {
