@@ -101,8 +101,18 @@ public class Competition
         NextItems();
     }
     public IEnumerable<Item> RelevantItems => ItemManager.Items.Where(x => !IsIrrelevant(x.Id));
+    private Item? _previousItem = null;
     [JsonIgnore]
-    public Item NextItem => RelevantItems.WeightedRandomElement(x => RatingOf(x)?.Weight ?? 1);
+    public Item NextItem
+    {
+        get
+        {
+            Item result = RelevantItems.Where(x => x.Id != _previousItem?.Id)
+                                       .WeightedRandomElement(x => RatingOf(x)?.Weight ?? 1);
+            _previousItem = result;
+            return result;
+        }
+    }
     public void NextItems()
         => (Left, Right) = (NextItem, NextItem);
     public void MarkIrrelevant(Side side)
