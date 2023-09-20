@@ -7,7 +7,6 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
-using Windows.ApplicationModel.Activation;
 
 namespace d9.ucm;
 public class Competition
@@ -19,27 +18,30 @@ public class Competition
     public class Rating
     {
         [JsonInclude]
-        public int Selected { get; set; } = 0;
+        public int TimesSelected { get; set; } = 0;
         [JsonInclude]
-        public int Total { get; set; } = 0;
+        public int TotalRatings { get; set; } = 0;
         [JsonIgnore]
-        public double Ratio => Selected / (double)Total;
+        public double Ratio => TimesSelected / (double)TotalRatings;
+        [JsonIgnore]
         private const double _z = 1.644853627; // result of `=NORM.S.INV(0.95)` in Excel, equivalent to Statistics2.pnormaldist(0.95)
         [JsonIgnore]
         public double CiLowerBound
-            => Total == 0 ? 0 : (Ratio + _z * _z / (2 * Total) - _z * Math.Sqrt((Ratio * (1 - Ratio) + _z * _z / (4 * Total)) / Total)) / (1 + _z * _z / Total);
+            => TotalRatings == 0 ? 0 : (Ratio + _z * _z / (2 * TotalRatings) - _z * Math.Sqrt((Ratio * (1 - Ratio) + _z * _z / (4 * TotalRatings)) / TotalRatings)) / (1 + _z * _z / TotalRatings);
+        [JsonIgnore]
+        public double Weight => TotalRatings == 0 ? 1 : 1 / TotalRatings;
         [JsonConstructor]
-        public Rating(int selected, int total)
+        public Rating(int timesSelected, int totalRatings)
         {
-            Selected = selected;
-            Total = total;
+            TimesSelected = timesSelected;
+            TotalRatings = totalRatings;
         }
-        public override string ToString() => $"{Selected}/{Total}";
+        public override string ToString() => $"{TimesSelected}/{TotalRatings} ({CiLowerBound:F2})";
         public void Increment(bool selected)
         {
             if (selected)
-                Selected++;
-            Total++;
+                TimesSelected++;
+            TotalRatings++;
         }
     }
     [JsonInclude]
@@ -47,8 +49,7 @@ public class Competition
     public Competition(string name)
     {
         Name = name;
-        Left = ItemManager.RandomItem;
-        Right = ItemManager.RandomItem;
+        (Left, Right) = (NextItem, NextItem);
     }
     [JsonConstructor]
     public Competition(string name, HashSet<ItemId> irrelevantItems, Dictionary<ItemId, Rating> ratings) : this(name)
@@ -57,8 +58,8 @@ public class Competition
         Ratings = ratings;
     }
     public bool IsIrrelevant(ItemId id) => IrrelevantItems.Contains(id);
-    public Rating? this[ItemId id] => IsIrrelevant(id) ? null : Ratings.TryGetValue(id, out Rating? r) ? r : null;
-    public Rating? this[Item item] => this[item.Id];
+    public Rating? RatingOf(ItemId id) => IsIrrelevant(id) ? null : Ratings.TryGetValue(id, out Rating? r) ? r : null;
+    public Rating? RatingOf(Item item) => RatingOf(item.Id);
     [JsonIgnore]
     public Item Left, Right;
     public Item this[Side side] {
@@ -99,12 +100,11 @@ public class Competition
 #pragma warning restore CA1854
         NextItems();
     }
-    public void NextItem(Side side) => this[side] = ItemManager.RandomItemWhere(x => !IsIrrelevant(x.Id));
+    public IEnumerable<Item> RelevantItems => ItemManager.Items.Where(x => !IsIrrelevant(x.Id));
+    [JsonIgnore]
+    public Item NextItem => RelevantItems.WeightedRandomElement(x => RatingOf(x)?.Weight ?? 1);
     public void NextItems()
-    {
-        NextItem(Side.Left);
-        NextItem(Side.Right);
-    }    
+        => (Left, Right) = (NextItem, NextItem);
     public void MarkIrrelevant(Side side)
     {
         _ = IrrelevantItems.Add(this[side].Id);
@@ -125,7 +125,7 @@ public class Competition
         await File.WriteAllTextAsync(FilePath, JsonSerializer.Serialize(this, new JsonSerializerOptions() { WriteIndented = true}));
     }
     public Rating? RatingOf(Side side) 
-        => this[this[side].Id];
+        => RatingOf(this[side].Id);
 }
 public enum Side { Left, Right }
 public static class SideExtensions

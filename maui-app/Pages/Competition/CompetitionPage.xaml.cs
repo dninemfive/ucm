@@ -76,16 +76,15 @@ public partial class CompetitionPage : ContentPage
         if (Competition is null)
             return;
         LeftItemHolder.Content = Competition.Left.View;
-        LeftRating.Text = Competition.RatingOf(Side.Left)?.ToString() ?? "0/0";
-        LeftPath.Text = Competition.Left.Path;
+        LeftRating.Text = Competition.RatingOf(Side.Left)?.ToString() ?? "-";
     }
     public void UpdateRightItem()
     {
         if (Competition is null)
             return;
         RightItemHolder.Content = Competition.Right.View;
-        RightRating.Text = Competition.RatingOf(Side.Right)?.ToString() ?? "0/0";
-        RightPath.Text = Competition.Right.Path;
+        ToolTipProperties.SetText(RightItemHolder, Competition.Right.Path);
+        RightRating.Text = Competition.RatingOf(Side.Right)?.ToString() ?? "-";
     }
     private async Task UpdateViews()
     {

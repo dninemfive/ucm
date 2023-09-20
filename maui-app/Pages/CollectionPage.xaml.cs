@@ -6,11 +6,12 @@ public partial class CollectionPage : ContentPage
 	{
         InitializeComponent();
 		int i = 0;
-		foreach(Item item in ItemManager.All.OrderBy(x => x.Id))
+		int horizontalItems = 7;
+		foreach(Item item in ItemManager.Items.OrderBy(x => x.Id))
 		{
-			if (++i > 45)
+			if (++i > 25)
 				break;
-            ItemsHolder.Add(new ThumbnailView(item, sortItem: item.Id));
+            ItemsHolder.Add(new ThumbnailView(item, 1920 / horizontalItems - 10, item.Id));
 		}
 	}
 }

@@ -11,26 +11,26 @@ public static class ItemManager
 {
     private static bool _loaded = false;
     #region properties
-    public static IEnumerable<Item> All => Items.Values;
-    private static Dictionary<ItemId, Item>? _items = null;
-    public static IReadOnlyDictionary<ItemId, Item> Items
+    public static IEnumerable<Item> Items => ItemsById.Values;
+    private static Dictionary<ItemId, Item>? _itemsById = null;
+    public static IReadOnlyDictionary<ItemId, Item> ItemsById
     {
         get
         {
-            if (_items is null)
+            if (_itemsById is null)
                 throw new InvalidOperationException("Can't get items before loading them!");
-            return _items!;
+            return _itemsById!;
         }
     }
-    public static Item RandomItem => All.RandomElement();
+    public static Item RandomItem => Items.RandomElement();
     #endregion
-    public static void Register(Item item) => _items![item.Id] = item;
+    public static void Register(Item item) => _itemsById![item.Id] = item;
     public static void Load()
     {
         if (_loaded)
             return;
         _loaded = true;
-        _items = new();
+        _itemsById = new();
         foreach (Item item in Item.LoadAll())
         {
             Register(item);
@@ -41,8 +41,6 @@ public static class ItemManager
         _loaded = false;
         Load();
     }
-    public static IEnumerable<Item> ItemsWhere(Func<Item, bool> predicate) => All.Where(predicate);
-    public static Item RandomItemWhere(Func<Item, bool> predicate) => ItemsWhere(predicate).RandomElement();
     public static async Task<Item> CreateAndSave(string path, string hash, ItemId? id = null)
     {
         Item item = id is null ? new(path, hash) : new(path, hash, id.Value);

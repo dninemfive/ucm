@@ -20,11 +20,9 @@
             </Grid.ColumnDefinitions>
             <HorizontalStackLayout HorizontalOptions="CenterAndExpand" VerticalOptions="Start" Grid.Row="0" Grid.Column="0">
                 <Label x:Name="LeftRating" HorizontalOptions="Start"/>
-                <Label x:Name="LeftPath" HorizontalOptions="End"/>
             </HorizontalStackLayout>
             <HorizontalStackLayout HorizontalOptions="CenterAndExpand" VerticalOptions="Start" Grid.Row="0" Grid.Column="1">
                 <Label x:Name="RightRating" HorizontalOptions="Start"/>
-                <Label x:Name="RightPath" HorizontalOptions="End"/>
             </HorizontalStackLayout>
             <ContentView x:Name="LeftItemHolder" 
                          Grid.Row="1" 

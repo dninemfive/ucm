@@ -6,8 +6,8 @@ public partial class ThumbnailView : ContentView
 		InitializeComponent();
 		// HeightRequest = size;
 		// WidthRequest = size;
-		Thumbnail.HeightRequest = 100;
-		Thumbnail.WidthRequest = 100;
+		Thumbnail.HeightRequest = size;
+		Thumbnail.WidthRequest = size;
 		if(item.Thumbnail is not null)
 		{
 			// Thumbnail = item.Thumbnail;
