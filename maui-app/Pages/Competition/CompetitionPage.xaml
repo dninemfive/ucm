@@ -3,51 +3,41 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:local="clr-namespace:d9.ucm"
              x:Class="d9.ucm.CompetitionPage">
-    <VerticalStackLayout>
-        <local:CompetitionSelector x:Name="CompetitionCreation"/>
-        <Grid x:Name="RatingScreen" IsVisible="False" VerticalOptions="FillAndExpand">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition/>
-                <ColumnDefinition/>
-            </Grid.ColumnDefinitions>
-            <HorizontalStackLayout HorizontalOptions="CenterAndExpand" VerticalOptions="Start" Grid.Row="0" Grid.Column="0">
-                <Label x:Name="LeftRating" HorizontalOptions="Start"/>
-            </HorizontalStackLayout>
-            <HorizontalStackLayout HorizontalOptions="CenterAndExpand" VerticalOptions="Start" Grid.Row="0" Grid.Column="1">
-                <Label x:Name="RightRating" HorizontalOptions="Start"/>
-            </HorizontalStackLayout>
-            <ContentView x:Name="LeftItemHolder" 
-                         Grid.Row="1" 
-                         Grid.Column="0" 
-                         VerticalOptions="FillAndExpand" 
-                         HorizontalOptions="FillAndExpand" 
-                         HeightRequest="800"/>
-            <ContentView x:Name="RightItemHolder" 
-                         Grid.Row="1" 
-                         Grid.Column="1" 
-                         VerticalOptions="FillAndExpand" 
-                         HorizontalOptions="FillAndExpand" 
-                         HeightRequest="800"/>
-            <Grid HorizontalOptions="CenterAndExpand" VerticalOptions="EndAndExpand" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2">
+    <ScrollView>
+        <VerticalStackLayout>
+            <local:CompetitionSelector x:Name="CompetitionCreation"/>
+            <Grid x:Name="RatingScreen" IsVisible="False">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="50"/>
+                </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="1*"/>
-                    <ColumnDefinition Width="1*"/>
-                    <ColumnDefinition Width="1*"/>
-                    <ColumnDefinition Width="1*"/>
-                    <ColumnDefinition Width="1*"/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
-                <Button x:Name="LeftIrrelevant" Text="Irrelevant" Clicked="LeftIrrelevant_Clicked" Grid.Column="0"/>
-                <Button x:Name="SelectLeft" Text="Select" Clicked="Left_Clicked" Grid.Column="1"/>
-                <Button x:Name="Skip" Text="Skip" Clicked="Skip_Clicked" Grid.Column="2"/>
-                <Button x:Name="SelectRight" Text="Select" Clicked="Right_Clicked" Grid.Column="3"/>
-                <Button x:Name="RightIrrelevant" Text="Irrelevant" Clicked="RightIrrelevant_Clicked" Grid.Column="4"/>
+                <ContentView x:Name="LeftItemHolder" 
+                             Grid.Row="0" 
+                             Grid.Column="0"
+                             HeightRequest="900"/>
+                <ContentView x:Name="RightItemHolder" 
+                             Grid.Row="0" 
+                             Grid.Column="1"
+                             HeightRequest="900"/>
+                <Grid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Button x:Name="LeftIrrelevant" Text="Irrelevant" Clicked="LeftIrrelevant_Clicked" Grid.Column="0"/>
+                    <Button x:Name="SelectLeft" Text="Select" Clicked="Left_Clicked" Grid.Column="1"/>
+                    <Button x:Name="Skip" Text="Skip" Clicked="Skip_Clicked" Grid.Column="2"/>
+                    <Button x:Name="SelectRight" Text="Select" Clicked="Right_Clicked" Grid.Column="3"/>
+                    <Button x:Name="RightIrrelevant" Text="Irrelevant" Clicked="RightIrrelevant_Clicked" Grid.Column="4"/>
+                </Grid>
             </Grid>
-        </Grid>
-    </VerticalStackLayout>
+        </VerticalStackLayout>
+    </ScrollView>    
 </ContentPage>

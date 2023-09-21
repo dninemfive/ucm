@@ -32,7 +32,6 @@ public partial class CompetitionPage : ContentPage
     {
         Competition!.MarkIrrelevant(Side.Left);
         LeftItemHolder.Content.Opacity = 0.4;
-        LeftRating.Text = "(irrelevant)";
         SelectRight.IsVisible = false;
         SelectLeft.IsVisible = false;
         LeftIrrelevant.IsVisible = false;
@@ -41,7 +40,6 @@ public partial class CompetitionPage : ContentPage
     {
         Competition!.MarkIrrelevant(Side.Right);
         RightItemHolder.Content.Opacity = 0.4;
-        RightRating.Text = "(irrelevant)";
         SelectRight.IsVisible = false;
         SelectLeft.IsVisible = false;
         RightIrrelevant.IsVisible = false;
@@ -65,7 +63,6 @@ public partial class CompetitionPage : ContentPage
             return;
         LeftItemHolder.Content = Competition.Left.View;
         ToolTipProperties.SetText(LeftItemHolder, Competition.Left.Path);
-        LeftRating.Text = Competition.RatingOf(Side.Left)?.ToString() ?? "-";
     }
     public void UpdateRightItem()
     {
@@ -73,7 +70,6 @@ public partial class CompetitionPage : ContentPage
             return;
         RightItemHolder.Content = Competition.Right.View;
         ToolTipProperties.SetText(RightItemHolder, Competition.Right.Path);
-        RightRating.Text = Competition.RatingOf(Side.Right)?.ToString() ?? "-";
     }
     private async Task UpdateViews()
     {
