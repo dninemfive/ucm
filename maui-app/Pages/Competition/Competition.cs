@@ -29,14 +29,17 @@ public class Competition
         public double CiLowerBound
             => TotalRatings == 0 ? 0 : (Ratio + _z * _z / (2 * TotalRatings) - _z * Math.Sqrt((Ratio * (1 - Ratio) + _z * _z / (4 * TotalRatings)) / TotalRatings)) / (1 + _z * _z / TotalRatings);
         [JsonIgnore]
-        public double Weight => TotalRatings == 0 ? 1 : 1 / TotalRatings;
+        public double CiUpperBound
+            => TotalRatings == 0 ? 0 : (Ratio + _z * _z / (2 * TotalRatings) + _z * Math.Sqrt((Ratio * (1 - Ratio) + _z * _z / (4 * TotalRatings)) / TotalRatings)) / (1 + _z * _z / TotalRatings);
+        [JsonIgnore]
+        public double Weight => TotalRatings == 0 ? 1 : 1 / (double)TotalRatings;
         [JsonConstructor]
         public Rating(int timesSelected, int totalRatings)
         {
             TimesSelected = timesSelected;
             TotalRatings = totalRatings;
         }
-        public override string ToString() => $"{TimesSelected}/{TotalRatings} ({CiLowerBound:F2})";
+        public override string ToString() => $"{TimesSelected}/{TotalRatings} ({CiLowerBound:F2}-{CiUpperBound:F2})";
         public void Increment(bool selected)
         {
             if (selected)
@@ -52,10 +55,12 @@ public class Competition
         (Left, Right) = (NextItem, NextItem);
     }
     [JsonConstructor]
-    public Competition(string name, HashSet<ItemId> irrelevantItems, Dictionary<ItemId, Rating> ratings) : this(name)
+    public Competition(string name, HashSet<ItemId> irrelevantItems, Dictionary<ItemId, Rating> ratings)
     {
+        Name = name;
         IrrelevantItems = irrelevantItems;
         Ratings = ratings;
+        (Left, Right) = (NextItem, NextItem);
     }
     public bool IsIrrelevant(ItemId id) => IrrelevantItems.Contains(id);
     public Rating? RatingOf(ItemId id) => IsIrrelevant(id) ? null : Ratings.TryGetValue(id, out Rating? r) ? r : null;
@@ -100,6 +105,7 @@ public class Competition
 #pragma warning restore CA1854
         NextItems();
     }
+    [JsonIgnore]
     public IEnumerable<Item> RelevantItems => ItemManager.Items.Where(x => !IsIrrelevant(x.Id));
     private Item? _previousItem = null;
     [JsonIgnore]
@@ -107,8 +113,9 @@ public class Competition
     {
         get
         {
-            Item result = RelevantItems.Where(x => x.Id != _previousItem?.Id)
-                                       .WeightedRandomElement(x => RatingOf(x)?.Weight ?? 1);
+            Utils.Log(RelevantItems.Count());
+            Item result = RelevantItems.Where(x => x.Id != _previousItem?.Id && RatingOf(x)?.CiUpperBound >= 0.5)
+                                       .WeightedRandomElement(x => RatingOf(x)?.Weight ?? 0);
             _previousItem = result;
             return result;
         }

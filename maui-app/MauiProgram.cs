@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using d9.utl;
+using Microsoft.Extensions.Logging;
 
 namespace d9.ucm;
 
@@ -22,6 +23,7 @@ public static class MauiProgram
 		builder.Logging.AddDebug();
 #endif
 		ItemManager.Load();
+		Utils.DefaultLog = new(@"C:\Users\dninemfive\Pictures\misc\ucm\general.log");
 		return builder.Build();
 	}
 }

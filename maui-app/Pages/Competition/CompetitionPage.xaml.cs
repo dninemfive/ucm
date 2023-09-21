@@ -76,6 +76,7 @@ public partial class CompetitionPage : ContentPage
         if (Competition is null)
             return;
         LeftItemHolder.Content = Competition.Left.View;
+        ToolTipProperties.SetText(LeftItemHolder, Competition.Left.Path);
         LeftRating.Text = Competition.RatingOf(Side.Left)?.ToString() ?? "-";
     }
     public void UpdateRightItem()
