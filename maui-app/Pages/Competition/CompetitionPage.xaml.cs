@@ -7,11 +7,11 @@ namespace d9.ucm;
 
 public partial class CompetitionPage : ContentPage
 {
-    public Competition? Competition = null;
-    public string CompetitionFileName => $"{MauiProgram.TEMP_SAVE_LOCATION}/competitions/{CompetitionName}.json";
+    public Competition? Competition => CompetitionCreation.Competition;
     public CompetitionPage()
     {
         InitializeComponent();
+        CompetitionCreation.CompetitionCreated += CompetitionCreated;
     }
     private async void Left_Clicked(object sender, EventArgs e)
     {
@@ -45,24 +45,12 @@ public partial class CompetitionPage : ContentPage
         SelectRight.IsVisible = false;
         SelectLeft.IsVisible = false;
         RightIrrelevant.IsVisible = false;
-    }
-    private async void CreateCompetition_Clicked(object sender, EventArgs e)
+    }       
+    private async void CompetitionCreated(object? sender, EventArgs e)
     {
-        Competition = await Competition.LoadOrCreateAsync(CompetitionName.Text);
         CompetitionCreation.IsVisible = false;
         RatingScreen.IsVisible = true;
         await UpdateViews();
-    }
-    private void CompetitionName_TextChanged(object sender, TextChangedEventArgs e)
-    {
-        if(File.Exists(Competition.PathFor(CompetitionName.Text)))
-        {
-            CreateCompetition.Text = "Load";
-        } 
-        else
-        {
-            CreateCompetition.Text = "Create";
-        }
     }
     public void UnhideButtons()
     {
