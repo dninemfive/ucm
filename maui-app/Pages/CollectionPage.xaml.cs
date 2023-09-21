@@ -16,16 +16,16 @@ public partial class CollectionPage : ContentPage
         if(competition?.Name != old?.Name)
         {
             _index = 0;
-            _items = await Task.Run(() => competition?.RelevantItems.OrderByDescending(x => ratingof(x)).ToList()
+            _items = await Task.Run(() => competition?.RelevantItems.OrderByDescending(x => ratingof(x)?.CiLowerBound).ToList()
                                                 ?? ItemManager.Items.OrderBy(x => x.Id).ToList());
         }
-        double? ratingof(Item item) => competition?.RatingOf(item)?.CiLowerBound ?? null;        
+        Competition.Rating? ratingof(Item item) => competition?.RatingOf(item);        
         int horizontalItems = 7;
         foreach (Item item in _items!.Skip(_index))
         {
-            if (++_index % 21 == 0)
+            if (_index++ % 21 == 0)
                 break;
-            ItemsHolder.Add(new ThumbnailView(item, 1920 / horizontalItems - 10, $"{ratingof(item):F2}" ?? item.Id.ToString()));
+            ItemsHolder.Add(new ThumbnailView(item, 1920 / horizontalItems - 10, $"{ratingof(item)}" ?? item.Id.ToString()));
         }
     }
 }

@@ -4,8 +4,7 @@
              x:Class="d9.ucm.ThumbnailView">
     <AbsoluteLayout BackgroundColor="Black" Margin="5">
         <Image x:Name="Thumbnail" ZIndex="0" Aspect="AspectFit" AnchorX="0" AnchorY="0"/>
-        <AbsoluteLayout ZIndex="1" AnchorX="0" AnchorY="0">
-            <BoxView BackgroundColor="Black" Opacity="0.8" ZIndex="2" AnchorX="0" AnchorY="0"/>
+        <AbsoluteLayout ZIndex="1" AnchorX="0" AnchorY="0" BackgroundColor="Black" Opacity=".69">
             <Label x:Name="Label" 
                ZIndex="3" 
                VerticalOptions="Start" 
