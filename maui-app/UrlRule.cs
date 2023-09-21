@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.Primitives;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -27,6 +28,13 @@ public class UrlRule
     }
     public bool Supports(string url)
         => Regex.IsMatch(url, MatchRegex);
-    public string ApiUrl(string url)
-        => $"{Prefix}{Regex.Match(url, IdRegex)}{Suffix}";
+    public string ApiUrl(string url, params (string k, string v)[] args)
+    {
+        string result = $"{Prefix}{Regex.Match(url, IdRegex)}{Suffix}";
+        foreach((string k, string v) in args)
+        {
+            result = result.Replace($"${k}", v);
+        }
+        return result;
+    }
 }
