@@ -1,12 +1,19 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:d9.ucm"
              x:Class="d9.ucm.CollectionPage">
-    <VerticalStackLayout>
-        <HorizontalStackLayout>
-            <Entry x:Name="CollectionSelector"/>
+    <!-- https://stackoverflow.com/a/75227107 -->
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <HorizontalStackLayout HorizontalOptions="FillAndExpand" Grid.Row="0">
+            <local:CompetitionSelector x:Name="CompetitionSelector" HorizontalOptions="StartAndExpand"/>
+            <Button Clicked="LoadItems" Text="Load" HorizontalOptions="End"/>
         </HorizontalStackLayout>
-        <ScrollView BackgroundColor="Purple">    
+        <ScrollView VerticalOptions="FillAndExpand" Grid.Row="1">    
             <FlexLayout x:Name="ItemsHolder" 
                 Direction="Row" 
                 FlowDirection="LeftToRight"
@@ -16,5 +23,5 @@
 
             </FlexLayout>
         </ScrollView>
-    </VerticalStackLayout>
+    </Grid>
 </ContentPage>
