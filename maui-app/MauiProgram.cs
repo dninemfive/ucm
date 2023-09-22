@@ -1,4 +1,5 @@
-﻿using d9.utl;
+﻿using CurlThin.Native;
+using d9.utl;
 using Microsoft.Extensions.Logging;
 
 namespace d9.ucm;
@@ -24,6 +25,7 @@ public static class MauiProgram
 #endif
 		ItemManager.Load();
 		Utils.DefaultLog = new(@"C:\Users\dninemfive\Pictures\misc\ucm\general.log");
+		CurlResources.Init();
 		return builder.Build();
 	}
 }
