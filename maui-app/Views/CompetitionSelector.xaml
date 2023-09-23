@@ -6,7 +6,6 @@
         <Picker Title="Select competition..." 
                 x:Name="Dropdown"
                 SelectedIndexChanged="Dropdown_SelectedIndexChanged"/>
-        <Label x:Name="DebugThingy" Text="Fuck"/>
         <Grid x:Name="CreationItems" IsVisible="False">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="5*"/>

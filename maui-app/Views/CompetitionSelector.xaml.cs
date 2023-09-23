@@ -1,3 +1,4 @@
+using d9.utl;
 using System.Collections.ObjectModel;
 
 namespace d9.ucm;
@@ -34,6 +35,7 @@ public partial class CompetitionSelector : ContentView
             return;
         }
         Competition = await Competition.LoadOrCreateAsync(CompetitionName.Text);
+        Utils.Log($"CreateCompetition() -> {Competition?.Name.PrintNull()}");
         int index = _competitions.Count - 1;
         _competitions.Insert(index, Competition!.Name);
         Dropdown.SelectedItem = index;
@@ -43,7 +45,7 @@ public partial class CompetitionSelector : ContentView
 
     private async void Dropdown_SelectedIndexChanged(object sender, EventArgs e)
     {
-        DebugThingy.Text = Dropdown.SelectedIndex.ToString();
+        Utils.Log($"Dropdown_SelectedIndexChanged({Dropdown.SelectedIndex})");
         CreationItems.IsVisible = Dropdown.SelectedIndex == _competitions.Count - 1;
         if (Dropdown.SelectedIndex < 1 || Dropdown.SelectedIndex >= _competitions.Count - 1)
         {
@@ -52,6 +54,7 @@ public partial class CompetitionSelector : ContentView
         else
         {
             Competition = await Competition.LoadOrCreateAsync(Dropdown.SelectedItem as string);
-        } 
+        }
+        CompetitionCreated?.Invoke(sender, e);
     }
 }

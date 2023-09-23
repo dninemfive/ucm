@@ -47,7 +47,7 @@ public partial class CompetitionPage : ContentPage
     }       
     private async void CompetitionCreated(object? sender, EventArgs e)
     {
-        // CompetitionCreation.IsVisible = false;
+        CompetitionCreation.IsVisible = false;
         Utils.Log($"CompetitionCreated({Competition?.Name.PrintNull()})");
         if(Competition is null)
         {
