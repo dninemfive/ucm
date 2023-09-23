@@ -47,6 +47,8 @@ public class Item
         Id = IdManager.Register(id);
     }
     #endregion
+    public override string ToString()
+        => $"Item {Id} @ {Path}";
     public static async IAsyncEnumerable<Item> LoadAllAsync()
     {
         foreach (string path in await Task.Run(() => Directory.EnumerateFiles(MauiProgram.TEMP_SAVE_LOCATION)))

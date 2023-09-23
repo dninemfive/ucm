@@ -33,7 +33,7 @@
                     </Grid.ColumnDefinitions>
                     <Button x:Name="LeftIrrelevant" Text="Irrelevant" Clicked="LeftIrrelevant_Clicked" Grid.Column="0"/>
                     <Button x:Name="SelectLeft" Text="Select" Clicked="Left_Clicked" Grid.Column="1"/>
-                    <Button x:Name="Skip" Text="Skip" Clicked="Skip_Clicked" Grid.Column="2"/>
+                    <Button x:Name="SkipButton" Text="Skip" Clicked="Skip_Clicked" Grid.Column="2"/>
                     <Button x:Name="SelectRight" Text="Select" Clicked="Right_Clicked" Grid.Column="3"/>
                     <Button x:Name="RightIrrelevant" Text="Irrelevant" Clicked="RightIrrelevant_Clicked" Grid.Column="4"/>
                 </Grid>

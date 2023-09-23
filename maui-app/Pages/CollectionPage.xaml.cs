@@ -1,4 +1,6 @@
-﻿namespace d9.ucm;
+﻿using d9.utl;
+
+namespace d9.ucm;
 
 public partial class CollectionPage : ContentPage
 {
@@ -37,6 +39,16 @@ public partial class CollectionPage : ContentPage
         }
         LoadButton.Text = "Load";
         _loading = false;
+    }
+    /// <summary>
+    /// https://stackoverflow.com/a/76251267
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    private void ScrollView_Scrolled(object sender, ScrolledEventArgs e)
+    {
+        if (e.ScrollY >= ScrollView.ContentSize.Height - ScrollView.Height)
+            LoadItems(sender, e);
     }
 }
 

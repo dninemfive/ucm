@@ -2,7 +2,7 @@ namespace d9.ucm;
 
 public partial class CompetitionItemView : ContentView
 {
-	public Item Item { get; private set; }
+	public Item? Item { get; private set; }
 	private bool _isIrrelevant = false;
 	public bool IsIrrelevant
 	{
@@ -23,7 +23,7 @@ public partial class CompetitionItemView : ContentView
 		ItemHolder.Content = item.View;
 		if (extraTooltipInfo is not null)
 			extraTooltipInfo = $"\n\n{extraTooltipInfo}";
-		ToolTipProperties.SetText(ItemHolder, $"Item {item.Id} @ {item.Path}{extraTooltipInfo}");
+		ToolTipProperties.SetText(ItemHolder, $"{item}{extraTooltipInfo}");
 		IsIrrelevant = isIrrelevant;
     }
 }

@@ -19,26 +19,38 @@ public partial class CompetitionPage : ContentPage
         Competition!.Choose(Side.Left);
         await UpdateViews();
     }
-    private async void Skip_Clicked(object sender, EventArgs e)
+    private async Task Skip()
     {
         Competition!.NextItems();
         await UpdateViews();
     }
+    private async void Skip_Clicked(object sender, EventArgs e)
+        => await Skip();
     private async void Right_Clicked(object sender, EventArgs e)
     {
         Competition!.Choose(Side.Right);
         await UpdateViews();
     }
-    private void LeftIrrelevant_Clicked(object sender, EventArgs e)
+    private async void LeftIrrelevant_Clicked(object sender, EventArgs e)
     {
         Competition!.MarkIrrelevant(Side.Left);
         LeftItemView.IsIrrelevant = true;
+        if (LeftItemView.IsIrrelevant && RightItemView.IsIrrelevant)
+        {
+            await Skip();
+            return;
+        }
         UpdateButtonActivation();
     }
-    private void RightIrrelevant_Clicked(object sender, EventArgs e)
+    private async void RightIrrelevant_Clicked(object sender, EventArgs e)
     {
         Competition!.MarkIrrelevant(Side.Right);
         RightItemView.IsIrrelevant = true;
+        if (LeftItemView.IsIrrelevant && RightItemView.IsIrrelevant)
+        {
+            await Skip();
+            return;
+        }
         UpdateButtonActivation();
     }       
     private void UpdateButtonActivation()

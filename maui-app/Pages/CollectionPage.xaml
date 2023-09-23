@@ -13,7 +13,7 @@
             <local:CompetitionSelector x:Name="CompetitionSelector" HorizontalOptions="StartAndExpand" AllowNewItem="False"/>
             <Button x:Name="LoadButton" Clicked="LoadItems" Text="Load" HorizontalOptions="End"/>
         </HorizontalStackLayout>
-        <ScrollView VerticalOptions="FillAndExpand" Grid.Row="1">    
+        <ScrollView x:Name="ScrollView" VerticalOptions="FillAndExpand" Grid.Row="1" Scrolled="ScrollView_Scrolled">    
             <FlexLayout x:Name="ItemsHolder" 
                 Direction="Row" 
                 FlowDirection="LeftToRight"

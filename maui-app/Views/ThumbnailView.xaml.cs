@@ -26,6 +26,6 @@ public partial class ThumbnailView : ContentView
 			Label.HorizontalOptions = LayoutOptions.Center;
 			Label.TextColor = Colors.Red;
 		}		
-		ToolTipProperties.SetText(this, $"{item.Id}\n{item.Path}");
+		ToolTipProperties.SetText(this, item);
 	}
 }
