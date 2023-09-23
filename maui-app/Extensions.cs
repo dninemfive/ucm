@@ -53,4 +53,7 @@ public static class Extensions
     public static string? DirectoryName(this string? path) => Path.GetDirectoryName(path);
     public static string? FileName(this string? path) => Path.GetFileName(path);
     public static string? FileExtension(this string? path) => Path.GetExtension(path);
+    // https://stackoverflow.com/a/76251267
+    public static double ScrollSpace(this ScrollView sv)
+        => sv.ContentSize.Height - sv.Height;
 }

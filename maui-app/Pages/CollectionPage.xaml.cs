@@ -29,25 +29,32 @@ public partial class CollectionPage : ContentPage
         }
         Competition.Rating? ratingof(Item item) => _competition?.RatingOf(item);        
         int horizontalItems = 7;
-        for(int i = 0; i < 21; i++)
+        float size = 1920 / horizontalItems - 10, totalHeight = 0;
+        while(totalHeight <= ScrollView.Height)
         {
-            if (!_items!.Any())
-                break;
-            Item item = _items!.First();
-            ItemsHolder.Add(new ThumbnailView(item, 1920 / horizontalItems - 10, $"{ratingof(item)}" ?? item.Id.ToString()));
-            _items!.RemoveAt(0);
-        }
+            for (int i = 0; i < horizontalItems; i++)
+            {
+                Utils.Log($"Item {i,-2}:\tScrollSpace\t{ScrollView.ScrollSpace()}");
+                if (!_items!.Any())
+                    break;
+                Item item = _items!.First();
+                ItemsHolder.Add(new ThumbnailView(item, size, $"{ratingof(item)}" ?? item.Id.ToString()));
+                _items!.RemoveAt(0);
+            }
+            totalHeight += size;
+        }        
         LoadButton.Text = "Load";
         _loading = false;
     }
     /// <summary>
-    /// https://stackoverflow.com/a/76251267
+    /// 
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="e"></param>
     private void ScrollView_Scrolled(object sender, ScrolledEventArgs e)
     {
-        if (e.ScrollY >= ScrollView.ContentSize.Height - ScrollView.Height)
+        Utils.Log(ScrollView.ScrollSpace());
+        if (e.ScrollY >= ScrollView.ScrollSpace())
             LoadItems(sender, e);
     }
 }
