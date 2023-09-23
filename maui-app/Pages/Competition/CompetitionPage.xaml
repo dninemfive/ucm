@@ -5,7 +5,7 @@
              x:Class="d9.ucm.CompetitionPage">
     <ScrollView>
         <VerticalStackLayout>
-            <local:CompetitionSelector x:Name="CompetitionCreation"/>
+            <local:CompetitionSelector x:Name="CompetitionCreation" AllowNewItem="True"/>
             <Grid x:Name="RatingScreen" IsVisible="False">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>

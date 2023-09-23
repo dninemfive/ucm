@@ -1,19 +1,21 @@
+using CommunityToolkit.Mvvm.ComponentModel;
 using d9.utl;
 using System.Collections.ObjectModel;
 
 namespace d9.ucm;
-
 public partial class CompetitionSelector : ContentView
 {
     public Competition? Competition { get; set; } = null;
     private readonly ObservableCollection<string> _competitions = new();
-    public bool AllowNewItem { get; set; } = true;
+    // https://stackoverflow.com/a/73597601
+    [ObservableProperty]
+    public bool allowNewItem;
     public bool CanCreateCompetition
-        => AllowNewItem && CompetitionName.Text.Length > 0 && !File.Exists(Competition.PathFor(CompetitionName.Text));
+        => allowNewItem && CompetitionName.Text.Length > 0 && !File.Exists(Competition.PathFor(CompetitionName.Text));
     public bool NoItemSelected => Dropdown.SelectedIndex == 0;
-    public bool NewItemDialogSelected => AllowNewItem && Dropdown.SelectedIndex == Dropdown.Items.Count - 1;
+    public bool NewItemDialogSelected => allowNewItem && Dropdown.SelectedIndex == Dropdown.Items.Count - 1;
 	public CompetitionSelector()
-	{
+	{        
 		InitializeComponent();
         _competitions.Add("(no item)");
         foreach(string file in Directory.EnumerateFiles(MauiProgram.TEMP_COMP_LOCATION))
@@ -23,10 +25,16 @@ public partial class CompetitionSelector : ContentView
                 _competitions.Add(Path.GetFileNameWithoutExtension(file));
             }
         }
-        if(AllowNewItem)
-            _competitions.Add("New item...");
         Dropdown.ItemsSource = _competitions;
+        
 	}
+    partial void OnAllowNewItemChanging(bool value)
+    {
+        if (value)
+        {
+            _competitions.Add("New item...");
+        }
+    }
     private void CompetitionName_TextChanged(object sender, TextChangedEventArgs e)
     {
         CreateButton.IsEnabled = CanCreateCompetition;
