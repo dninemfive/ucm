@@ -10,7 +10,7 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <HorizontalStackLayout HorizontalOptions="FillAndExpand" Grid.Row="0">
-            <local:CompetitionSelector x:Name="CompetitionSelector" HorizontalOptions="StartAndExpand"/>
+            <local:CompetitionSelector x:Name="CompetitionSelector" HorizontalOptions="StartAndExpand" AllowNewItem="False"/>
             <Button x:Name="LoadButton" Clicked="LoadItems" Text="Load" HorizontalOptions="End"/>
         </HorizontalStackLayout>
         <ScrollView VerticalOptions="FillAndExpand" Grid.Row="1">    

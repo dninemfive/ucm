@@ -47,13 +47,13 @@ public partial class CompetitionPage : ContentPage
     }       
     private async void CompetitionCreated(object? sender, EventArgs e)
     {
-        CompetitionCreation.IsVisible = false;
-        Utils.Log($"CompetitionCreated({Competition?.Name.PrintNull()})");
-        if(Competition is null)
+        if (Competition is null)
         {
             RatingScreen.IsVisible = false;
             return;
         }
+        CompetitionCreation.IsVisible = false;
+        Utils.Log($"CompetitionCreated({Competition?.Name.PrintNull()})");        
         RatingScreen.IsVisible = true;
         await UpdateViews();
     }
@@ -69,14 +69,14 @@ public partial class CompetitionPage : ContentPage
         if (Competition is null)
             return;
         LeftItemHolder.Content = Competition.Left.View;
-        ToolTipProperties.SetText(LeftItemHolder, Competition.Left.Path);
+        ToolTipProperties.SetText(LeftItemHolder, $"{Competition.Left.Id} {Competition.RatingOf(Side.Left)?.TotalRatings}\n{Competition.Left.Path}");
     }
     public void UpdateRightItem()
     {
         if (Competition is null)
             return;
         RightItemHolder.Content = Competition.Right.View;
-        ToolTipProperties.SetText(RightItemHolder, Competition.Right.Path);
+        ToolTipProperties.SetText(RightItemHolder, $"{Competition.Right.Id} {Competition.RatingOf(Side.Right)?.TotalRatings}\n{Competition.Right.Path}");
     }
     private async Task UpdateViews()
     {

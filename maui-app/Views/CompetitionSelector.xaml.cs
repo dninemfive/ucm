@@ -49,12 +49,12 @@ public partial class CompetitionSelector : ContentView
 
     private async void Dropdown_SelectedIndexChanged(object sender, EventArgs e)
     {
-        Utils.Log($"Dropdown_SelectedIndexChanged({Dropdown.SelectedIndex})");
+        Utils.Log($"Dropdown_SelectedIndexChanged({Dropdown.SelectedIndex} {Dropdown.Items.Count})");
         CreationItems.IsVisible = NewItemDialogSelected;
         if(!NoItemSelected && 
-                !NewItemDialogSelected && 
-                Dropdown.SelectedIndex >= 0 && 
-                Dropdown.SelectedIndex < Dropdown.Items.Count)
+           !NewItemDialogSelected && 
+            Dropdown.SelectedIndex >= 0 && 
+            Dropdown.SelectedIndex < Dropdown.Items.Count)
         {
             Competition = await Competition.LoadOrCreateAsync(Dropdown.SelectedItem as string);
         }
