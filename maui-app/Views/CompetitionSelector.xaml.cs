@@ -8,12 +8,11 @@ public partial class CompetitionSelector : ContentView
     public Competition? Competition { get; set; } = null;
     private readonly ObservableCollection<string> _competitions = new();
     // https://stackoverflow.com/a/73597601
-    [ObservableProperty]
-    public bool allowNewItem;
+    public bool AllowNewItem { get; set; }
     public bool CanCreateCompetition
-        => allowNewItem && CompetitionName.Text.Length > 0 && !File.Exists(Competition.PathFor(CompetitionName.Text));
+        => AllowNewItem && CompetitionName.Text.Length > 0 && !File.Exists(Competition.PathFor(CompetitionName.Text));
     public bool NoItemSelected => Dropdown.SelectedIndex == 0;
-    public bool NewItemDialogSelected => allowNewItem && Dropdown.SelectedIndex == Dropdown.Items.Count - 1;
+    public bool NewItemDialogSelected => AllowNewItem && Dropdown.SelectedIndex == Dropdown.Items.Count - 1;
 	public CompetitionSelector()
 	{        
 		InitializeComponent();
@@ -26,15 +25,7 @@ public partial class CompetitionSelector : ContentView
             }
         }
         Dropdown.ItemsSource = _competitions;
-        
 	}
-    partial void OnAllowNewItemChanging(bool value)
-    {
-        if (value)
-        {
-            _competitions.Add("New item...");
-        }
-    }
     private void CompetitionName_TextChanged(object sender, TextChangedEventArgs e)
     {
         CreateButton.IsEnabled = CanCreateCompetition;
@@ -71,5 +62,13 @@ public partial class CompetitionSelector : ContentView
             Competition = null;
         }
         CompetitionSelected?.Invoke(sender, e);
+    }
+
+    private void Dropdown_Loaded(object sender, EventArgs e)
+    {
+        if(AllowNewItem)
+        {
+            _competitions.Add("New item...");
+        }
     }
 }

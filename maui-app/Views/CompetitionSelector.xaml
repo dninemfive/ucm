@@ -5,7 +5,7 @@
     <VerticalStackLayout>
         <Picker Title="Select competition..." 
                 x:Name="Dropdown"
-                SelectedIndexChanged="Dropdown_SelectedIndexChanged"/>
+                SelectedIndexChanged="Dropdown_SelectedIndexChanged" Loaded="Dropdown_Loaded"/>
         <Grid x:Name="CreationItems" IsVisible="False">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="5*"/>
