@@ -12,7 +12,7 @@ public partial class CompetitionPage : ContentPage
     public CompetitionPage()
     {
         InitializeComponent();
-        CompetitionCreation.CompetitionCreated += CompetitionCreated;
+        CompetitionCreation.CompetitionSelected += CompetitionCreated;
     }
     private async void Left_Clicked(object sender, EventArgs e)
     {

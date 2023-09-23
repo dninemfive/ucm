@@ -7,50 +7,51 @@ public partial class CollectionPage : ContentPage
 	public CollectionPage()
 	{
         InitializeComponent();
+        CompetitionSelector.CompetitionSelected += CompetitionSelected;
 	}
-    Competition? _competition = null;
+    public Competition? Competition => CompetitionSelector.Competition;
     private List<Item>? _items = null;
     private bool _loading = false;
-	public async void LoadItems(object? sender, EventArgs e)
+    public const int ITEMS_PER_ROW = 7;
+    public const double ITEM_SIZE = 1920 / (double)ITEMS_PER_ROW - 10;
+    public async void CompetitionSelected(object? sender, EventArgs e)
+    {
+        ItemsHolder.Children.Clear();
+        if(Competition is null)
+        {
+            _items = await Task.Run(() => ItemManager.Items.OrderBy(x => x.Id).ToList());
+        } 
+        else
+        {
+            _items = await Task.Run(() => Competition?.RelevantItems.OrderByDescending(x => Competition?.RatingOf(x)?.CiLowerBound).ToList());
+        }
+        await LoadItems(sender, e);
+    }
+	public async Task LoadItems(object? sender, EventArgs e)
 	{
         if (_loading)
             return;
         _loading = true;
-        LoadButton.Text = "Loading...";
-        Competition? old = _competition;
-        _competition = CompetitionSelector.Competition;
-        if(_competition is null)
+        double totalHeight = 0, targetHeight = ScrollView.ScrollSpace() <= 0 ? ScrollView.Height : 1;
+        while(totalHeight <= targetHeight)
         {
-            _items = await Task.Run(() => ItemManager.Items.OrderBy(x => x.Id).ToList());
-        }
-        if(_competition?.Name != old?.Name)
-        {
-            _items = await Task.Run(() => _competition?.RelevantItems.OrderByDescending(x => ratingof(x)?.CiLowerBound).ToList());
-        }
-        Competition.Rating? ratingof(Item item) => _competition?.RatingOf(item);        
-        int horizontalItems = 7;
-        float size = 1920 / horizontalItems - 10, totalHeight = 0;
-        while(totalHeight <= ScrollView.Height)
-        {
-            for (int i = 0; i < horizontalItems; i++)
-            {
-                Utils.Log($"Item {i,-2}:\tScrollSpace\t{ScrollView.ScrollSpace()}");
-                if (!_items!.Any())
-                    break;
-                Item item = _items!.First();
-                ItemsHolder.Add(new ThumbnailView(item, size, $"{ratingof(item)}" ?? item.Id.ToString()));
-                _items!.RemoveAt(0);
-            }
-            totalHeight += size;
+            await LoadOneRow();
+            totalHeight += ITEM_SIZE;
         }        
-        LoadButton.Text = "Load";
         _loading = false;
     }
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
+    private async Task LoadOneRow()
+    {
+        for (int i = 0; i < ITEMS_PER_ROW; i++)
+        {
+            Utils.Log($"Item {i,-2}:\tScrollSpace\t{ScrollView.ScrollSpace()}");
+            if (!_items!.Any())
+                break;
+            Item item = _items!.First();
+            ItemsHolder.Add(new ThumbnailView(item, ITEM_SIZE, $"{Competition?.RatingOf(item)}" ?? item.Id.ToString()));
+            _items!.RemoveAt(0);
+        }
+    }
     private void ScrollView_Scrolled(object sender, ScrolledEventArgs e)
     {
         Utils.Log(ScrollView.ScrollSpace());

@@ -43,9 +43,9 @@ public partial class CompetitionSelector : ContentView
         int index = _competitions.Count - 1;
         _competitions.Insert(index, Competition!.Name);
         Dropdown.SelectedItem = index;
-        CompetitionCreated?.Invoke(sender, e);
+        CompetitionSelected?.Invoke(sender, e);
     }
-    public event EventHandler? CompetitionCreated;
+    public event EventHandler? CompetitionSelected;
 
     private async void Dropdown_SelectedIndexChanged(object sender, EventArgs e)
     {
@@ -62,6 +62,6 @@ public partial class CompetitionSelector : ContentView
         {
             Competition = null;
         }
-        CompetitionCreated?.Invoke(sender, e);
+        CompetitionSelected?.Invoke(sender, e);
     }
 }
