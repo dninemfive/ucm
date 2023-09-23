@@ -32,14 +32,21 @@ public class Competition
         public double CiUpperBound
             => TotalRatings == 0 ? 0 : (Ratio + _z * _z / (2 * TotalRatings) + _z * Math.Sqrt((Ratio * (1 - Ratio) + _z * _z / (4 * TotalRatings)) / TotalRatings)) / (1 + _z * _z / TotalRatings);
         [JsonIgnore]
-        public double Weight => TotalRatings == 0 ? 1 : 1 / (double)TotalRatings;
+        public double CiCenter
+            => (CiLowerBound + CiUpperBound) / 2;
+        public double MarginOfError
+            => (CiUpperBound - CiLowerBound) / 2;
+        [JsonIgnore]
+        public double Weight => Math.Pow(2, -TotalRatings);
+        [JsonIgnore]
+        public bool ShouldShow => TotalRatings < 7 || CiUpperBound >= 0.42;
         [JsonConstructor]
         public Rating(int timesSelected, int totalRatings)
         {
             TimesSelected = timesSelected;
             TotalRatings = totalRatings;
         }
-        public override string ToString() => $"{TimesSelected}/{TotalRatings} ({CiLowerBound:F2}-{CiUpperBound:F2})";
+        public override string ToString() => $"{TimesSelected}/{TotalRatings} ({CiCenter:F2}±{MarginOfError:F2})";
         public void Increment(bool selected)
         {
             if (selected)
@@ -114,7 +121,7 @@ public class Competition
         get
         {
             Utils.Log(RelevantItems.Count());
-            Item result = RelevantItems.Where(x => x.Id != _previousItem?.Id && RatingOf(x)?.CiUpperBound >= 0.5)
+            Item result = RelevantItems.Where(x => x.Id != _previousItem?.Id && (RatingOf(x)?.ShouldShow ?? false))
                                        .WeightedRandomElement(x => RatingOf(x)?.Weight ?? 0);
             _previousItem = result;
             return result;

@@ -61,7 +61,8 @@ public partial class MainPage : ContentPage
             // https://github.com/stil/CurlThin/issues/8
             _ = CurlNative.Easy.SetOpt(handle, CURLoption.CAINFO, CurlResources.CaBundlePath);
             CURLcode result = CurlNative.Easy.Perform(handle);
-			return $"Result code: {result}.\n\nResponse body:\n{Encoding.UTF8.GetString(stream.ToArray())}";
+			return $"Result code: {result}.\n\nResponse body:\n{Encoding.UTF8.GetString(stream.ToArray())}"
+				.Replace(">",">\n").Replace(",",",\n").Replace("{", "{\n").Replace("}","\n}\n");
         }
 		finally
 		{

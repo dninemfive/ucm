@@ -11,7 +11,7 @@
         </Grid.RowDefinitions>
         <HorizontalStackLayout HorizontalOptions="FillAndExpand" Grid.Row="0">
             <local:CompetitionSelector x:Name="CompetitionSelector" HorizontalOptions="StartAndExpand"/>
-            <Button Clicked="LoadItems" Text="Load" HorizontalOptions="End"/>
+            <Button x:Name="LoadButton" Clicked="LoadItems" Text="Load" HorizontalOptions="End"/>
         </HorizontalStackLayout>
         <ScrollView VerticalOptions="FillAndExpand" Grid.Row="1">    
             <FlexLayout x:Name="ItemsHolder" 

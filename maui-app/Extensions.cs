@@ -40,4 +40,14 @@ public static class Extensions
     public static double HalfIntervalSize(double z, double s, int n) => z * (s / Math.Sqrt(n));
     public static (double lower, double upper) ConfidenceInterval(double x_bar, double z, double s, int n) =>
         (x_bar - HalfIntervalSize(z, s, n), x_bar + HalfIntervalSize(z, s, n));
+
+    public static string ReplaceAny(this string str, params string[] tokens)
+    {
+        if (tokens.Length < 2)
+            throw new Exception();
+        string last = tokens.Last();
+        foreach (string token in tokens.SkipLast(1))
+            str = str.Replace(token, last);
+        return str;
+    }
 }
