@@ -7,8 +7,11 @@ public partial class CompetitionSelector : ContentView
 {
     public Competition? Competition { get; set; } = null;
     private readonly ObservableCollection<string> _competitions = new();
+    public bool AllowNewItem { get; set; } = true;
     public bool CanCreateCompetition
-        => CompetitionName.Text.Length > 0 && !File.Exists(Competition.PathFor(CompetitionName.Text));
+        => AllowNewItem && CompetitionName.Text.Length > 0 && !File.Exists(Competition.PathFor(CompetitionName.Text));
+    public bool NoItemSelected => Dropdown.SelectedIndex == 0;
+    public bool NewItemDialogSelected => AllowNewItem && Dropdown.SelectedIndex == Dropdown.Items.Count - 1;
 	public CompetitionSelector()
 	{
 		InitializeComponent();
@@ -20,7 +23,8 @@ public partial class CompetitionSelector : ContentView
                 _competitions.Add(Path.GetFileNameWithoutExtension(file));
             }
         }
-        _competitions.Add("New item...");
+        if(AllowNewItem)
+            _competitions.Add("New item...");
         Dropdown.ItemsSource = _competitions;
 	}
     private void CompetitionName_TextChanged(object sender, TextChangedEventArgs e)
@@ -46,14 +50,17 @@ public partial class CompetitionSelector : ContentView
     private async void Dropdown_SelectedIndexChanged(object sender, EventArgs e)
     {
         Utils.Log($"Dropdown_SelectedIndexChanged({Dropdown.SelectedIndex})");
-        CreationItems.IsVisible = Dropdown.SelectedIndex == _competitions.Count - 1;
-        if (Dropdown.SelectedIndex < 1 || Dropdown.SelectedIndex >= _competitions.Count - 1)
+        CreationItems.IsVisible = NewItemDialogSelected;
+        if(!NoItemSelected && 
+                !NewItemDialogSelected && 
+                Dropdown.SelectedIndex >= 0 && 
+                Dropdown.SelectedIndex < Dropdown.Items.Count)
         {
-            Competition = null;
+            Competition = await Competition.LoadOrCreateAsync(Dropdown.SelectedItem as string);
         }
         else
         {
-            Competition = await Competition.LoadOrCreateAsync(Dropdown.SelectedItem as string);
+            Competition = null;
         }
         CompetitionCreated?.Invoke(sender, e);
     }

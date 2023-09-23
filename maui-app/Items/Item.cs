@@ -6,6 +6,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using System.IO;
+using d9.utl;
 
 namespace d9.ucm;
 public class Item
@@ -54,18 +55,34 @@ public class Item
                 continue;
             Item? item = await JsonSerializer.DeserializeAsync<Item>(File.OpenRead(path));
             if (item is not null)
+            {
+                if(!File.Exists(item.Path))
+                {
+                    Utils.Log(path);
+                    path.MoveFileTo(System.IO.Path.Join(path.DirectoryName(), "missing", path.FileName()));
+                    continue;
+                }
                 yield return item;
+            }
         }
     }
     public static IEnumerable<Item> LoadAll()
     {
         foreach(string path in Directory.EnumerateFiles(MauiProgram.TEMP_SAVE_LOCATION))
         {
-            if (System.IO.Path.GetExtension(path) is not ".json")
+            if (path.FileExtension() is not ".json")
                 continue;
             Item? item = JsonSerializer.Deserialize<Item>(File.ReadAllText(path));
             if (item is not null)
+            {
+                if (!File.Exists(item.Path))
+                {
+                    Utils.Log(path);
+                    path.MoveFileTo(System.IO.Path.Join(path.DirectoryName(), "missing", path.FileName()));
+                    continue;
+                }
                 yield return item;
+            }
         }
     }
     public async Task SaveAsync()

@@ -50,4 +50,7 @@ public static class Extensions
             str = str.Replace(token, last);
         return str;
     }
+    public static string? DirectoryName(this string? path) => Path.GetDirectoryName(path);
+    public static string? FileName(this string? path) => Path.GetFileName(path);
+    public static string? FileExtension(this string? path) => Path.GetExtension(path);
 }
