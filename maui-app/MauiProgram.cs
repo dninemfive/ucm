@@ -23,9 +23,11 @@ public static class MauiProgram
 #if DEBUG
 		builder.Logging.AddDebug();
 #endif
-		ItemManager.Load();
-		Utils.DefaultLog = new(@"C:\Users\dninemfive\Pictures\misc\ucm\general.log");
-		CurlResources.Init();
+		
+		Utils.DefaultLog = new(@"C:\Users\dninemfive\Pictures\misc\ucm\general.log", mode: Log.Mode.WriteImmediate);
+        ItemManager.Load();
+        CurlResources.Init();
+		Utils.Log("asdf");
 		return builder.Build();
 	}
 }

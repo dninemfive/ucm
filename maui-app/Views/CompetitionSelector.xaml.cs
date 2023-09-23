@@ -34,7 +34,9 @@ public partial class CompetitionSelector : ContentView
             return;
         }
         Competition = await Competition.LoadOrCreateAsync(CompetitionName.Text);
-        _competitions.Insert(_competitions.Count - 2, Competition!.Name);
+        int index = _competitions.Count - 1;
+        _competitions.Insert(index, Competition!.Name);
+        Dropdown.SelectedItem = index;
         CompetitionCreated?.Invoke(sender, e);
     }
     public event EventHandler? CompetitionCreated;

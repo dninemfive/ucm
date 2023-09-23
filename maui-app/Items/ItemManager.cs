@@ -35,6 +35,7 @@ public static class ItemManager
         {
             Register(item);
         }
+        Utils.Log($"Loaded {_itemsById.Count} items.");
     }
     public static void Reload()
     {

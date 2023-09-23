@@ -120,8 +120,8 @@ public class Competition
         get
         {
             Utils.Log(RelevantItems.Count());
-            Item result = RelevantItems.Where(x => x.Id != _previousItem?.Id && (RatingOf(x)?.ShouldShow ?? false))
-                                       .WeightedRandomElement(x => RatingOf(x)?.Weight ?? 0);
+            Item result = RelevantItems.Where(x => x.Id != _previousItem?.Id && (RatingOf(x)?.ShouldShow ?? true))
+                                       .WeightedRandomElement(x => RatingOf(x)?.Weight ?? 1);
             _previousItem = result;
             return result;
         }
@@ -134,13 +134,23 @@ public class Competition
     }
     public static async Task<Competition?> LoadOrCreateAsync(string? name)
     {
+        Utils.Log($"LoadOrCreateAsync({name.PrintNull()})");
         if (name is null or "")
             return null;
         string path = PathFor(name);
+        Utils.Log($"\t{path}");
         if (File.Exists(path))
+        {
+            Utils.Log($"\texists");
             return await Task.Run(() => JsonSerializer.Deserialize<Competition>(File.ReadAllText(path))!);
+        }
         else
-            return new(name);
+        {
+            Utils.Log("\tno");
+            Competition result = new(name);
+            await result.SaveAsync();
+            return result;
+        }
     }
     public static string PathFor(string name) => Path.Join(MauiProgram.TEMP_COMP_LOCATION, $"{name}.json");
     [JsonIgnore]
