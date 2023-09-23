@@ -32,19 +32,22 @@ public partial class CompetitionPage : ContentPage
     private void LeftIrrelevant_Clicked(object sender, EventArgs e)
     {
         Competition!.MarkIrrelevant(Side.Left);
-        LeftItemHolder.Content.Opacity = 0.4;
-        SelectRight.IsVisible = false;
-        SelectLeft.IsVisible = false;
-        LeftIrrelevant.IsVisible = false;
+        LeftItemView.IsIrrelevant = true;
+        UpdateButtonActivation();
     }
     private void RightIrrelevant_Clicked(object sender, EventArgs e)
     {
         Competition!.MarkIrrelevant(Side.Right);
-        RightItemHolder.Content.Opacity = 0.4;
-        SelectRight.IsVisible = false;
-        SelectLeft.IsVisible = false;
-        RightIrrelevant.IsVisible = false;
+        RightItemView.IsIrrelevant = true;
+        UpdateButtonActivation();
     }       
+    private void UpdateButtonActivation()
+    {
+        LeftIrrelevant.IsEnabled = !LeftItemView.IsIrrelevant;
+        SelectLeft.IsEnabled = !LeftItemView.IsIrrelevant;
+        SelectRight.IsEnabled = !RightItemView.IsIrrelevant;
+        RightIrrelevant.IsEnabled = !RightItemView.IsIrrelevant;
+    }
     private async void CompetitionCreated(object? sender, EventArgs e)
     {
         if (Competition is null)
@@ -57,32 +60,17 @@ public partial class CompetitionPage : ContentPage
         RatingScreen.IsVisible = true;
         await UpdateViews();
     }
-    public void UnhideButtons()
-    {
-        SelectLeft.IsVisible = true;
-        SelectRight.IsVisible = true;
-        LeftIrrelevant.IsVisible = true;
-        RightIrrelevant.IsVisible = true;
-    }
-    public void UpdateLeftItem()
+    public void Update(CompetitionItemView itemView, Side side)
     {
         if (Competition is null)
             return;
-        LeftItemHolder.Content = Competition.Left.View;
-        ToolTipProperties.SetText(LeftItemHolder, $"{Competition.Left.Id} {Competition.RatingOf(Side.Left)?.TotalRatings}\n{Competition.Left.Path}");
-    }
-    public void UpdateRightItem()
-    {
-        if (Competition is null)
-            return;
-        RightItemHolder.Content = Competition.Right.View;
-        ToolTipProperties.SetText(RightItemHolder, $"{Competition.Right.Id} {Competition.RatingOf(Side.Right)?.TotalRatings}\n{Competition.Right.Path}");
+        itemView.UpdateWith(Competition[side], $"Ratings: {Competition.RatingOf(side)?.TotalRatings}");
     }
     private async Task UpdateViews()
     {
         await Competition!.SaveAsync();
-        UnhideButtons();
-        UpdateLeftItem();
-        UpdateRightItem();        
+        Update(LeftItemView, Side.Left);
+        Update(RightItemView, Side.Right);
+        UpdateButtonActivation();
     }
 }

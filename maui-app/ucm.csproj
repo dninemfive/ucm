@@ -89,6 +89,9 @@
 	  <MauiXaml Update="Pages\CollectionPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
+	  <MauiXaml Update="Views\CompetitionItemView.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="Views\CompetitionSelector.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
