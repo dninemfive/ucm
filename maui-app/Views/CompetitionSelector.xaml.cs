@@ -1,39 +1,55 @@
+using System.Collections.ObjectModel;
+
 namespace d9.ucm;
 
 public partial class CompetitionSelector : ContentView
 {
     public Competition? Competition { get; set; } = null;
-    public bool HasValidName => CreateButton.Text.Length > 0;
+    private readonly ObservableCollection<string> _competitions = new();
+    public bool CanCreateCompetition
+        => CompetitionName.Text.Length > 0 && !File.Exists(Competition.PathFor(CompetitionName.Text));
 	public CompetitionSelector()
 	{
 		InitializeComponent();
+        _competitions.Add("(no item)");
+        foreach(string file in Directory.EnumerateFiles(MauiProgram.TEMP_COMP_LOCATION))
+        {
+            if(Path.GetExtension(file) == ".json")
+            {
+                _competitions.Add(Path.GetFileNameWithoutExtension(file));
+            }
+        }
+        _competitions.Add("New item...");
+        Dropdown.ItemsSource = _competitions;
 	}
     private void CompetitionName_TextChanged(object sender, TextChangedEventArgs e)
     {
-        if (!HasValidName)
-        {
-            CreateButton.Text = "Invalid name!";
-            CreateButton.IsEnabled = false;
-        }
-        CreateButton.IsEnabled = true;
-        if (File.Exists(Competition.PathFor(CompetitionName.Text)))
-        {
-            CreateButton.Text = "Load";
-        }
-        else
-        {
-            CreateButton.Text = "Create";
-        }
+        CreateButton.IsEnabled = CanCreateCompetition;
     }
     private async void CreateCompetition(object sender, EventArgs e)
     {
-        if(!HasValidName)
+        if(!CanCreateCompetition)
         {
             Competition = null;
             return;
         }
         Competition = await Competition.LoadOrCreateAsync(CompetitionName.Text);
+        _competitions.Insert(_competitions.Count - 2, Competition!.Name);
         CompetitionCreated?.Invoke(sender, e);
     }
     public event EventHandler? CompetitionCreated;
+
+    private async void Dropdown_SelectedIndexChanged(object sender, EventArgs e)
+    {
+        DebugThingy.Text = Dropdown.SelectedIndex.ToString();
+        CreationItems.IsVisible = Dropdown.SelectedIndex == _competitions.Count - 1;
+        if (Dropdown.SelectedIndex < 1 || Dropdown.SelectedIndex >= _competitions.Count - 1)
+        {
+            Competition = null;
+        }
+        else
+        {
+            Competition = await Competition.LoadOrCreateAsync(Dropdown.SelectedItem as string);
+        } 
+    }
 }

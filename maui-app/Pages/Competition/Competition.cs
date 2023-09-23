@@ -1,5 +1,4 @@
 ﻿using d9.utl;
-using Microsoft.UI.Input;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -133,8 +132,10 @@ public class Competition
     {
         _ = IrrelevantItems.Add(this[side].Id);
     }
-    public static async Task<Competition> LoadOrCreateAsync(string name)
+    public static async Task<Competition?> LoadOrCreateAsync(string? name)
     {
+        if (name is null or "")
+            return null;
         string path = PathFor(name);
         if (File.Exists(path))
             return await Task.Run(() => JsonSerializer.Deserialize<Competition>(File.ReadAllText(path))!);
