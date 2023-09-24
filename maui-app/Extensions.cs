@@ -1,4 +1,5 @@
-﻿using System;
+﻿using d9.utl;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
@@ -56,4 +57,20 @@ public static class Extensions
     // https://stackoverflow.com/a/76251267
     public static double ScrollSpace(this ScrollView sv)
         => sv.ContentSize.Height - sv.Height;
+    public static IEnumerable<T> LoadAll<T>(this string srcFolder, Func<T, bool>? validator = null)
+    {
+        Utils.Log($"Loading all {typeof(T).Name}s in {srcFolder}...");
+        foreach (string path in Directory.EnumerateFiles(srcFolder))
+        {
+            if (path.FileExtension() is not ".json")
+                continue;
+            T? item = JsonSerializer.Deserialize<T>(File.ReadAllText(path));
+            if (item is not null && (validator is null || validator(item)))
+            {
+                yield return item;
+            }
+        }
+    }
+    public static Competition.Rating? RatingAs(this Item item, string? name)
+        => Competition.Named(name)?.RatingOf(item);
 }

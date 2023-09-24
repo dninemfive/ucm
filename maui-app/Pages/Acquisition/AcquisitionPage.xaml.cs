@@ -66,7 +66,7 @@ public partial class AcquisitionPage : ContentPage
     #region misc methods
     private async Task LoadHashesAsync()
     {
-        await foreach (Item item in Item.LoadAllAsync())
+        foreach (Item item in ItemManager.Items)
             _ = _hashes.Add(item.Hash);
         if (File.Exists(MauiProgram.REJECTED_HASH_FILE))
         {

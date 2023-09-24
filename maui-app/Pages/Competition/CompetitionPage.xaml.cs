@@ -68,7 +68,6 @@ public partial class CompetitionPage : ContentPage
             return;
         }
         CompetitionCreation.IsVisible = false;
-        Utils.Log($"CompetitionCreated({Competition?.Name.PrintNull()})");        
         RatingScreen.IsVisible = true;
         await UpdateViews();
     }

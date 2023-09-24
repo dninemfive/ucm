@@ -71,6 +71,9 @@ public class Competition
     public bool IsIrrelevant(ItemId id) => IrrelevantItems.Contains(id);
     public Rating? RatingOf(ItemId id) => IsIrrelevant(id) ? null : Ratings.TryGetValue(id, out Rating? r) ? r : null;
     public Rating? RatingOf(Item item) => RatingOf(item.Id);
+    public static Competition? Named(string? name) 
+        => name is null ? null : CompetitionManager.CompetitionsByName.TryGetValue(name, out Competition? competition) ? competition : null;
+    public static IEnumerable<string> Names => CompetitionManager.Names;
     [JsonIgnore]
     public Item Left, Right;
     public Item this[Side side] {
@@ -119,7 +122,6 @@ public class Competition
     {
         get
         {
-            Utils.Log(RelevantItems.Count());
             Item result = RelevantItems.Where(x => x.Id != _previousItem?.Id && (RatingOf(x)?.ShouldShow ?? true))
                                        .WeightedRandomElement(x => RatingOf(x)?.Weight ?? 1);
             _previousItem = result;
@@ -134,19 +136,15 @@ public class Competition
     }
     public static async Task<Competition?> LoadOrCreateAsync(string? name)
     {
-        Utils.Log($"LoadOrCreateAsync({name.PrintNull()})");
         if (name is null or "")
             return null;
         string path = PathFor(name);
-        Utils.Log($"\t{path}");
         if (File.Exists(path))
         {
-            Utils.Log($"\texists");
             return await Task.Run(() => JsonSerializer.Deserialize<Competition>(File.ReadAllText(path))!);
         }
         else
         {
-            Utils.Log("\tno");
             Competition result = new(name);
             await result.SaveAsync();
             return result;

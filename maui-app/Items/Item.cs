@@ -49,45 +49,6 @@ public class Item
     #endregion
     public override string ToString()
         => $"Item {Id} @ {Path}";
-    public static async IAsyncEnumerable<Item> LoadAllAsync()
-    {
-        Utils.Log($"Loading items...");
-        foreach (string path in await Task.Run(() => Directory.EnumerateFiles(MauiProgram.TEMP_SAVE_LOCATION)))
-        {
-            if (System.IO.Path.GetExtension(path) is not ".json")
-                continue;
-            Item? item = await JsonSerializer.DeserializeAsync<Item>(File.OpenRead(path));
-            if (item is not null)
-            {
-                if(!File.Exists(item.Path))
-                {
-                    Utils.Log($"Item at {item.Path} does not exist! Moving to folder `missing`...");
-                    path.MoveFileTo(System.IO.Path.Join(path.DirectoryName(), "missing", path.FileName()));
-                    continue;
-                }
-                yield return item;
-            }
-        }
-    }
-    public static IEnumerable<Item> LoadAll()
-    {
-        foreach(string path in Directory.EnumerateFiles(MauiProgram.TEMP_SAVE_LOCATION))
-        {
-            if (path.FileExtension() is not ".json")
-                continue;
-            Item? item = JsonSerializer.Deserialize<Item>(File.ReadAllText(path));
-            if (item is not null)
-            {
-                if (!File.Exists(item.Path))
-                {
-                    Utils.Log(path);
-                    path.MoveFileTo(System.IO.Path.Join(path.DirectoryName(), "missing", path.FileName()));
-                    continue;
-                }
-                yield return item;
-            }
-        }
-    }
     public async Task SaveAsync()
     {
         await File.WriteAllTextAsync(@$"{MauiProgram.TEMP_SAVE_LOCATION}\{Id}.json",

@@ -1,8 +1,4 @@
-﻿using CurlThin;
-using CurlThin.Enums;
-using CurlThin.Native;
-using CurlThin.SafeHandles;
-using d9.utl;
+﻿using d9.utl;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Json;

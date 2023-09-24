@@ -1,5 +1,4 @@
 ﻿using CommunityToolkit.Maui;
-using CurlThin.Native;
 using d9.utl;
 using Microsoft.Extensions.Logging;
 
@@ -23,6 +22,7 @@ public static class MauiProgram
 			});		
 		Utils.DefaultLog = new(@"C:\Users\dninemfive\Pictures\misc\ucm\general.log", mode: Log.Mode.WriteImmediate);
         ItemManager.Load();
+		CompetitionManager.Load();
 		Utils.Log("Built program.");
 		return builder.Build();
 	}

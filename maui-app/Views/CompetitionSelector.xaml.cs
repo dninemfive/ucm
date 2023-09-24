@@ -1,4 +1,3 @@
-using CommunityToolkit.Mvvm.ComponentModel;
 using d9.utl;
 using System.Collections.ObjectModel;
 
@@ -17,12 +16,9 @@ public partial class CompetitionSelector : ContentView
 	{        
 		InitializeComponent();
         _competitions.Add("(no item)");
-        foreach(string file in Directory.EnumerateFiles(MauiProgram.TEMP_COMP_LOCATION))
+        foreach(string name in Competition.Names.OrderBy(x => x))
         {
-            if(Path.GetExtension(file) == ".json")
-            {
-                _competitions.Add(Path.GetFileNameWithoutExtension(file));
-            }
+            _competitions.Add(name);
         }
         Dropdown.ItemsSource = _competitions;
 	}
@@ -38,7 +34,6 @@ public partial class CompetitionSelector : ContentView
             return;
         }
         Competition = await Competition.LoadOrCreateAsync(CompetitionName.Text);
-        Utils.Log($"CreateCompetition() -> {Competition?.Name.PrintNull()}");
         int index = _competitions.Count - 1;
         _competitions.Insert(index, Competition!.Name);
         Dropdown.SelectedItem = index;
@@ -46,16 +41,15 @@ public partial class CompetitionSelector : ContentView
     }
     public event EventHandler? CompetitionSelected;
 
-    private async void Dropdown_SelectedIndexChanged(object sender, EventArgs e)
+    private void Dropdown_SelectedIndexChanged(object sender, EventArgs e)
     {
-        Utils.Log($"Dropdown_SelectedIndexChanged({Dropdown.SelectedIndex} {Dropdown.Items.Count})");
         CreationItems.IsVisible = NewItemDialogSelected;
         if(!NoItemSelected && 
            !NewItemDialogSelected && 
             Dropdown.SelectedIndex >= 0 && 
             Dropdown.SelectedIndex < Dropdown.Items.Count)
         {
-            Competition = await Competition.LoadOrCreateAsync(Dropdown.SelectedItem as string);
+            Competition = Competition.Named(Dropdown.SelectedItem as string);
         }
         else
         {

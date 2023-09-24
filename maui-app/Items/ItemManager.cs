@@ -31,7 +31,16 @@ public static class ItemManager
             return;
         _loaded = true;
         _itemsById = new();
-        foreach (Item item in Item.LoadAll())
+        foreach (Item item in MauiProgram.TEMP_SAVE_LOCATION.LoadAll<Item>(x =>
+        {
+            bool result = File.Exists(x.Path);
+            if (result)
+            {
+                Utils.Log(x.Path);
+                x.Path.MoveFileTo(Path.Join(x.Path.DirectoryName(), "missing", x.Path.FileName()));
+            }
+            return result;
+        }))
         {
             Register(item);
         }

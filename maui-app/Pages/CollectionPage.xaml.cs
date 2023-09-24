@@ -44,7 +44,6 @@ public partial class CollectionPage : ContentPage
     {
         for (int i = 0; i < ITEMS_PER_ROW; i++)
         {
-            Utils.Log($"Item {i,-2}:\tScrollSpace\t{ScrollView.ScrollSpace()}");
             if (!_items!.Any())
                 break;
             Item item = _items!.First();
@@ -54,7 +53,6 @@ public partial class CollectionPage : ContentPage
     }
     private void ScrollView_Scrolled(object sender, ScrolledEventArgs e)
     {
-        Utils.Log(ScrollView.ScrollSpace());
         if (e.ScrollY >= ScrollView.ScrollSpace())
             LoadItems(sender, e);
     }
