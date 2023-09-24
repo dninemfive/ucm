@@ -51,6 +51,7 @@ public class Item
         => $"Item {Id} @ {Path}";
     public static async IAsyncEnumerable<Item> LoadAllAsync()
     {
+        Utils.Log($"Loading items...");
         foreach (string path in await Task.Run(() => Directory.EnumerateFiles(MauiProgram.TEMP_SAVE_LOCATION)))
         {
             if (System.IO.Path.GetExtension(path) is not ".json")
@@ -60,7 +61,7 @@ public class Item
             {
                 if(!File.Exists(item.Path))
                 {
-                    Utils.Log(path);
+                    Utils.Log($"Item at {item.Path} does not exist! Moving to folder `missing`...");
                     path.MoveFileTo(System.IO.Path.Join(path.DirectoryName(), "missing", path.FileName()));
                     continue;
                 }
