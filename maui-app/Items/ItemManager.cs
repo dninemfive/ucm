@@ -33,11 +33,13 @@ public static class ItemManager
         _itemsById = new();
         foreach (Item item in MauiProgram.TEMP_SAVE_LOCATION.LoadAll<Item>(x =>
         {
-            bool result = File.Exists(x.Path);
-            if (result)
+            (string src, Item item) = x;
+            Utils.Log($"Validating item {item}...");
+            bool result = File.Exists(item.Path);
+            Utils.Log(result ? "OK!" : "Missing!");
+            if (!result)
             {
-                Utils.Log(x.Path);
-                x.Path.MoveFileTo(Path.Join(x.Path.DirectoryName(), "missing", x.Path.FileName()));
+                src.MoveFileTo(Path.Join(src.DirectoryName(), "missing", src.FileName()));
             }
             return result;
         }))
