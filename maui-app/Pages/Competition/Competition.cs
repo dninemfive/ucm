@@ -58,7 +58,6 @@ public class Competition
     public Competition(string name)
     {
         Name = name;
-        (Left, Right) = (NextItem, NextItem);
     }
     [JsonConstructor]
     public Competition(string name, HashSet<ItemId> irrelevantItems, Dictionary<ItemId, Rating> ratings)
@@ -66,7 +65,6 @@ public class Competition
         Name = name;
         IrrelevantItems = irrelevantItems;
         Ratings = ratings;
-        (Left, Right) = (NextItem, NextItem);
     }
     public bool IsIrrelevant(ItemId id) => IrrelevantItems.Contains(id);
     public Rating? RatingOf(ItemId id) => IsIrrelevant(id) ? null : Ratings.TryGetValue(id, out Rating? r) ? r : null;
@@ -75,12 +73,12 @@ public class Competition
         => name is null ? null : CompetitionManager.CompetitionsByName.TryGetValue(name, out Competition? competition) ? competition : null;
     public static IEnumerable<string> Names => CompetitionManager.Names;
     [JsonIgnore]
-    public Item Left, Right;
+    public Item? Left, Right;
     public Item this[Side side] {
         get => side switch
         {
-            Side.Left => Left,
-            Side.Right => Right,
+            Side.Left => Left!,
+            Side.Right => Right!,
             _ => throw new ArgumentOutOfRangeException(nameof(side))
         };
         set

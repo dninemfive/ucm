@@ -69,6 +69,7 @@ public partial class CompetitionPage : ContentPage
         }
         CompetitionCreation.IsVisible = false;
         RatingScreen.IsVisible = true;
+        Competition.NextItems();
         await UpdateViews();
     }
     public void Update(CompetitionItemView itemView, Side side)
