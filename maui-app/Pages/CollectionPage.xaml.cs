@@ -25,9 +25,9 @@ public partial class CollectionPage : ContentPage
         {
             _items = await Task.Run(() => Competition?.RelevantItems.OrderByDescending(x => Competition?.RatingOf(x)?.CiLowerBound).ToList());
         }
-        await LoadItems(sender, e);
+        LoadItems(sender, e);
     }
-	public async Task LoadItems(object? sender, EventArgs e)
+	public void LoadItems(object? sender, EventArgs e)
 	{
         if (_loading)
             return;
@@ -35,12 +35,12 @@ public partial class CollectionPage : ContentPage
         double totalHeight = 0, targetHeight = ScrollView.ScrollSpace() <= 0 ? ScrollView.Height : 1;
         while(totalHeight <= targetHeight)
         {
-            await LoadOneRow();
+            LoadOneRow();
             totalHeight += ITEM_SIZE;
         }        
         _loading = false;
     }
-    private async Task LoadOneRow()
+    private void LoadOneRow()
     {
         for (int i = 0; i < ITEMS_PER_ROW; i++)
         {
