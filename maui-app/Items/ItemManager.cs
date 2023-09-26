@@ -11,6 +11,7 @@ public static class ItemManager
     private static bool _loaded = false;
     #region properties
     public static IEnumerable<Item> Items => ItemsById.Values;
+    public static IAsyncEnumerable<Item> GetItemsAsync() => Items.ToAsyncEnumerable();
     private static Dictionary<ItemId, Item>? _itemsById = null;
     public static IReadOnlyDictionary<ItemId, Item> ItemsById
     {

@@ -52,12 +52,7 @@ public partial class AcquisitionPage : ContentPage
     public int Index
     {
         get => _index;
-        private set
-        {
-            _index = value;
-            if (_index >= _pendingItems.Count)
-                _index = 0;
-        }
+        set => _index = value;
     }    
     public AcquisitionPage()
     {
@@ -66,12 +61,18 @@ public partial class AcquisitionPage : ContentPage
     #region misc methods
     private async Task LoadHashesAsync()
     {
-        foreach (Item item in ItemManager.Items)
+        await foreach (Item item in ItemManager.GetItemsAsync())
+        {
             _ = _hashes.Add(item.Hash);
+            Utils.Log($"Item {item.Id} already has hash {item.Hash}, adding...");
+        }
         if (File.Exists(MauiProgram.REJECTED_HASH_FILE))
         {
             await foreach (string s in File.ReadLinesAsync(MauiProgram.REJECTED_HASH_FILE))
+            {
                 _ = _hashes.Add(s);
+                Utils.Log($"Ignoring {s}");
+            }
         }
         else
         {
@@ -80,6 +81,8 @@ public partial class AcquisitionPage : ContentPage
     }
     private async Task LoadPendingItemsAsync()
     {
+        _pendingItems.Clear();
+        HashSet<string> paths = ItemManager.Items.Select(x => x.Path).ToHashSet();
         foreach (string s in await File.ReadAllLinesAsync(@"C:\Users\dninemfive\Documents\workspaces\misc\ucm\maui-app\localFolderList.txt.secret"))
         {
             string[] split = s.Split("\t");
@@ -87,6 +90,8 @@ public partial class AcquisitionPage : ContentPage
             string? destFolder = split.Length > 1 ? split[1] : null;
             foreach (string path in await Task.Run(srcFolder.EnumerateFilesRecursive))
             {
+                if (paths.Contains(path))
+                    continue;
                 string? curHash = await path.FileHashAsync();
                 if (curHash is null || _hashes.Contains(curHash) || path.BestAvailableView() is null)
                 {
@@ -97,9 +102,14 @@ public partial class AcquisitionPage : ContentPage
             }
         }
     }
-    private void NextItem()
+    private async void NextItem()
     {
         Index++;
+        if(_index >= _pendingItems.Count)
+        {
+            await LoadPendingItemsAsync();
+            _index = 0;
+        }
         if (CurrentPendingItem is null)
             return;
         float progress = Index/(float)_pendingItems.Count;
@@ -133,6 +143,7 @@ public partial class AcquisitionPage : ContentPage
     private void Reject_Clicked(object sender, EventArgs e)
     {
         File.AppendAllText(MauiProgram.REJECTED_HASH_FILE, $"{CurrentPendingItem!.Hash}\n");
+        _hashes.Add(CurrentPendingItem.Hash);
         NextItem();
     }
     #endregion    

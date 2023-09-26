@@ -56,8 +56,8 @@ public partial class CompetitionPage : ContentPage
     private void UpdateButtonActivation()
     {
         LeftIrrelevant.IsEnabled = !LeftItemView.IsIrrelevant;
-        SelectLeft.IsEnabled = !LeftItemView.IsIrrelevant;
-        SelectRight.IsEnabled = !RightItemView.IsIrrelevant;
+        SelectLeft.IsEnabled = !(LeftItemView.IsIrrelevant || RightItemView.IsIrrelevant);
+        SelectRight.IsEnabled = !(LeftItemView.IsIrrelevant || RightItemView.IsIrrelevant);
         RightIrrelevant.IsEnabled = !RightItemView.IsIrrelevant;
     }
     private async void CompetitionCreated(object? sender, EventArgs e)
