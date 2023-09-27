@@ -18,19 +18,40 @@ public static class ItemManager
         get
         {
             if (_itemsById is null)
-                throw new InvalidOperationException("Can't get items before loading them!");
+            {
+                Utils.Log($"Attempted to access ItemsById before loading.");
+                Load();
+            }
             return _itemsById!;
+        }
+    }
+    private static Dictionary<string, Item>? _itemsByHash = null;
+    public static IReadOnlyDictionary<string, Item> ItemsByHash
+    {
+        get
+        {
+            if(_itemsByHash is null)
+            {
+                Utils.Log($"Attempted to access ItemsByHash before loading.");
+                Load();
+            }
+            return _itemsByHash!;
         }
     }
     public static Item RandomItem => Items.RandomElement();
     #endregion
-    public static void Register(Item item) => _itemsById![item.Id] = item;
+    public static void Register(Item item)
+    {
+        _itemsById![item.Id] = item;
+        _itemsByHash![item.Hash] = item;
+    }
     public static void Load()
     {
         if (_loaded)
             return;
         _loaded = true;
         _itemsById = new();
+        _itemsByHash = new();
         foreach (Item item in MauiProgram.TEMP_SAVE_LOCATION.LoadAll<Item>(x =>
         {
             (string src, Item item) = x;
@@ -59,5 +80,16 @@ public static class ItemManager
         Register(item);
         await item.SaveAsync();
         return item;
+    }
+    public static IEnumerable<string> AllLocations
+    {
+        get
+        {
+            foreach(Item item in Items)
+            {
+                foreach (string location in item.Locations)
+                    yield return location;
+            }
+        }
     }
 }

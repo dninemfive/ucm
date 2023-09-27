@@ -4,6 +4,7 @@
              x:Class="d9.ucm.AcquisitionPage">
     <VerticalStackLayout>
         <Button x:Name="StartButton" Text="Start" Clicked="StartButton_Clicked" ZIndex="1"/>
+        <Label x:Name="Alert" Text="No candidate items remaining!" IsVisible="False" ZIndex="2"/>
         <Grid x:Name="AcquisitionBlock" IsVisible="False" VerticalOptions="FillAndExpand">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>

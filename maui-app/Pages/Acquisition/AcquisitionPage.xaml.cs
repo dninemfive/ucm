@@ -11,37 +11,8 @@ public partial class AcquisitionPage : ContentPage
     #region fields
     
     private readonly List<PendingItem> _pendingItems = new();
-    private readonly HashSet<string> _hashes = new();
+    private readonly HashSet<string> _indexedHashes = new();
     #endregion
-    private class PendingItem
-    {
-        public string Hash;
-        public string CurrentPath;
-        public string? MoveToFolder;
-        public PendingItem(string path, string hash, string? moveToFolder)
-        {
-            Hash = hash;
-            CurrentPath = path;
-            MoveToFolder = moveToFolder;
-        }
-        public async Task Save()
-        {
-            if (File.Exists(CurrentPath))
-            {
-                if (MoveToFolder is not null)
-                {
-                    ItemId id = IdManager.Register();
-                    string newPath = Path.Join(MoveToFolder, $"{id}{Path.GetExtension(CurrentPath).ToLower()}");
-                    CurrentPath.MoveFileTo(newPath);
-                    _ = await ItemManager.CreateAndSave(newPath, Hash, id);
-                }
-                else
-                {
-                    _ = await ItemManager.CreateAndSave(CurrentPath, Hash);
-                }
-            }
-        }
-    }
     private PendingItem? CurrentPendingItem => _index < _pendingItems.Count ? _pendingItems[Index] : null;
     private bool _alreadyAdding = false;
     private bool AlreadyAdding
@@ -61,16 +32,11 @@ public partial class AcquisitionPage : ContentPage
     #region misc methods
     private async Task LoadHashesAsync()
     {
-        await foreach (Item item in ItemManager.GetItemsAsync())
-        {
-            _ = _hashes.Add(item.Hash);
-            Utils.Log($"Item {item.Id} already has hash {item.Hash}, adding...");
-        }
         if (File.Exists(MauiProgram.REJECTED_HASH_FILE))
         {
             await foreach (string s in File.ReadLinesAsync(MauiProgram.REJECTED_HASH_FILE))
             {
-                _ = _hashes.Add(s);
+                _ = _indexedHashes.Add(s);
                 Utils.Log($"Ignoring {s}");
             }
         }
@@ -82,7 +48,7 @@ public partial class AcquisitionPage : ContentPage
     private async Task LoadPendingItemsAsync()
     {
         _pendingItems.Clear();
-        HashSet<string> paths = ItemManager.Items.Select(x => x.Path).ToHashSet();
+        HashSet<string> locations = ItemManager.AllLocations.ToHashSet();
         foreach (string s in await File.ReadAllLinesAsync(@"C:\Users\dninemfive\Documents\workspaces\misc\ucm\maui-app\localFolderList.txt.secret"))
         {
             string[] split = s.Split("\t");
@@ -90,14 +56,22 @@ public partial class AcquisitionPage : ContentPage
             string? destFolder = split.Length > 1 ? split[1] : null;
             foreach (string path in await Task.Run(srcFolder.EnumerateFilesRecursive))
             {
-                if (paths.Contains(path))
+                if (locations.Contains(path))
                     continue;
                 string? curHash = await path.FileHashAsync();
-                if (curHash is null || _hashes.Contains(curHash) || path.BestAvailableView() is null)
+                Utils.Log($"wtf?? {curHash} {ItemManager.ItemsByHash}");
+                if(curHash is not null && 
+                    ItemManager.ItemsByHash.TryGetValue(curHash, out Item? item) && 
+                    !item.HasSourceInfoFor(path))
                 {
+                    item.Sources.Add(new("Local Filesystem", path));
                     continue;
                 }
-                _ = _hashes.Add(curHash);
+                if (curHash is null || _indexedHashes.Contains(curHash) || path.BestAvailableView() is null)
+                {
+                        continue;
+                }
+                _ = _indexedHashes.Add(curHash);
                 _pendingItems.Add(new(path, curHash, destFolder));
             }
         }
@@ -111,7 +85,10 @@ public partial class AcquisitionPage : ContentPage
             _index = 0;
         }
         if (CurrentPendingItem is null)
+        {
+            Alert.IsVisible = true;
             return;
+        }
         float progress = Index/(float)_pendingItems.Count;
         ProgressBar.Progress = progress;
         ItemHolder.Content = CurrentPendingItem.CurrentPath.BestAvailableView();
@@ -143,7 +120,7 @@ public partial class AcquisitionPage : ContentPage
     private void Reject_Clicked(object sender, EventArgs e)
     {
         File.AppendAllText(MauiProgram.REJECTED_HASH_FILE, $"{CurrentPendingItem!.Hash}\n");
-        _hashes.Add(CurrentPendingItem.Hash);
+        _ = _indexedHashes.Add(CurrentPendingItem.Hash);
         NextItem();
     }
     #endregion    

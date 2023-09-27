@@ -62,4 +62,15 @@ public class Item
         await File.WriteAllTextAsync(@$"{MauiProgram.TEMP_SAVE_LOCATION}\{Id}.json",
                                      JsonSerializer.Serialize(this, new JsonSerializerOptions { WriteIndented = true }));
     }
+    public bool HasSourceInfoFor(string location)
+        => Sources.Any(x => x.Location == location);
+    public IEnumerable<string> Locations
+    {
+        get
+        {
+            yield return Path;
+            foreach (string loc in Sources.Select(x => x.Location))
+                yield return loc;
+        }
+    }
 }
