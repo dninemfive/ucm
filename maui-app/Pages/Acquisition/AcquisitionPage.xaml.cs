@@ -51,26 +51,32 @@ public partial class AcquisitionPage : ContentPage
         HashSet<string> locations = ItemManager.AllLocations.ToHashSet();
         foreach (string s in await File.ReadAllLinesAsync(@"C:\Users\dninemfive\Documents\workspaces\misc\ucm\maui-app\localFolderList.txt.secret"))
         {
+            Utils.Log(s);
             string[] split = s.Split("\t");
             string srcFolder = split[0];
             string? destFolder = split.Length > 1 ? split[1] : null;
             foreach (string path in await Task.Run(srcFolder.EnumerateFilesRecursive))
             {
+                Utils.Log($"\t{path}");
                 if (locations.Contains(path))
                     continue;
                 string? curHash = await path.FileHashAsync();
-                Utils.Log($"wtf?? {curHash} {ItemManager.ItemsByHash}");
+                Utils.Log($"\t\thash: {curHash.PrintNull()}");
                 if(curHash is not null && 
                     ItemManager.ItemsByHash.TryGetValue(curHash, out Item? item) && 
                     !item.HasSourceInfoFor(path))
                 {
+                    Utils.Log($"\t\texisting item: {item}");
                     item.Sources.Add(new("Local Filesystem", path));
+                    await item.SaveAsync();
                     continue;
                 }
                 if (curHash is null || _indexedHashes.Contains(curHash) || path.BestAvailableView() is null)
                 {
-                        continue;
+                    Utils.Log($"\t\tcontinue");
+                    continue;
                 }
+                Utils.Log($"\t\tcontinuen't");
                 _ = _indexedHashes.Add(curHash);
                 _pendingItems.Add(new(path, curHash, destFolder));
             }

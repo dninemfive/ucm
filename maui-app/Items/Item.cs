@@ -64,13 +64,17 @@ public class Item
     }
     public bool HasSourceInfoFor(string location)
         => Sources.Any(x => x.Location == location);
+    [JsonIgnore]
     public IEnumerable<string> Locations
     {
         get
         {
             yield return Path;
             foreach (string loc in Sources.Select(x => x.Location))
-                yield return loc;
+            {
+                if (loc != Path)
+                    yield return loc;
+            } 
         }
     }
 }
