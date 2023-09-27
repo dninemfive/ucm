@@ -1,5 +1,6 @@
 ﻿using d9.utl;
 using System.Runtime.InteropServices;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Text.Json;
 
@@ -9,11 +10,16 @@ public partial class MainPage : ContentPage
 {
 	public MainPage()
 	{
-        InitializeComponent();		
+        InitializeComponent();
+        
 	}
 
     private async void Button_Clicked(object sender, EventArgs e)
     {
+        foreach (Item item in ItemManager.Items)
+            await item.SaveAsync();
+        Text.Text = "done!";
+        return;
         string rulePath = @"C:\Users\dninemfive\Documents\workspaces\misc\ucm\maui-app\urlrule.json.secret",
                bookmarksPath = @"C:\Users\dninemfive\Documents\workspaces\misc\ucm\bookmark-plugin\ucm-bookmarks-firefox\bookmarks.json",
                keyPath = @"C:\Users\dninemfive\Documents\workspaces\misc\ucm\maui-app\Keys\test.key";

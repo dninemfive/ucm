@@ -12,6 +12,9 @@ namespace d9.ucm;
 public class Item
 {
     #region properties
+    /// <summary>
+    /// The canonical path where this item will be loaded, as opposed to source locations
+    /// </summary>
     [JsonInclude]
     public string Path { get; }
     [JsonInclude]
@@ -31,20 +34,25 @@ public class Item
             return _thumbnail;
         }
     }
+    [JsonInclude]
+    public List<ItemSource> Sources { get; private set; }
     #endregion
     #region constructors
     public Item(string path, string? hash)
     {
         Path = path;
-        Hash = hash ?? Path.FileHash()!;
-        Id = IdManager.Register();
+        Sources = new() { new("Local Filesystem", path) };
+        Hash = hash ?? path.FileHash()!;
+        Id = IdManager.Register();        
     }
+    public Item(string path, string hash, ItemId id, params ItemSource[] sources) : this(path, hash, id, sources.ToList()) { }
     [JsonConstructor]
-    public Item(string path, string hash, ItemId id)
+    public Item(string path, string hash, ItemId id, List<ItemSource>? sources)
     {
         Path = path;
         Hash = hash;
         Id = IdManager.Register(id);
+        Sources = sources?.ToList() ?? new() { new("Local Filesystem", path) };
     }
     #endregion
     public override string ToString()

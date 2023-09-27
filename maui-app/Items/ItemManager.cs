@@ -55,7 +55,7 @@ public static class ItemManager
     }
     public static async Task<Item> CreateAndSave(string path, string hash, ItemId? id = null)
     {
-        Item item = id is null ? new(path, hash) : new(path, hash, id.Value);
+        Item item = id is null ? new(path, hash) : new(path, hash, id.Value, new ItemSource("Local Filesystem", path));
         Register(item);
         await item.SaveAsync();
         return item;
