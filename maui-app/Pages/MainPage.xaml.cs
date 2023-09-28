@@ -16,6 +16,11 @@ public partial class MainPage : ContentPage
 
     private async void Button_Clicked(object sender, EventArgs e)
     {
+        UrlRule exampleRule = new("https://example.com/.+", "/.+", "https://example.com", "?q=test", new List<(string, string)>() { ("User-Agent", "ucm") });
+        File.WriteAllText("C:/Users/dninemfive/Pictures/misc/ucm/exampleUrlRule.json",
+            JsonSerializer.Serialize(exampleRule, new JsonSerializerOptions() { WriteIndented = true }));
+        Text.Text = "done";
+        return;
         foreach (Item item in ItemManager.Items)
             await item.SaveAsync();
         Text.Text = "done!";
@@ -26,8 +31,8 @@ public partial class MainPage : ContentPage
         UrlRule rule = JsonSerializer.Deserialize<UrlRule>(File.ReadAllText(rulePath))!;
         List<string> bookmarks = JsonSerializer.Deserialize<List<string>>(File.ReadAllText(bookmarksPath))!;
         string url = bookmarks.Where(rule.Supports).First();
-        HttpClient client = new();
-        Text.Text = await client.GetStringAsync(url);
+        // HttpClient client = new();
+        // Text.Text = await client.GetStringAsync(url);
     }
 }
 

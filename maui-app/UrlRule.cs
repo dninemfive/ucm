@@ -18,23 +18,21 @@ public class UrlRule
     public string Prefix { get; private set; }
     [JsonInclude]
     public string Suffix { get; private set; }
+    [JsonInclude]
+    public List<(string, string)> Headers { get; private set; }
+    public UrlRule(string matchRegex, string idRegex, string prefix, string suffix, params (string, string)[] headers)
+        : this(matchRegex, idRegex, prefix, suffix, headers.ToList()) { }
     [JsonConstructor]
-    public UrlRule(string matchRegex, string idRegex, string prefix, string suffix)
+    public UrlRule(string matchRegex, string idRegex, string prefix, string suffix, List<(string, string)> headers)
     {
         MatchRegex = matchRegex;
         IdRegex = idRegex;
         Prefix = prefix;
         Suffix = suffix;
+        Headers = headers;
     }
     public bool Supports(string url)
         => Regex.IsMatch(url, MatchRegex);
-    public string ApiUrl(string url, params (string k, string v)[] args)
-    {
-        string result = $"{Prefix}{Regex.Match(url, IdRegex)}{Suffix}";
-        foreach((string k, string v) in args)
-        {
-            result = result.Replace($"${k}", v);
-        }
-        return result;
-    }
+    public string UrlFor(string url) 
+        => $"{Prefix}{Regex.Match(url, IdRegex)}{Suffix}";
 }
