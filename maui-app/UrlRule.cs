@@ -35,8 +35,12 @@ public class UrlRule
     }
     public bool Supports(string url)
         => Regex.IsMatch(url, MatchRegex);
-    public string UrlFor(string url) 
-        => $"{Prefix}{Regex.Match(url, IdRegex)}{Suffix}";
+    public string UrlFor(string url)
+    {
+        string result = $"{Prefix}{IdFor(url)}{Suffix}";
+        Utils.Log($"{url} -> {result}");
+        return result;
+    }
     public HttpRequestMessage RequestMessageFor(string url, HttpMethod? method = null)
     {
         if(!Supports(url))
@@ -55,4 +59,5 @@ public class UrlRule
     {
         throw new NotImplementedException();
     }
+    public string IdFor(string url) => Regex.Match(url, IdRegex).Value;
 }

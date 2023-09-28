@@ -55,9 +55,7 @@ public static class ItemManager
         foreach (Item item in MauiProgram.TEMP_SAVE_LOCATION.LoadAll<Item>(x =>
         {
             (string src, Item item) = x;
-            Utils.Log($"Validating item {item}...");
             bool result = File.Exists(item.Path);
-            Utils.Log(result ? "OK!" : "Missing!");
             if (!result)
             {
                 src.MoveFileTo(Path.Join(src.DirectoryName(), "missing", src.FileName()));
