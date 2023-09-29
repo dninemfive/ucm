@@ -20,6 +20,8 @@ public static class Extensions
         return JsonSerializer.Serialize(sha512.ComputeHash(fs)).Replace("\"","");
     }
     public static async Task<string?> FileHashAsync(this string path) => await Task.Run(path.FileHash);
+    public static string? Hash(this byte[] bytes) => JsonSerializer.Serialize(SHA512.HashData(bytes)).Replace("\"", "");
+    public static async Task<string?> HashAsync(this byte[] bytes) => await Task.Run(bytes.Hash);
     public static View? BestAvailableView(this string path) => Path.GetExtension(path).ToLower() switch
     {
         // https://devblogs.microsoft.com/dotnet/announcing-dotnet-maui-communitytoolkit-mediaelement/

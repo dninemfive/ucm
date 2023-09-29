@@ -10,10 +10,10 @@ public partial class AcquisitionPage : ContentPage
 {
     #region fields
     
-    private readonly List<PendingItem> _pendingItems = new();
+    private readonly List<CandidateItem> _pendingItems = new();
     private readonly HashSet<string> _indexedHashes = new();
     #endregion
-    private PendingItem? CurrentPendingItem => _index < _pendingItems.Count ? _pendingItems[Index] : null;
+    private CandidateItem? CurrentPendingItem => _index < _pendingItems.Count ? _pendingItems[Index] : null;
     private bool _alreadyAdding = false;
     private bool AlreadyAdding
     {
@@ -97,8 +97,8 @@ public partial class AcquisitionPage : ContentPage
         }
         float progress = Index/(float)_pendingItems.Count;
         ProgressBar.Progress = progress;
-        ItemHolder.Content = CurrentPendingItem.CurrentPath.BestAvailableView();
-        CurrentPendingItemInfo.Text = $"{Index}/{_pendingItems.Count} ({progress:P1}) | {IdManager.CurrentId}\t{CurrentPendingItem.CurrentPath}";
+        ItemHolder.Content = CurrentPendingItem.Location.BestAvailableView();
+        CurrentPendingItemInfo.Text = $"{Index}/{_pendingItems.Count} ({progress:P1}) | {IdManager.CurrentId}\t{CurrentPendingItem.Location}";
     }
     #endregion
     #region button events

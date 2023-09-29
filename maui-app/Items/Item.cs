@@ -7,6 +7,7 @@ using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using System.IO;
 using d9.utl;
+using System.Runtime.CompilerServices;
 
 namespace d9.ucm;
 public class Item
@@ -62,4 +63,8 @@ public class Item
     [JsonIgnore]
     public IEnumerable<string> Locations
         => Sources.Select(x => x.Location);
+    public static async Task<Item?> MakeFromAsync(CandidateItem ci)
+    {
+        
+    }
 }
