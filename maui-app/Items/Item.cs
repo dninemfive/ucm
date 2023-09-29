@@ -16,13 +16,15 @@ public class Item
     /// The canonical path where this item will be loaded, as opposed to source locations
     /// </summary>
     [JsonInclude]
-    public string Path { get; }
+    public string? Path { get; }
     [JsonInclude]
-    public string Hash { get; }
+    public string? Hash { get; }
     [JsonInclude]
-    public ItemId Id { get; }
+    public ItemId? Id { get; }
     [JsonIgnore]
-    public View? View => Path.BestAvailableView();
+    public bool IsPending => Id is null;
+    [JsonIgnore]
+    public View? View => Path?.BestAvailableView();
     [JsonIgnore]
     private Image? _thumbnail = null;
     [JsonIgnore]
@@ -35,16 +37,9 @@ public class Item
         }
     }
     [JsonInclude]
-    public List<ItemSource> Sources { get; private set; }
+    public List<ItemSource> Sources { get; private set; } = new();
     #endregion
     #region constructors
-    public Item(string path, string? hash)
-    {
-        Path = path;
-        Sources = new() { new("Local Filesystem", path) };
-        Hash = hash ?? path.FileHash()!;
-        Id = IdManager.Register();        
-    }
     public Item(string path, string hash, ItemId id, params ItemSource[] sources) : this(path, hash, id, sources.ToList()) { }
     [JsonConstructor]
     public Item(string path, string hash, ItemId id, List<ItemSource>? sources)
@@ -66,15 +61,5 @@ public class Item
         => Sources.Any(x => x.Location == location);
     [JsonIgnore]
     public IEnumerable<string> Locations
-    {
-        get
-        {
-            yield return Path;
-            foreach (string loc in Sources.Select(x => x.Location))
-            {
-                if (loc != Path)
-                    yield return loc;
-            } 
-        }
-    }
+        => Sources.Select(x => x.Location);
 }

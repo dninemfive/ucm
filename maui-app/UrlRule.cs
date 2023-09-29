@@ -55,7 +55,7 @@ public class UrlRule
         }
         return result;
     }
-    public PendingItem PendingItemFor(string url)
+    public Item ItemFor(string url)
     {
         throw new NotImplementedException();
     }
