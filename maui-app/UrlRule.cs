@@ -3,6 +3,7 @@ using Microsoft.Extensions.Primitives;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
@@ -54,10 +55,9 @@ public class UrlRule
             result.Headers.Add(key, value);
         }
         return result;
-    }
-    public Item ItemFor(string url)
-    {
-        throw new NotImplementedException();
-    }
+    }    
     public string IdFor(string url) => Regex.Match(url, IdRegex).Value;
+    public static UrlRule? BestFor(string s) => throw new NotImplementedException();
+    public IEnumerable<Tag> TagsFor(string url) => throw new NotImplementedException();
+    public CandidateItem ItemFor(string url) => throw new NotImplementedException();
 }

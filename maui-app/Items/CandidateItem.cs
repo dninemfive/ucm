@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace d9.ucm;
@@ -24,33 +25,30 @@ public class CandidateItem
     }
     public static async Task<CandidateItem?> MakeFromAsync(string location)
     {
-        if(Uri.TryCreate(location, UriKind.Absolute, out Uri? uri))
+        string? uriScheme = location.UriScheme();
+        if(uriScheme is "http" or "https")
         {
-            if(uri.Scheme is "http" or "https")
+            try
             {
-                try
-                {
-                    byte[] data = await MauiProgram.HttpClient.GetByteArrayAsync(location);
-                    string? hash = await data.HashAsync();
-                    if(hash is not null)
-                    {
-                        return new(location, hash, LocationType.Internet);
-                    } 
-                } catch(Exception e)
-                {
-                    Utils.Log($"Error creating CandidateItem from location `{location}`: {e.Message}");
-                }
-            } else if(uri.Scheme is "file")
-            {
-                string? hash = await location.FileHashAsync();
-                if (hash is not null)
+                byte[] data = await MauiProgram.HttpClient.GetByteArrayAsync(location);
+                string? hash = await data.HashAsync();
+                if(hash is not null)
                 {
                     return new(location, hash, LocationType.Internet);
-                }
+                } 
+            } catch(Exception e)
+            {
+                Utils.Log($"Error creating CandidateItem from location `{location}`: {e.Message}");
             }
-            Utils.Log($"Error creating CandidateItem from location `{location}`: Unrecognized scheme {uri.Scheme}.");
+        } else if(uriScheme is "file")
+        {
+            string? hash = await location.FileHashAsync();
+            if (hash is not null)
+            {
+                return new(location, hash, LocationType.Internet);
+            }
         }
-        Utils.Log($"Failed to create CandidateItem from location `{location}`.");
+        Utils.Log($"Error creating CandidateItem from location `{location}`: Unrecognized scheme {uriScheme.PrintNull()}.");
         return null;
     }
     public async Task Save()
@@ -60,4 +58,6 @@ public class CandidateItem
             _ = await ItemManager.CreateAndSave(Location, Hash);
         }
     }
+    public override string ToString()
+        => $"CI({Location}, {Hash}, {Type})";
 }

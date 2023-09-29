@@ -75,4 +75,6 @@ public static class Extensions
     }
     public static Competition.Rating? RatingAs(this Item item, string? name)
         => Competition.Named(name)?.RatingOf(item);
+    public static string? UriScheme(this string? location)
+        => Uri.TryCreate(location, UriKind.Absolute, out Uri? uri) ? uri?.Scheme : null;
 }

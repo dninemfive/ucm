@@ -57,17 +57,19 @@ public partial class AcquisitionPage : ContentPage
             string? destFolder = split.Length > 1 ? split[1] : null;
             foreach (string path in await Task.Run(srcFolder.EnumerateFilesRecursive))
             {
-                Utils.Log($"\t{path}");
+                
                 if (locations.Contains(path))
                     continue;
-                string? curHash = await path.FileHashAsync();
-                Utils.Log($"\t\thash: {curHash.PrintNull()}");
-                if(curHash is not null && 
-                    ItemManager.ItemsByHash.TryGetValue(curHash, out Item? item) && 
+                CandidateItem? candidate = await CandidateItem.MakeFromAsync(path);
+                if (candidate is null)
+                    continue;
+                Utils.Log($"\t{path} -> {candidate}\n\t\thash: {candidate.Hash.PrintNull()}");
+                if(candidate.Hash is not null && 
+                    ItemManager.ItemsByHash.TryGetValue(candidate.Hash, out Item? item) && 
                     !item.HasSourceInfoFor(path))
                 {
                     Utils.Log($"\t\texisting item: {item}");
-                    item.Sources.Add(new("Local Filesystem", path));
+                    item.Sources.Add(candidate.Source);
                     await item.SaveAsync();
                     continue;
                 }

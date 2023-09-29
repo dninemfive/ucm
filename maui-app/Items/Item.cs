@@ -17,15 +17,13 @@ public class Item
     /// The canonical path where this item will be loaded, as opposed to source locations
     /// </summary>
     [JsonInclude]
-    public string? Path { get; }
+    public string Path { get; }
     [JsonInclude]
-    public string? Hash { get; }
+    public string Hash { get; }
     [JsonInclude]
-    public ItemId? Id { get; }
+    public ItemId Id { get; }
     [JsonIgnore]
-    public bool IsPending => Id is null;
-    [JsonIgnore]
-    public View? View => Path?.BestAvailableView();
+    public View? View => Path.BestAvailableView();
     [JsonIgnore]
     private Image? _thumbnail = null;
     [JsonIgnore]
@@ -63,8 +61,24 @@ public class Item
     [JsonIgnore]
     public IEnumerable<string> Locations
         => Sources.Select(x => x.Location);
-    public static async Task<Item?> MakeFromAsync(CandidateItem ci)
-    {
-        
+    public static Item? From(CandidateItem ci)
+    {        
+        if(File.Exists(ci.Location))
+        {
+            return new(ci.Location, ci.Hash, IdManager.Register(), new ItemSource("Local Filesystem", ci.Location));
+        }
+        UrlRule? urlRule = UrlRule.BestFor(ci.Location);
+        if (urlRule is not null)
+        {
+            return new(ci.Location,
+                       ci.Hash,
+                       IdManager.Register(),
+                       new ItemSource(urlRule.Name,
+                                      ci.Location,
+                                      urlRule.TagsFor(ci.Location)
+                                             .ToArray()));
+        }
+        Utils.Log($"Failed to make item for {ci}.");
+        return null;
     }
 }
