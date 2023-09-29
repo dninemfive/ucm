@@ -10,10 +10,11 @@ public partial class AcquisitionPage : ContentPage
 {
     #region fields
     
-    private readonly List<CandidateItem> _pendingItems = new();
+    private readonly List<CandidateItem> _candidateItems = new();
+    // todo: rejected urls
     private readonly HashSet<string> _indexedHashes = new();
     #endregion
-    private CandidateItem? CurrentPendingItem => _index < _pendingItems.Count ? _pendingItems[Index] : null;
+    private CandidateItem? CurrentCandidate => _index < _candidateItems.Count ? _candidateItems[Index] : null;
     private bool _alreadyAdding = false;
     private bool AlreadyAdding
     {
@@ -47,7 +48,7 @@ public partial class AcquisitionPage : ContentPage
     }
     private async Task LoadPendingItemsAsync()
     {
-        _pendingItems.Clear();
+        _candidateItems.Clear();
         HashSet<string> locations = ItemManager.AllLocations.ToHashSet();
         foreach (string s in await File.ReadAllLinesAsync(@"C:\Users\dninemfive\Documents\workspaces\misc\ucm\maui-app\localFolderList.txt.secret"))
         {
@@ -62,45 +63,50 @@ public partial class AcquisitionPage : ContentPage
                     continue;
                 CandidateItem? candidate = await CandidateItem.MakeFromAsync(path);
                 if (candidate is null)
-                    continue;
-                Utils.Log($"\t{path} -> {candidate}\n\t\thash: {candidate.Hash.PrintNull()}");
-                if(candidate.Hash is not null && 
+                    continue;                
+                string? hash = candidate.Hash;
+                Utils.Log($"\t{path} -> {candidate}\n\t\thash: {hash}");
+                if (candidate.Hash is not null && 
                     ItemManager.ItemsByHash.TryGetValue(candidate.Hash, out Item? item) && 
                     !item.HasSourceInfoFor(path))
                 {
-                    Utils.Log($"\t\texisting item: {item}");
-                    item.Sources.Add(candidate.Source);
-                    await item.SaveAsync();
+                    ItemSource? source = path.ItemSource();
+                    if (source is not null)
+                    {
+                        item.Sources.Add(source);
+                        Utils.Log($"\t\tadding source {source} to existing item {item}.");
+                        await item.SaveAsync();
+                    }
                     continue;
                 }
-                if (curHash is null || _indexedHashes.Contains(curHash) || path.BestAvailableView() is null)
+                if (hash is null || _indexedHashes.Contains(hash) || path.BestAvailableView() is null)
                 {
                     Utils.Log($"\t\tcontinue");
                     continue;
                 }
-                Utils.Log($"\t\tcontinuen't");
-                _ = _indexedHashes.Add(curHash);
-                _pendingItems.Add(new(path, curHash, destFolder));
+                Utils.Log($"\t\tindexing hash {hash}");
+                _ = _indexedHashes.Add(hash);
+                _candidateItems.Add(candidate);
             }
         }
     }
     private async void NextItem()
     {
         Index++;
-        if(_index >= _pendingItems.Count)
+        if(_index >= _candidateItems.Count)
         {
             await LoadPendingItemsAsync();
             _index = 0;
         }
-        if (CurrentPendingItem is null)
+        if (CurrentCandidate is null)
         {
             Alert.IsVisible = true;
             return;
         }
-        float progress = Index/(float)_pendingItems.Count;
+        float progress = Index/(float)_candidateItems.Count;
         ProgressBar.Progress = progress;
-        ItemHolder.Content = CurrentPendingItem.Location.BestAvailableView();
-        CurrentPendingItemInfo.Text = $"{Index}/{_pendingItems.Count} ({progress:P1}) | {IdManager.CurrentId}\t{CurrentPendingItem.Location}";
+        ItemHolder.Content = CurrentCandidate.Location.BestAvailableView();
+        CurrentPendingItemInfo.Text = $"{Index}/{_candidateItems.Count} ({progress:P1}) | {IdManager.CurrentId}\t{CurrentCandidate.Location}";
     }
     #endregion
     #region button events
@@ -118,7 +124,7 @@ public partial class AcquisitionPage : ContentPage
     }
     private async void Accept_Clicked(object sender, EventArgs e)
     {
-        await CurrentPendingItem!.Save();
+        _ = await CurrentCandidate!.SaveAsync();
         NextItem();
     }
     private void Skip_Clicked(object sender, EventArgs e)
@@ -127,8 +133,8 @@ public partial class AcquisitionPage : ContentPage
     }
     private void Reject_Clicked(object sender, EventArgs e)
     {
-        File.AppendAllText(MauiProgram.REJECTED_HASH_FILE, $"{CurrentPendingItem!.Hash}\n");
-        _ = _indexedHashes.Add(CurrentPendingItem.Hash);
+        File.AppendAllText(MauiProgram.REJECTED_HASH_FILE, $"{CurrentCandidate!.Hash}\n");
+        _ = _indexedHashes.Add(CurrentCandidate.Hash);
         NextItem();
     }
     #endregion    

@@ -77,4 +77,6 @@ public static class Extensions
         => Competition.Named(name)?.RatingOf(item);
     public static string? UriScheme(this string? location)
         => Uri.TryCreate(location, UriKind.Absolute, out Uri? uri) ? uri?.Scheme : null;
+    public static ItemSource? ItemSource(this string location)
+        => File.Exists(location) ? new("Local Filesystem", location) : UrlRule.ItemSourceFor(location);
 }

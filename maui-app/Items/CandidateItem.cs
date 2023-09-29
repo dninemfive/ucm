@@ -45,18 +45,21 @@ public class CandidateItem
             string? hash = await location.FileHashAsync();
             if (hash is not null)
             {
-                return new(location, hash, LocationType.Internet);
+                return new(location, hash, LocationType.Local);
             }
         }
         Utils.Log($"Error creating CandidateItem from location `{location}`: Unrecognized scheme {uriScheme.PrintNull()}.");
         return null;
     }
-    public async Task Save()
+    public async Task<bool> SaveAsync()
     {
-        if (File.Exists(Location))
+        Item? result = Item.From(this);
+        if(result is not null)
         {
-            _ = await ItemManager.CreateAndSave(Location, Hash);
+            ItemManager.Register(result);
+            await result.SaveAsync();
         }
+        return result is not null;
     }
     public override string ToString()
         => $"CI({Location}, {Hash}, {Type})";

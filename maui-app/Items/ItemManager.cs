@@ -38,7 +38,6 @@ public static class ItemManager
             return _itemsByHash!;
         }
     }
-    public static Item RandomItem => Items.RandomElement();
     #endregion
     public static void Register(Item item)
     {
@@ -71,13 +70,6 @@ public static class ItemManager
     {
         _loaded = false;
         Load();
-    }
-    public static async Task<Item> CreateAndSave(string path, string hash, ItemId? id = null)
-    {
-        Item item = id is null ? new(path, hash) : new(path, hash, id.Value, new ItemSource("Local Filesystem", path));
-        Register(item);
-        await item.SaveAsync();
-        return item;
     }
     public static IEnumerable<string> AllLocations
     {
