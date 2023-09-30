@@ -57,9 +57,20 @@ public class UrlRule
         return result;
     }    
     public string IdFor(string url) => Regex.Match(url, IdRegex).Value;
-    public static UrlRule? BestFor(string s) => throw new NotImplementedException();
-    public IEnumerable<Tag> TagsFor(string url) => throw new NotImplementedException();
-    public CandidateItem ItemFor(string url) => throw new NotImplementedException();
+    public static IEnumerable<UrlRule> Matching(string s) => UrlRuleManager.UrlRules.Where(x => x.Supports(s));
+    // todo: allow the user to decide
+    public static UrlRule? BestFor(string s)
+    {
+        IEnumerable<UrlRule> results = Matching(s);
+        if (results.Any())
+            return results.First();
+        return null;
+    }
+    public IEnumerable<Tag> TagsFor(string url)
+    {
+        // todo: implement
+        yield break;
+    }
     public static ItemSource? ItemSourceFor(string url)
     {
         UrlRule? urlRule = BestFor(url);

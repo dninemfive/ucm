@@ -82,4 +82,19 @@ public static class ItemManager
             }
         }
     }
+    public static async Task<bool> TryUpdateAnyMatchingItemAsync(string? hash, string location)
+    {
+        if(hash is not null && ItemsByHash.TryGetValue(hash, out Item? item) && !item.HasSourceInfoFor(location))
+        {
+            ItemSource? source = location.ItemSource();
+            if (source is not null)
+            {
+                item.Sources.Add(source);
+                Utils.Log($"\t\tadding source {source} to existing item {item}.");
+                await item.SaveAsync();
+            }
+            return true;
+        }
+        return false;
+    }
 }

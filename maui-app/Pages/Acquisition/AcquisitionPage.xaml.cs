@@ -46,31 +46,25 @@ public partial class AcquisitionPage : ContentPage
             _ = File.Create(MauiProgram.REJECTED_HASH_FILE);
         }
     }
-    HashSet<string> _locations;
-    private async Task LoadPendingItemsAsync()
+    private HashSet<string> _locations = new();
+    private async Task LoadCandidatesAsync()
     {
         _candidateItems.Clear();
         _locations = ItemManager.AllLocations.ToHashSet();
-        List<Task<CandidateItem?>> tasks = new();
-        foreach (string s in await File.ReadAllLinesAsync(@"C:\Users\dninemfive\Documents\workspaces\misc\ucm\maui-app\localFolderList.txt.secret"))
+        foreach (string srcFolder in await File.ReadAllLinesAsync(@"C:\Users\dninemfive\Documents\workspaces\misc\ucm\maui-app\localFolderList.txt.secret"))
         {
-            Utils.Log(s);
-            string[] split = s.Split("\t");
-            string srcFolder = split[0];
-            string? destFolder = split.Length > 1 ? split[1] : null;            
+            Utils.Log($"Loading candidate items in {srcFolder}...");  
             foreach (string path in await Task.Run(srcFolder.EnumerateFilesRecursive))
             {
-                tasks.Add(MakeCandidateFor(path));
+                AddCandidate(await MakeCandidateFor(path));
             }
         }
         List<string> bookmarks = JsonSerializer.Deserialize<List<string>>
             (File.ReadAllText(@"C:\Users\dninemfive\Documents\workspaces\misc\ucm\bookmark-plugin\ucm-bookmarks-firefox\bookmarks.json"))!;
         foreach(string url in bookmarks)
         {
-            tasks.Add(MakeCandidateFor(url));
+            AddCandidate(await MakeCandidateFor(url));
         }
-        CandidateItem?[] items = await Task.WhenAll(tasks);
-        foreach (CandidateItem? ci in items) AddCandidate(ci);
     }
     private async Task<CandidateItem?> MakeCandidateFor(string location)
     {
@@ -81,19 +75,8 @@ public partial class AcquisitionPage : ContentPage
             return null;
         string? hash = candidate.Hash;
         Utils.Log($"\t{location} -> {candidate}\n\t\thash: {hash}");
-        if (candidate.Hash is not null &&
-            ItemManager.ItemsByHash.TryGetValue(candidate.Hash, out Item? item) &&
-            !item.HasSourceInfoFor(location))
-        {
-            ItemSource? source = location.ItemSource();
-            if (source is not null)
-            {
-                item.Sources.Add(source);
-                Utils.Log($"\t\tadding source {source} to existing item {item}.");
-                await item.SaveAsync();
-            }
+        if (await ItemManager.TryUpdateAnyMatchingItemAsync(hash, location))
             return null;
-        }
         if (hash is null || _indexedHashes.Contains(hash) || location.BestAvailableView() is null)
         {
             Utils.Log($"\t\tcontinue");
@@ -114,7 +97,7 @@ public partial class AcquisitionPage : ContentPage
         Index++;
         if(_index >= _candidateItems.Count)
         {
-            await LoadPendingItemsAsync();
+            await LoadCandidatesAsync();
             _index = 0;
         }
         if (CurrentCandidate is null)
@@ -136,7 +119,7 @@ public partial class AcquisitionPage : ContentPage
         StartButton.Text = "Loading hashes...";
         await LoadHashesAsync();
         StartButton.Text = "Loading pending items...";
-        await LoadPendingItemsAsync();        
+        await LoadCandidatesAsync();        
         NextItem();
         StartButton.IsVisible = false;
         AcquisitionBlock.IsVisible = true;
