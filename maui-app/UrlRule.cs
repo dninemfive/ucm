@@ -60,7 +60,7 @@ public class UrlRule
     public static UrlRule? BestFor(string s) => throw new NotImplementedException();
     public IEnumerable<Tag> TagsFor(string url) => throw new NotImplementedException();
     public CandidateItem ItemFor(string url) => throw new NotImplementedException();
-    public static ItemSource? ItemSource(this string url)
+    public static ItemSource? ItemSourceFor(string url)
     {
         UrlRule? urlRule = BestFor(url);
         return urlRule is not null ? new(urlRule.Name, url, urlRule.TagsFor(url).ToArray()) : null;

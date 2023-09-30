@@ -53,6 +53,8 @@ public class Item
         => $"Item {Id} @ {Path}";
     public async Task SaveAsync()
     {
+        Utils.Log($"Saving {this}...\n{JsonSerializer.Serialize(this, new JsonSerializerOptions { WriteIndented = true })}\n");
+        return;
         await File.WriteAllTextAsync(@$"{MauiProgram.TEMP_SAVE_LOCATION}\{Id}.json",
                                      JsonSerializer.Serialize(this, new JsonSerializerOptions { WriteIndented = true }));
     }

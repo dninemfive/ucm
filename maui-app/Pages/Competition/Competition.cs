@@ -154,6 +154,7 @@ public class Competition
     public string FilePath => PathFor(Name);
     public async Task SaveAsync()
     {
+        return;
         await File.WriteAllTextAsync(FilePath, JsonSerializer.Serialize(this, new JsonSerializerOptions() { WriteIndented = true}));
     }
     public Rating? RatingOf(Side side) 

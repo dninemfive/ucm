@@ -64,7 +64,7 @@ public static class Extensions
         Utils.Log($"Loading all {typeof(T).Name}s in {srcFolder}...");
         foreach (string path in Directory.EnumerateFiles(srcFolder))
         {
-            if (path.FileExtension() is not ".json")
+            if (path.FileExtension() is not ".json" or ".json.secret")
                 continue;
             T? item = JsonSerializer.Deserialize<T>(File.ReadAllText(path));
             if (item is not null && (validator is null || validator((path, item))))
