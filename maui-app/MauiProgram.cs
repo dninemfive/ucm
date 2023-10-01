@@ -25,6 +25,8 @@ public static class MauiProgram
 		Utils.DefaultLog = new(@"C:\Users\dninemfive\Pictures\misc\ucm\general.log", mode: Log.Mode.WriteImmediate);
         ItemManager.Load();
 		CompetitionManager.Load();
+		string[] lines = File.ReadAllLines(@"C:\Users\dninemfive\Documents\workspaces\misc\ucm\maui-app\header.secret");
+		HttpClient.DefaultRequestHeaders.Add(lines[0], lines[1]);
 		Utils.Log("Built program.");
 		return builder.Build();
 	}

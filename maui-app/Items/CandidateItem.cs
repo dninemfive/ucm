@@ -39,6 +39,7 @@ public class CandidateItem
             } catch(Exception e)
             {
                 Utils.Log($"Error creating CandidateItem from location `{location}`: {e.Message}");
+                return null;
             }
         } else if(uriScheme is "file")
         {

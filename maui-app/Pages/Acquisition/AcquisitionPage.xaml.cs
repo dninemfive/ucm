@@ -1,5 +1,4 @@
 ﻿using d9.utl;
-using Java.Security;
 using System.Collections.ObjectModel;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -55,28 +54,32 @@ public partial class AcquisitionPage : ContentPage
     {
         _candidateLocations.Clear();
         _locations = ItemManager.AllLocations.ToHashSet();
+        void logct() => Utils.Log($"There are now {_candidateLocations.Count} candidate locations.");
         foreach (string srcFolder in await File.ReadAllLinesAsync(@"C:\Users\dninemfive\Documents\workspaces\misc\ucm\maui-app\localFolderList.txt.secret"))
         {
-            Utils.Log($"Loading candidate items in {srcFolder}...");  
+            Utils.Log($"Loading candidate paths in {srcFolder}...");  
             foreach (string path in await Task.Run(srcFolder.EnumerateFilesRecursive))
             {
                 _candidateLocations.Add(path);
             }
+            logct();
         }
+        Utils.Log($"Loading candidate urls in bookmarks...");
         List<string> bookmarks = JsonSerializer.Deserialize<List<string>>
             (File.ReadAllText(@"C:\Users\dninemfive\Documents\workspaces\misc\ucm\bookmark-plugin\ucm-bookmarks-firefox\bookmarks.json"))!;
         foreach(string url in bookmarks)
         {
             _candidateLocations.Add(url);
         }
+        logct();
     }
     private async Task<CandidateItem?> MakeCandidateFor(string location)
     {
-        void log(bool rejected, string? info = null)
+        void log(bool rejected, string? info = null, string? info2 = null)
         {
             string rejection = rejected ? "rejected" : "accepted";
             info = info is null ? "" : $" ({info})";
-            Utils.Log($"\tMaking candidate for `{location}`... {rejection}{info}");
+            Utils.Log($"\tMaking candidate for `{location}`... {rejection}{info2}{info}");
         }
         
         if (_locations.Contains(location))
@@ -91,14 +94,14 @@ public partial class AcquisitionPage : ContentPage
             return null;
         }
         string? hash = candidate.Hash;
-        Utils.Log($"\t{location} -> {candidate}\n\t\thash: {hash}");
+        Utils.Log($"");
         if (await ItemManager.TryUpdateAnyMatchingItemAsync(hash, location))
         {
-            log(true, "existing item with same hash");
+            log(true, "existing item with same hash", $"\t{location} -> {candidate}...\t");
         }
         if (hash is null || _indexedHashes.Contains(hash) || location.BestAvailableView() is null)
         {
-            log(true, $"null or existing hash or unavailable view");
+            log(true, $"null or existing hash or unavailable view", $"\t{location} -> {candidate}...\t");
             return null;
         }
         log(false);
@@ -106,9 +109,11 @@ public partial class AcquisitionPage : ContentPage
     }
     private async void NextItem()
     {
+        Utils.Log($"NextItem()");
         _currentCandidate = null;
         while(_currentCandidate is null)
         {
+            Index++;
             if (!_candidateLocations!.Any())
                 return;
             if (_index >= _candidateLocations!.Count)
@@ -125,7 +130,7 @@ public partial class AcquisitionPage : ContentPage
             ProgressBar.Progress = progress;
             _currentCandidate = await MakeCandidateFor(_candidateLocations[_index]);
             if (_currentCandidate is null)
-                return;
+                continue;
             _ = _indexedHashes.Add(_currentCandidate.Hash);
             ItemHolder.Content = _currentCandidate?.Location.BestAvailableView();
             CurrentPendingItemInfo.Text = $"{Index}/{_candidateLocations?.Count.PrintNull()} ({progress:P1}) | {IdManager.CurrentId}\t{_currentCandidate?.Location.PrintNull()}";
@@ -147,15 +152,18 @@ public partial class AcquisitionPage : ContentPage
     }
     private async void Accept_Clicked(object sender, EventArgs e)
     {
+        Utils.Log($"Accept_Clicked({_currentCandidate?.Location.PrintNull()})");
         _ = await _currentCandidate!.SaveAsync();
         NextItem();
     }
     private void Skip_Clicked(object sender, EventArgs e)
     {
+        Utils.Log($"Skip_Clicked({_currentCandidate?.Location.PrintNull()})");
         NextItem();
     }
     private void Reject_Clicked(object sender, EventArgs e)
     {
+        Utils.Log($"Reject_Clicked({_currentCandidate?.Location.PrintNull()})");
         File.AppendAllText(MauiProgram.REJECTED_HASH_FILE, $"{_currentCandidate!.Hash}\n");
         _ = _indexedHashes.Add(_currentCandidate.Hash);
         NextItem();
