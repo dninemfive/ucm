@@ -11,6 +11,7 @@ public static class MauiProgram
 	public const string TEMP_RULE_LOCATION = @"C:\Users\dninemfive\Documents\workspaces\misc\ucm\common\urlrule";
 	public const string REJECTED_HASH_FILE = "C:/Users/dninemfive/Pictures/misc/ucm/rejected hashes.txt";
 	public static readonly HttpClient HttpClient = new();
+	public static string ITEM_FILE_LOCATION { get; private set; }
     public static MauiApp CreateMauiApp()
 	{
 		var builder = MauiApp.CreateBuilder();
@@ -27,6 +28,7 @@ public static class MauiProgram
 		CompetitionManager.Load();
 		string[] lines = File.ReadAllLines(@"C:\Users\dninemfive\Documents\workspaces\misc\ucm\maui-app\header.secret");
 		HttpClient.DefaultRequestHeaders.Add(lines[0], lines[1]);
+		ITEM_FILE_LOCATION = File.ReadAllText(@"C:\Users\dninemfive\Documents\workspaces\misc\ucm\maui-app\destFolder.txt.secret");
 		Utils.Log("Built program.");
 		return builder.Build();
 	}

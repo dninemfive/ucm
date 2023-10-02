@@ -143,21 +143,19 @@ public partial class AcquisitionPage : ContentPage
             if (_currentCandidate is null)
                 continue;
             _ = _indexedHashes.Add(_currentCandidate.Hash);
-            string? sourceUrl = await _currentCandidate.GetSourceUrlAsync();
-            if(sourceUrl is not null)
+            if(_currentCandidate.SourceUrl is not null)
             {
                 try
                 {
-                    byte[] imageData = await MauiProgram.HttpClient.GetByteArrayAsync(sourceUrl);
                     ItemHolder.Content = new Image()
                     {
-                        Source = ImageSource.FromStream(() => new MemoryStream(imageData)),
+                        Source = ImageSource.FromStream(() => new MemoryStream(_currentCandidate.Data!)),
                         IsAnimationPlaying = true,
                         Aspect = Aspect.AspectFit
                     };
                 } catch(Exception e)
                 {
-                    Utils.Log($"Issue getting image data for {sourceUrl}: {e.Message}");
+                    Utils.Log($"Issue getting image data for {_currentCandidate}: {e.Message}");
                 }
             } 
             else

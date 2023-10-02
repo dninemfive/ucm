@@ -54,7 +54,7 @@ public class Item
     public async Task SaveAsync()
     {
         Utils.Log($"Saving {this}...\n{JsonSerializer.Serialize(this, new JsonSerializerOptions { WriteIndented = true })}\n");
-        return;
+        //return;
         await File.WriteAllTextAsync(@$"{MauiProgram.TEMP_SAVE_LOCATION}\{Id}.json",
                                      JsonSerializer.Serialize(this, new JsonSerializerOptions { WriteIndented = true }));
     }
@@ -68,13 +68,20 @@ public class Item
         if(File.Exists(ci.Location))
         {
             return new(ci.Location, ci.Hash, IdManager.Register(), new ItemSource("Local Filesystem", ci.Location));
-        }
+        }        
         UrlRule? urlRule = UrlRule.BestFor(ci.Location);
         if (urlRule is not null)
         {
-            return new(ci.Location,
+            ItemId id = IdManager.Register();
+            string? newPath = null;
+            if (ci.Data is not null)
+            {
+                newPath = System.IO.Path.Join(MauiProgram.ITEM_FILE_LOCATION, $"{id}{System.IO.Path.GetExtension(ci.SourceUrl)}");
+                File.WriteAllBytes(newPath, ci.Data);
+            }
+            return new(newPath ?? ci.Location,
                        ci.Hash,
-                       IdManager.Register(),
+                       id,
                        new ItemSource(urlRule.Name,
                                       ci.Location,
                                       urlRule.TagsFor(ci.Location)

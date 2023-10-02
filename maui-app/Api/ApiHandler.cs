@@ -28,6 +28,13 @@ public class JsonApiHandler : IApiHandler
         }
         string? result = response.RootElement.GetProperty("file_url").GetString();
         Utils.Log($"\t\tResult: {result.PrintNull()}");
+        _ = Directory.CreateDirectory(Path.Join(MauiProgram.TEMP_SAVE_LOCATION, "cache", new Uri(resourceUrl).Host));
+        string? id = UrlRule.BestFor(resourceUrl)?.IdFor(resourceUrl);
+        if(id is not null)
+        {
+            File.WriteAllText(Path.Join(MauiProgram.TEMP_SAVE_LOCATION, "cache", new Uri(resourceUrl).Host, $"{id}.json"),
+                JsonSerializer.Serialize(response));
+        }        
         return result;
     }
 }

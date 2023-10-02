@@ -11,17 +11,21 @@ public class CandidateItem
 {
     public string Hash { get; private set; }
     public string Location { get; private set; }
+    public byte[]? Data { get; private set; }
+    public string? SourceUrl { get; private set; }
     public enum LocationType
     {
         Internet,
         Local
     }
     public LocationType Type { get; private set; }
-    private CandidateItem(string path, string hash, LocationType type)
+    private CandidateItem(string path, string hash, LocationType type, string? sourceUrl = null, byte[]? data = null)
     {
         Hash = hash;
         Location = path;
         Type = type;
+        SourceUrl = sourceUrl;
+        Data = data;
     }
     public static async Task<CandidateItem?> MakeFromAsync(string location)
     {
@@ -33,11 +37,12 @@ public class CandidateItem
                 return null;
             try
             {
-                byte[] data = await MauiProgram.HttpClient.GetByteArrayAsync(location);
+                string? sourceUrl = await GetSourceUrlAsync(location); 
+                byte[] data = await MauiProgram.HttpClient.GetByteArrayAsync(sourceUrl);
                 string? hash = await data.HashAsync();
                 if(hash is not null)
                 {
-                    return new(location, hash, LocationType.Internet);
+                    return new(location, hash, LocationType.Internet, sourceUrl, data);
                 } 
             } catch(Exception e)
             {
@@ -65,8 +70,8 @@ public class CandidateItem
         }
         return result is not null;
     }
-    public async Task<string?> GetSourceUrlAsync()
-        => await (UrlRule.BestFor(Location)?.FileUrlFor(Location) ?? Task.FromResult<string?>(null));
+    public static async Task<string?> GetSourceUrlAsync(string location)
+        => await (UrlRule.BestFor(location)?.FileUrlFor(location) ?? Task.FromResult<string?>(null));
     public override string ToString()
         => $"CI({Location}, {Hash}, {Type})";
 }
