@@ -26,13 +26,11 @@ public static class CompetitionManager
     {
         if (_loaded)
             return;
-        Utils.Log("Loading competitions...");
         _loaded = true;
         _competitionsByName = new();
         foreach (Competition c in MauiProgram.TEMP_COMP_LOCATION.LoadAll<Competition>())
         {
             _competitionsByName[c.Name] = c;
         }
-        Utils.Log($"Loaded {_competitionsByName.Count} items.");
     }
 }

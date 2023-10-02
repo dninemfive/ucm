@@ -20,7 +20,7 @@ public static class UrlRuleManager
             _byName[urlRule.Name] = urlRule;
         }
         Utils.Log($"Loaded UrlRules:");
-        foreach ((string name, UrlRule urlRule) in _byName.OrderBy(x => x.Key))
-            Utils.Log($"\t{name,-16}\t{urlRule}");
+        foreach (string name in UrlRules.Select(x => x.Name).Order())
+            Utils.Log($"\t{name,-16}");
     }
 }

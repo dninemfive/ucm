@@ -64,7 +64,6 @@ public static class ItemManager
         {
             Register(item);
         }
-        Utils.Log($"Loaded {_itemsById.Count} items.");
     }
     public static void Reload()
     {
@@ -86,11 +85,12 @@ public static class ItemManager
     {
         if(hash is not null && ItemsByHash.TryGetValue(hash, out Item? item) && !item.HasSourceInfoFor(location))
         {
+            if (item.Path.IsInFolder(MauiProgram.ITEM_FILE_LOCATION))
+                return true;
             ItemSource? source = location.ItemSource();
             if (source is not null)
             {
                 item.Sources.Add(source);
-                Utils.Log($"\t\tadding source {source} to existing item {item}.");
                 await item.SaveAsync();
             }
             return true;

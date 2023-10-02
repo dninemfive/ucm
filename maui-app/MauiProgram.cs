@@ -28,6 +28,9 @@ public static class MauiProgram
 		CompetitionManager.Load();
 		string[] lines = File.ReadAllLines(@"C:\Users\dninemfive\Documents\workspaces\misc\ucm\maui-app\header.secret");
 		HttpClient.DefaultRequestHeaders.Add(lines[0], lines[1]);
+		// load urlrules early to make the log prettier
+		foreach (UrlRule _ in UrlRuleManager.UrlRules)
+			break;
 		Utils.Log("Built program.");
 		return builder.Build();
 	}

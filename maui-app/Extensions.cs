@@ -27,7 +27,7 @@ public static class Extensions
         // https://devblogs.microsoft.com/dotnet/announcing-dotnet-maui-communitytoolkit-mediaelement/
         ".mov" or ".mp4" or ".webm" => null,
         // ".json" or ".txt" => new Label() { Text = File.ReadAllText(path) },
-        ".xcf" or ".pdf" => null,
+        ".xcf" or ".pdf" or ".zip" => null,
         _ => new Image() { Source = path, IsAnimationPlaying = true, Aspect = Aspect.AspectFit }
     };
     public static double StandardDeviation(this IEnumerable<double> vals)
@@ -60,8 +60,8 @@ public static class Extensions
     public static double ScrollSpace(this ScrollView sv)
         => sv.ContentSize.Height - sv.Height;
     public static IEnumerable<T> LoadAll<T>(this string srcFolder, Func<(string path, T item), bool>? validator = null)
-    {
-        Utils.Log($"Loading all {typeof(T).Name}s in {srcFolder}...");
+    {        
+        int ct = 0;
         foreach (string path in Directory.EnumerateFiles(srcFolder))
         {
             if (!(path.FileExtension() == ".json" || (path.FileExtension() == ".secret" && path.Contains(".json.secret"))))
@@ -69,9 +69,11 @@ public static class Extensions
             T? item = JsonSerializer.Deserialize<T>(File.ReadAllText(path));
             if (item is not null && (validator is null || validator((path, item))))
             {
+                ct++;
                 yield return item;
             }
         }
+        Utils.Log($"Loading {ct} {typeof(T).Name.ToLower()}s from {srcFolder}.");
     }
     public static Competition.Rating? RatingAs(this Item item, string? name)
         => Competition.Named(name)?.RatingOf(item);
