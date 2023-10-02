@@ -39,12 +39,6 @@ public partial class AcquisitionPage : ContentPage
         {
             _ = File.Create(MauiProgram.REJECTED_HASH_FILE);
         }
-        /*
-        if (_indexedHashes.Any())
-            Utils.Log($"Ignoring the following hashes:\n\t{_indexedHashes.Distinct()
-                                                                         .Order()
-                                                                         .Aggregate((x, y) => $"{x}\n\t{y}")}");
-        */
     }
     private HashSet<string> _locations = new();
     private async Task LoadCandidatesAsync()
@@ -69,34 +63,39 @@ public partial class AcquisitionPage : ContentPage
         }
         List<string> bookmarks = JsonSerializer.Deserialize<List<string>>
             (File.ReadAllText(@"C:\Users\dninemfive\Documents\workspaces\misc\ucm\bookmark-plugin\ucm-bookmarks-firefox\bookmarks.json"))!;
-        foreach(string? url in bookmarks.Select(UrlHandler.BestUrlFor).Distinct())
+        foreach(string? url in bookmarks.Select(UrlRule.BestCanonicalUrlFor).Distinct())
         {
             if (url is null || _locations.Contains(url))
                 continue;
             _candidateLocations.Add(url);
         }
         logct("bookmarks");
+        Utils.Log($"Candidate count by best url rule:");
+        foreach(UrlRule rule in UrlRuleManager.UrlRules)
+        {
+            Utils.Log($"\t{rule.Name}\t{_candidateLocations.Count(x => UrlRule.BestFor(x)?.Name == rule.Name)})");
+        }
         _candidateLocations = await Task.Run(() => _candidateLocations = _candidateLocations.Shuffled().ToList());
     }
-    private async Task<CandidateItem?> MakeCandidateFor(string location)
+    private async Task<CandidateItem?> MakeCandidateFor(string candidateLocation)
     {
         void log(bool rejected, string? info = null)
         {
             string rejection = rejected ? "❌" : "✔";
             info = info is null ? "" : $"({info})";
-            Utils.Log($"\t{info,-24} {rejection} {location}");        
+            Utils.Log($"\t{info,-24} {rejection} {candidateLocation}");        
         }
-        if (_locations.Contains(location))
+        if (_locations.Contains(candidateLocation))
             return null;
-        CandidateItem? candidate = await CandidateItem.MakeFromAsync(location);
+        CandidateItem? candidate = await CandidateItem.MakeFromAsync(candidateLocation);
         string? hash = candidate?.Hash;
         List<(bool assertion, string msg)> assertions = new()
         {
             (candidate is null, "candidate is null"),
-            (await ItemManager.TryUpdateAnyMatchingItemAsync(hash, location), "existing item"),
+            (await ItemManager.TryUpdateAnyMatchingItemAsync(hash, candidateLocation), "existing item"),
             (hash is null, "hash is null"),
             (hash is not null && _indexedHashes.Contains(hash), "indexed hash"),
-            (location.BestAvailableView() is null, "no available view")
+            (candidateLocation.BestAvailableView() is null, "no available view")
         };
         foreach((bool assertion, string msg) in assertions) {
             if(assertion)
@@ -151,9 +150,10 @@ public partial class AcquisitionPage : ContentPage
             } 
             else
             {
-                ItemHolder.Content = _currentCandidate.Location.BestAvailableView();
+                ItemHolder.Content = _currentCandidate.CanonicalLocation.BestAvailableView();
             }
-            CurrentPendingItemInfo.Text = $"{Index}/{_candidateLocations?.Count.PrintNull()} ({progress:P1}) | {IdManager.CurrentId}\t{_currentCandidate?.Location.PrintNull()}";
+            string ct = (_candidateLocations?.Count).PrintNull(), location = (_currentCandidate?.CanonicalLocation).PrintNull();
+            CurrentPendingItemInfo.Text = $"{Index}/{ct} ({progress:P1}) | {IdManager.CurrentId}\t{location}";
             SetButtonsActive(true);
         }
     }

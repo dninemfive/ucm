@@ -80,7 +80,7 @@ public static class Extensions
     public static string? UriScheme(this string? location)
         => Uri.TryCreate(location, UriKind.Absolute, out Uri? uri) ? uri?.Scheme : null;
     public static async Task<ItemSource?> ItemSourceAsync(this string location)
-        => File.Exists(location) ? new("Local Filesystem", location) : await UrlHandler.BestItemSourceFor(location);
+        => File.Exists(location) ? new("Local Filesystem", location) : await UrlRule.BestItemSourceFor(location);
     public static Type? ToType(this string typeName) => Type.GetType(typeName)
                                                      ?? Type.GetType($"System.{typeName}")
                                                      ?? Type.GetType($"d9.ucm.{typeName}");

@@ -63,26 +63,25 @@ public class Item
         => Sources.Select(x => x.Location);
     public static async Task<Item?> FromAsync(CandidateItem ci)
     {        
-        if(File.Exists(ci.Location))
+        if(File.Exists(ci.CanonicalLocation))
         {
-            return new(ci.Location, ci.Hash, IdManager.Register(), new ItemSource("Local Filesystem", ci.Location));
+            return new(ci.CanonicalLocation, ci.Hash, IdManager.Register(), new ItemSource("Local Filesystem", ci.CanonicalLocation));
         }        
-        UrlHandler? urlRule = UrlHandler.BestFor(ci.Location);
+        UrlRule? urlRule = UrlRule.BestFor(ci.CanonicalLocation);
         if (urlRule is not null)
         {
             ItemId id = IdManager.Register();
-            string? newPath = null;
             if (ci.Data is not null)
             {
-                newPath = System.IO.Path.Join(MauiProgram.ITEM_FILE_LOCATION, $"{id}{System.IO.Path.GetExtension(ci.SourceUrl)}");
+                string? newPath = System.IO.Path.Join(MauiProgram.ITEM_FILE_LOCATION, $"{id}{System.IO.Path.GetExtension(ci.SourceUrl)}");
                 File.WriteAllBytes(newPath, ci.Data);
-            }
-            return new(newPath ?? ci.Location,
+                return new(newPath,
                        ci.Hash,
                        id,
                        new ItemSource(urlRule.Name,
-                                      ci.Location,
-                                      (await urlRule.TagsFor(ci.Location))?.ToArray() ?? Array.Empty<string>()));
+                                      ci.CanonicalLocation,
+                                      (await urlRule.TagsFor(ci.ApiUrl))?.ToArray() ?? Array.Empty<string>()));
+            }            
         }
         Utils.Log($"Failed to make item for {ci}.");
         return null;

@@ -32,9 +32,11 @@ public class JsonApiDef : ApiDef
     [JsonIgnore]
     public Dictionary<string, Type> MetadataTypes { get; private set; } = new();
     [JsonIgnore]
-    private Dictionary<string, JsonDocument> _responses { get; set; } = new();
+    private Dictionary<string, JsonElement> _responses { get; set; } = new();
+    [JsonInclude]
+    public string RootPath { get; private set; }
     [JsonConstructor]
-    public JsonApiDef(string fileUrlKey, string tagKey, string tagDelimiter, Dictionary<string, string> metadata)
+    public JsonApiDef(string fileUrlKey, string tagKey, string tagDelimiter, Dictionary<string, string> metadata, string rootPath = "")
     {
         FileUrlKey = fileUrlKey;
         TagKey = tagKey;
@@ -53,37 +55,52 @@ public class JsonApiDef : ApiDef
                 Utils.Log($"Unable to add metadata {k}: unrecognized type {v}.");
             } 
         }
+        RootPath = rootPath;
     }
-    public async Task<JsonDocument?> GetResponseDocument(string resourceUrl)
+    private JsonElement? GetRoot(JsonDocument? doc)
     {
-        if (_responses.TryGetValue(resourceUrl, out JsonDocument? response))
-            return response;
-        response = await MauiProgram.HttpClient.GetFromJsonAsync<JsonDocument>(resourceUrl);
-        if(response is not null)
+        if (doc is null)
+            return null;
+        if (RootPath.Length == 0)
+            return doc.RootElement;
+        JsonElement root = doc.RootElement;
+        foreach(string s in RootPath.Split("/", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
         {
-            _responses[resourceUrl] = response;
-            string cacheFolder = Path.Join(MauiProgram.TEMP_SAVE_LOCATION, "cache", new Uri(resourceUrl).Host);
+            root = root.GetProperty(s);
+        }
+        return root;
+    }
+    public async Task<JsonElement?> GetResponse(string apiUrl)
+    {
+        if (_responses.TryGetValue(apiUrl, out JsonElement response))
+            return response;
+        JsonElement? response2;
+        response2 = GetRoot(await MauiProgram.HttpClient.GetFromJsonAsync<JsonDocument>(apiUrl));
+        if(response2 is not null)
+        {
+            _responses[apiUrl] = response2.Value;
+            string cacheFolder = Path.Join(MauiProgram.TEMP_SAVE_LOCATION, "cache", new Uri(apiUrl).Host);
             _ = Directory.CreateDirectory(cacheFolder);
-            string? id = UrlHandler.BestIdFor(resourceUrl);
+            string? id = UrlRule.BestIdFor(apiUrl);
             if (id is not null)
-                File.WriteAllText(Path.Join(cacheFolder, $"{id}.json"), JsonSerializer.Serialize(response));
+                File.WriteAllText(Path.Join(cacheFolder, $"{id}.json"), JsonSerializer.Serialize(response2));
         }
         else
         {
-            Utils.Log($"FileUrlAsync(): Failed to get response for {resourceUrl}");
+            Utils.Log($"FileUrlAsync(): Failed to get response for {apiUrl}");
         }
-        return response;
+        return response2;
     }
-    public override async Task<string?> GetFileUrlAsync(string resourceUrl)
+    public override async Task<string?> GetFileUrlAsync(string apiUrl)
     {
-        JsonDocument? response = await GetResponseDocument(resourceUrl);
-        return response?.RootElement.GetProperty(FileUrlKey).GetString();
+        JsonElement? response = await GetResponse(apiUrl);
+        return response?.GetProperty(FileUrlKey).GetString();
     }
-    public override async Task<IEnumerable<string>?> GetTagsAsync(string resourceUrl)
+    public override async Task<IEnumerable<string>?> GetTagsAsync(string? apiUrl)
     {
-        JsonDocument? response = await GetResponseDocument(resourceUrl);
-        return response?.RootElement.GetProperty(TagKey)
-                                    .GetString()?
-                                    .Split(TagDelimiter);
+        if (apiUrl is null)
+            return null;
+        JsonElement? response = await GetResponse(apiUrl);
+        return response?.GetProperty(TagKey).GetString()?.Split(TagDelimiter);
     }
 }
