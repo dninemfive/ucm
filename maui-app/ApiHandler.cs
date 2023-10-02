@@ -19,12 +19,15 @@ public class JsonApiHandler : IApiHandler
 {
     public async Task<string?> FileUrlAsync(string resourceUrl)
     {
+        Utils.Log($"\t\tFileUrlAsync({resourceUrl})");
         JsonDocument? response = await MauiProgram.HttpClient.GetFromJsonAsync<JsonDocument>(resourceUrl);
         if(response is null)
         {
-            Utils.Log($"\tFailed to get response for {resourceUrl}");
+            Utils.Log($"\t\tFailed to get response for {resourceUrl}");
             return null;
         }
-        return response.RootElement.GetProperty("file_url").GetString()!;
+        string? result = response.RootElement.GetProperty("file_url").GetString();
+        Utils.Log($"\t\tResult: {result.PrintNull()}");
+        return result;
     }
 }

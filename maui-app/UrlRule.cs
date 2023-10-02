@@ -39,7 +39,7 @@ public class UrlRule
     public string UrlFor(string url)
     {
         string result = $"{Prefix}{IdFor(url)}{Suffix}";
-        Utils.Log($"{url} -> {result}");
+        // Utils.Log($"{url} -> {result}");
         return result;
     }
     public HttpRequestMessage RequestMessageFor(string url, HttpMethod? method = null)

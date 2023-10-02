@@ -26,7 +26,7 @@ public static class Extensions
     {
         // https://devblogs.microsoft.com/dotnet/announcing-dotnet-maui-communitytoolkit-mediaelement/
         ".mov" or ".mp4" or ".webm" => null,
-        ".json" or ".txt" => new Label() { Text = File.ReadAllText(path) },
+        // ".json" or ".txt" => new Label() { Text = File.ReadAllText(path) },
         ".xcf" or ".pdf" => null,
         _ => new Image() { Source = path, IsAnimationPlaying = true, Aspect = Aspect.AspectFit }
     };
@@ -64,7 +64,7 @@ public static class Extensions
         Utils.Log($"Loading all {typeof(T).Name}s in {srcFolder}...");
         foreach (string path in Directory.EnumerateFiles(srcFolder))
         {
-            if (path.FileExtension() is not ".json" or ".json.secret")
+            if (!(path.FileExtension() == ".json" || (path.FileExtension() == ".secret" && path.Contains(".json.secret"))))
                 continue;
             T? item = JsonSerializer.Deserialize<T>(File.ReadAllText(path));
             if (item is not null && (validator is null || validator((path, item))))

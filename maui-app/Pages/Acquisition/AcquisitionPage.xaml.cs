@@ -79,10 +79,9 @@ public partial class AcquisitionPage : ContentPage
     {
         void log(bool rejected, string? info = null)
         {
-            string rejection = rejected ? "" : "keep";
+            string rejection = rejected ? "SKIP" : "";
             info = info is null ? "" : $" ({info})";
-            Utils.Log($"\t{rejection,-4}\t{location,-64}\t{info}");
-        }
+            Utils.Log($"\t{rejection,-4}\t{location,-180}\t{info}");        }
         
         if (_locations.Contains(location))
         {
@@ -96,14 +95,24 @@ public partial class AcquisitionPage : ContentPage
             return null;
         }
         string? hash = candidate.Hash;
-        Utils.Log($"");
         if (await ItemManager.TryUpdateAnyMatchingItemAsync(hash, location))
         {
             log(true, "existing item with same hash");
+            return null;
         }
-        if (hash is null || _indexedHashes.Contains(hash) || location.BestAvailableView() is null)
+        if(hash is null)
         {
-            log(true, $"null or existing hash or unavailable view");
+            log(true, "null hash");
+            return null;
+        }
+        if (hash is not null && _indexedHashes.Contains(hash))
+        {
+            log(true, $"hash already indexed");
+            return null;
+        }
+        if(location.BestAvailableView() is null)
+        {
+            log(true, "no available view");
             return null;
         }
         log(false);
@@ -135,6 +144,7 @@ public partial class AcquisitionPage : ContentPage
                 continue;
             _ = _indexedHashes.Add(_currentCandidate.Hash);
             ItemHolder.Content = (await _currentCandidate.GetSourceUrlAsync() ?? _currentCandidate.Location)?.BestAvailableView();
+            Utils.Log($"ItemHolder content: {(ItemHolder.Content as Image)?.Source}");
             CurrentPendingItemInfo.Text = $"{Index}/{_candidateLocations?.Count.PrintNull()} ({progress:P1}) | {IdManager.CurrentId}\t{_currentCandidate?.Location.PrintNull()}";
         }
     }
