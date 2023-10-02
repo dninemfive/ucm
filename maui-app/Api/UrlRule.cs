@@ -25,6 +25,12 @@ public class UrlRule
             Suffix = suffix;
         }
         public string For(string id) => $"{Prefix}{id}{Suffix}";
+        public string? ForUrl(string url)
+        {
+            if (BestIdFor(url) is string s)
+                return For(s);
+            return null;
+        }
     }
     [JsonInclude]
     public string Domain { get; private set; }
@@ -90,7 +96,7 @@ public class UrlRule
     public static async Task<string?> BestFileUrlFor(string canonicalUrl)
     {
         UrlRule? bestRule = BestFor(canonicalUrl);
-        string? apiUrl = bestRule?.ApiUrl.For(canonicalUrl);
+        string? apiUrl = bestRule?.ApiUrl.ForUrl(canonicalUrl);
         if (bestRule is null || apiUrl is null)
             return null;
         return await bestRule.FileUrlFor(canonicalUrl);
@@ -102,8 +108,8 @@ public class UrlRule
         return urlRule is not null ? new(urlRule.Name, url, (await urlRule.TagsFor(url))?.ToArray() ?? Array.Empty<string>()) : null;
     }
     public static string? BestCanonicalUrlFor(string url)
-        => BestFor(url)?.CanonicalUrl.For(url);
+        => BestFor(url)?.CanonicalUrl.ForUrl(url);
     public static string? BestApiUrlFor(string url)
-        => BestFor(url)?.ApiUrl.For(url);
+        => BestFor(url)?.ApiUrl.ForUrl(url);
     #endregion static
 }

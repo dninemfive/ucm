@@ -39,12 +39,13 @@ public class CandidateItem
                 return null;
             try
             {
-                string? sourceUrl = await GetFileUrlAsync(canonicalLocation);
+                string? apiUrl = UrlRule.BestApiUrlFor(canonicalLocation);
+                string? sourceUrl = await GetFileUrlAsync(apiUrl!);
                 byte[] data = await MauiProgram.HttpClient.GetByteArrayAsync(sourceUrl);
                 string? hash = await data.HashAsync();
                 if(hash is not null)
                 {
-                    return new(canonicalLocation, UrlRule.BestApiUrlFor(canonicalLocation), hash, LocationType.Internet, sourceUrl, data);
+                    return new(canonicalLocation, apiUrl, hash, LocationType.Internet, sourceUrl, data);
                 } 
             } catch(Exception e)
             {
