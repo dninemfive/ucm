@@ -48,8 +48,6 @@ public partial class AcquisitionPage : ContentPage
             Utils.Log($"Ignoring the following hashes: {_indexedHashes.Order().ListNotation()}");
     }
     private HashSet<string> _locations = new();
-    // todo: this is infeasible for the bookmarks portion since it requires tens of thousands of images to be hashed.
-    // instead, simply load next candidate each time previous is completed, or maybe load in the background?
     private async Task LoadCandidatesAsync()
     {
         _candidateLocations.Clear();
@@ -60,6 +58,8 @@ public partial class AcquisitionPage : ContentPage
             Utils.Log($"Loading candidate paths in {srcFolder}...");  
             foreach (string path in await Task.Run(srcFolder.EnumerateFilesRecursive))
             {
+                if (_locations.Contains(path))
+                    continue;
                 _candidateLocations.Add(path);
             }
             logct();
@@ -67,24 +67,26 @@ public partial class AcquisitionPage : ContentPage
         Utils.Log($"Loading candidate urls in bookmarks...");
         List<string> bookmarks = JsonSerializer.Deserialize<List<string>>
             (File.ReadAllText(@"C:\Users\dninemfive\Documents\workspaces\misc\ucm\bookmark-plugin\ucm-bookmarks-firefox\bookmarks.json"))!;
-        foreach(string url in bookmarks)
+        foreach(string? url in bookmarks.Select(x => UrlRule.BestFor(x)?.UrlFor(x)).Distinct())
         {
+            if (url is null || _locations.Contains(url))
+                continue;
             _candidateLocations.Add(url);
         }
         logct();
     }
     private async Task<CandidateItem?> MakeCandidateFor(string location)
     {
-        void log(bool rejected, string? info = null, string? info2 = null)
+        void log(bool rejected, string? info = null)
         {
-            string rejection = rejected ? "rejected" : "accepted";
+            string rejection = rejected ? "" : "keep";
             info = info is null ? "" : $" ({info})";
-            Utils.Log($"\tMaking candidate for `{location}`... {rejection}{info2}{info}");
+            Utils.Log($"\t{rejection,-4}\t{location,-64}\t{info}");
         }
         
         if (_locations.Contains(location))
         {
-            log(true, "location already indexed");
+            // log(true, "location already indexed");
             return null;
         }
         CandidateItem? candidate = await CandidateItem.MakeFromAsync(location);
@@ -97,11 +99,11 @@ public partial class AcquisitionPage : ContentPage
         Utils.Log($"");
         if (await ItemManager.TryUpdateAnyMatchingItemAsync(hash, location))
         {
-            log(true, "existing item with same hash", $"\t{location} -> {candidate}...\t");
+            log(true, "existing item with same hash");
         }
         if (hash is null || _indexedHashes.Contains(hash) || location.BestAvailableView() is null)
         {
-            log(true, $"null or existing hash or unavailable view", $"\t{location} -> {candidate}...\t");
+            log(true, $"null or existing hash or unavailable view");
             return null;
         }
         log(false);
@@ -132,7 +134,7 @@ public partial class AcquisitionPage : ContentPage
             if (_currentCandidate is null)
                 continue;
             _ = _indexedHashes.Add(_currentCandidate.Hash);
-            ItemHolder.Content = _currentCandidate?.Location.BestAvailableView();
+            ItemHolder.Content = (await _currentCandidate.GetSourceUrlAsync() ?? _currentCandidate.Location)?.BestAvailableView();
             CurrentPendingItemInfo.Text = $"{Index}/{_candidateLocations?.Count.PrintNull()} ({progress:P1}) | {IdManager.CurrentId}\t{_currentCandidate?.Location.PrintNull()}";
         }
     }

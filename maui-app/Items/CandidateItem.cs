@@ -28,6 +28,9 @@ public class CandidateItem
         string? uriScheme = location.UriScheme();
         if(uriScheme is "http" or "https")
         {
+            UrlRule? urlRule = UrlRule.BestFor(location);
+            if (urlRule is null)
+                return null;
             try
             {
                 byte[] data = await MauiProgram.HttpClient.GetByteArrayAsync(location);
@@ -62,6 +65,8 @@ public class CandidateItem
         }
         return result is not null;
     }
+    public async Task<string?> GetSourceUrlAsync()
+        => await (UrlRule.BestFor(Location)?.FileUrlFor(Location) ?? Task.FromResult<string?>(null));
     public override string ToString()
         => $"CI({Location}, {Hash}, {Type})";
 }

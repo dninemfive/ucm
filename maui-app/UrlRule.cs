@@ -76,4 +76,6 @@ public class UrlRule
         UrlRule? urlRule = BestFor(url);
         return urlRule is not null ? new(urlRule.Name, url, urlRule.TagsFor(url).ToArray()) : null;
     }
+    public async Task<string?> FileUrlFor(string url)
+        => await new JsonApiHandler().FileUrlAsync(url);
 }
