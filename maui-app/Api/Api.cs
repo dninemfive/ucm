@@ -26,16 +26,19 @@ public class JsonApiDef : ApiDef
     [JsonInclude]
     public string TagKey { get; private set; }
     [JsonInclude]
+    public string TagDelimiter { get; private set; }
+    [JsonInclude]
     public Dictionary<string, string> Metadata { get; private set; }
     [JsonIgnore]
     public Dictionary<string, Type> MetadataTypes { get; private set; } = new();
     [JsonIgnore]
     private Dictionary<string, JsonDocument> _responses { get; set; } = new();
     [JsonConstructor]
-    public JsonApiDef(string fileUrlKey, string tagKey, Dictionary<string, string> metadata)
+    public JsonApiDef(string fileUrlKey, string tagKey, string tagDelimiter, Dictionary<string, string> metadata)
     {
         FileUrlKey = fileUrlKey;
         TagKey = tagKey;
+        TagDelimiter = tagDelimiter;
         Metadata = metadata;
         foreach((string k, string v) in metadata)
         {
@@ -80,8 +83,7 @@ public class JsonApiDef : ApiDef
     {
         JsonDocument? response = await GetResponseDocument(resourceUrl);
         return response?.RootElement.GetProperty(TagKey)
-                                    .EnumerateArray()
-                                    .Select(x => x.GetString())
-                                    .OfType<string>();
+                                    .GetString()?
+                                    .Split(TagDelimiter);
     }
 }
