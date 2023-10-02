@@ -99,4 +99,8 @@
 	  </MauiXaml>
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Using Include="d9.utl" />
+	</ItemGroup>
+
 </Project>

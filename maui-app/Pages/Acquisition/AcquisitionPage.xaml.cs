@@ -74,7 +74,7 @@ public partial class AcquisitionPage : ContentPage
         }
         List<string> bookmarks = JsonSerializer.Deserialize<List<string>>
             (File.ReadAllText(@"C:\Users\dninemfive\Documents\workspaces\misc\ucm\bookmark-plugin\ucm-bookmarks-firefox\bookmarks.json"))!;
-        foreach(string? url in bookmarks.Select(UrlRule.BestUrlFor).Distinct())
+        foreach(string? url in bookmarks.Select(UrlHandler.BestUrlFor).Distinct())
         {
             if (url is null || _locations.Contains(url))
                 continue;
@@ -87,8 +87,9 @@ public partial class AcquisitionPage : ContentPage
     {
         void log(bool rejected, string? info = null)
         {
-            string rejection = rejected ? "SKIP" : "keep";
-            Utils.Log($"\t{rejection,-4}\t{location,-180}\t{info}");        
+            string rejection = rejected ? "❌" : "✔";
+            info = info is null ? "" : $"({info})";
+            Utils.Log($"\t{info,-24} {rejection} {location}");        
         }
         if (_locations.Contains(location))
             return null;

@@ -12,12 +12,15 @@ public partial class MainPage : ContentPage
 	public MainPage()
 	{
         InitializeComponent();
-        
+        string type = "Int32";
+        Text.Text = (Type.GetType(type) 
+                  ?? Type.GetType($"System.{type}") 
+                  ?? Type.GetType($"d9.ucm.{type}"))?.Name.PrintNull();
 	}
 
     private async void Button_Clicked(object sender, EventArgs e)
     {
-        UrlRule? urlRule = JsonSerializer.Deserialize<UrlRule>(
+        UrlHandler? urlRule = JsonSerializer.Deserialize<UrlHandler>(
             File.ReadAllText(@"C:\Users\dninemfive\Documents\workspaces\misc\ucm\common\urlrule\secret1.json.secret"));
         if(urlRule is null)
         {

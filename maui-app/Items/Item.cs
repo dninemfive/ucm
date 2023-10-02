@@ -67,7 +67,7 @@ public class Item
         {
             return new(ci.Location, ci.Hash, IdManager.Register(), new ItemSource("Local Filesystem", ci.Location));
         }        
-        UrlRule? urlRule = UrlRule.BestFor(ci.Location);
+        UrlHandler? urlRule = UrlHandler.BestFor(ci.Location);
         if (urlRule is not null)
         {
             ItemId id = IdManager.Register();

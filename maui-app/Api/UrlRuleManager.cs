@@ -8,12 +8,12 @@ using d9.utl;
 namespace d9.ucm;
 public static class UrlRuleManager
 {
-    public static IEnumerable<UrlRule> UrlRules => _byName.Values;
-    public static IReadOnlyDictionary<string, UrlRule> ByName => _byName;
-    private static readonly Dictionary<string, UrlRule> _byName = new();
+    public static IEnumerable<UrlHandler> UrlRules => _byName.Values;
+    public static IReadOnlyDictionary<string, UrlHandler> ByName => _byName;
+    private static readonly Dictionary<string, UrlHandler> _byName = new();
     static UrlRuleManager()
     {
-        foreach(UrlRule urlRule in MauiProgram.TEMP_RULE_LOCATION.LoadAll<UrlRule>())
+        foreach(UrlHandler urlRule in MauiProgram.TEMP_RULE_LOCATION.LoadAll<UrlHandler>())
         {
             if (_byName.ContainsKey(urlRule.Name))
                 Utils.Log($"Duplicate urlRules with name {urlRule.Name}!");

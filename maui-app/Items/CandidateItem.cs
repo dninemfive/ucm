@@ -32,7 +32,7 @@ public class CandidateItem
         string? uriScheme = location.UriScheme();
         if(uriScheme is "http" or "https")
         {
-            UrlRule? urlRule = UrlRule.BestFor(location);
+            UrlHandler? urlRule = UrlHandler.BestFor(location);
             if (urlRule is null)
                 return null;
             try
@@ -71,7 +71,7 @@ public class CandidateItem
         return result is not null;
     }
     public static async Task<string?> GetSourceUrlAsync(string location)
-        => await UrlRule.BestFileUrlFor(location);
+        => await UrlHandler.BestFileUrlFor(location);
     public override string ToString()
         => $"CI({Location}, {Hash}, {Type})";
 }

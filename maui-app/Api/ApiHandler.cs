@@ -11,7 +11,7 @@ namespace d9.ucm;
 public interface IApiHandler
 {
 #pragma warning disable CS1998
-    public async Task<string> FileUrlAsync(string resourceUrl, UrlRule urlRule)
+    public async Task<string> FileUrlAsync(string resourceUrl, UrlHandler urlRule)
 #pragma warning restore CS1998
     {
         throw new NotImplementedException();
@@ -29,7 +29,7 @@ public class JsonApiHandler : IApiHandler
         }
         string? result = response.RootElement.GetProperty("file_url").GetString();
         _ = Directory.CreateDirectory(Path.Join(MauiProgram.TEMP_SAVE_LOCATION, "cache", new Uri(resourceUrl).Host));
-        string? id = UrlRule.BestIdFor(resourceUrl);
+        string? id = UrlHandler.BestIdFor(resourceUrl);
         if(id is not null)
         {
             File.WriteAllText(Path.Join(MauiProgram.TEMP_SAVE_LOCATION, "cache", new Uri(resourceUrl).Host, $"{id}.json"),
