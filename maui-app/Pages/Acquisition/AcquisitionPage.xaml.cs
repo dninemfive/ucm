@@ -14,11 +14,6 @@ public partial class AcquisitionPage : ContentPage
     // todo: rejected urls
     private readonly HashSet<string> _indexedHashes = new();
     #endregion
-    private bool _alreadyAdding = false;
-    private bool AlreadyAdding
-    {
-        get => _alreadyAdding || ((_alreadyAdding = true) && false);
-    }
     private CandidateItem? _currentCandidate = null;
     private int _index = -1;
     public int Index
@@ -115,6 +110,7 @@ public partial class AcquisitionPage : ContentPage
     }
     private async void NextItem()
     {
+        SetButtonsActive(false);
         Utils.Log($"next");
         _currentCandidate = null;
         while(_currentCandidate is null)
@@ -158,14 +154,14 @@ public partial class AcquisitionPage : ContentPage
                 ItemHolder.Content = _currentCandidate.Location.BestAvailableView();
             }
             CurrentPendingItemInfo.Text = $"{Index}/{_candidateLocations?.Count.PrintNull()} ({progress:P1}) | {IdManager.CurrentId}\t{_currentCandidate?.Location.PrintNull()}";
+            SetButtonsActive(true);
         }
     }
     #endregion
     #region button events
     private async void StartButton_Clicked(object sender, EventArgs e)
     {
-        if (AlreadyAdding)
-            return;
+        StartButton.IsEnabled = false;
         StartButton.Text = "Loading hashes...";
         await LoadHashesAsync();
         StartButton.Text = "Loading pending items...";
@@ -193,4 +189,10 @@ public partial class AcquisitionPage : ContentPage
         NextItem();
     }
     #endregion    
+    private void SetButtonsActive(bool val)
+    {
+        Accept.IsEnabled = val;
+        Skip.IsEnabled = val;
+        Reject.IsEnabled = val;
+    }
 }

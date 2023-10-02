@@ -20,6 +20,6 @@
                 <Button x:Name="Reject" Text="Reject" Clicked="Reject_Clicked"/>
             </HorizontalStackLayout>
             <ProgressBar x:Name="ProgressBar" Progress="0" VerticalOptions="Start" Grid.Row="3"/>
-        </Grid>
+        </Grid>        
     </VerticalStackLayout>
 </ContentPage>
