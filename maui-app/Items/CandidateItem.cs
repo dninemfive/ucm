@@ -71,7 +71,7 @@ public class CandidateItem
         return result is not null;
     }
     public static async Task<string?> GetSourceUrlAsync(string location)
-        => await (UrlRule.BestFor(location)?.FileUrlFor(location) ?? Task.FromResult<string?>(null));
+        => await UrlRule.BestFileUrlFor(location);
     public override string ToString()
         => $"CI({Location}, {Hash}, {Type})";
 }

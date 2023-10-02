@@ -10,7 +10,9 @@ using d9.utl;
 namespace d9.ucm;
 public interface IApiHandler
 {
+#pragma warning disable CS1998
     public async Task<string> FileUrlAsync(string resourceUrl, UrlRule urlRule)
+#pragma warning restore CS1998
     {
         throw new NotImplementedException();
     }
@@ -29,7 +31,7 @@ public class JsonApiHandler : IApiHandler
         string? result = response.RootElement.GetProperty("file_url").GetString();
         Utils.Log($"\t\tResult: {result.PrintNull()}");
         _ = Directory.CreateDirectory(Path.Join(MauiProgram.TEMP_SAVE_LOCATION, "cache", new Uri(resourceUrl).Host));
-        string? id = UrlRule.BestFor(resourceUrl)?.IdFor(resourceUrl);
+        string? id = UrlRule.BestIdFor(resourceUrl);
         if(id is not null)
         {
             File.WriteAllText(Path.Join(MauiProgram.TEMP_SAVE_LOCATION, "cache", new Uri(resourceUrl).Host, $"{id}.json"),

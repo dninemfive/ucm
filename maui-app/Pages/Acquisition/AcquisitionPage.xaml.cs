@@ -1,4 +1,5 @@
-﻿using d9.utl;
+﻿using Com.Google.Android.Exoplayer2.Analytics;
+using d9.utl;
 using System.Collections.ObjectModel;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -52,7 +53,12 @@ public partial class AcquisitionPage : ContentPage
     {
         _candidateLocations.Clear();
         _locations = ItemManager.AllLocations.ToHashSet();
-        void logct() => Utils.Log($"There are now {_candidateLocations.Count} candidate locations.");
+        int previousCount = 0;
+        void logct()
+        {
+            Utils.Log($"Added {_candidateLocations.Count - previousCount} items.");
+            previousCount = _candidateLocations.Count;
+        }        
         foreach (string srcFolder in await File.ReadAllLinesAsync(@"C:\Users\dninemfive\Documents\workspaces\misc\ucm\maui-app\localFolderList.txt.secret"))
         {
             Utils.Log($"Loading candidate paths in {srcFolder}...");  
@@ -67,7 +73,7 @@ public partial class AcquisitionPage : ContentPage
         Utils.Log($"Loading candidate urls in bookmarks...");
         List<string> bookmarks = JsonSerializer.Deserialize<List<string>>
             (File.ReadAllText(@"C:\Users\dninemfive\Documents\workspaces\misc\ucm\bookmark-plugin\ucm-bookmarks-firefox\bookmarks.json"))!;
-        foreach(string? url in bookmarks.Select(x => UrlRule.BestFor(x)?.UrlFor(x)).Distinct())
+        foreach(string? url in bookmarks.Select(UrlRule.BestUrlFor).Distinct())
         {
             if (url is null || _locations.Contains(url))
                 continue;
@@ -80,40 +86,26 @@ public partial class AcquisitionPage : ContentPage
         void log(bool rejected, string? info = null)
         {
             string rejection = rejected ? "SKIP" : "";
-            info = info is null ? "" : $" ({info})";
-            Utils.Log($"\t{rejection,-4}\t{location,-180}\t{info}");        }
-        
+            Utils.Log($"\t{rejection,-4}\t{location,-180}\t{info}");        
+        }
         if (_locations.Contains(location))
-        {
-            // log(true, "location already indexed");
             return null;
-        }
         CandidateItem? candidate = await CandidateItem.MakeFromAsync(location);
-        if (candidate is null)
+        string? hash = candidate?.Hash;
+        List<(bool assertion, string msg)> assertions = new()
         {
-            log(true, "candidate was null");
-            return null;
-        }
-        string? hash = candidate.Hash;
-        if (await ItemManager.TryUpdateAnyMatchingItemAsync(hash, location))
-        {
-            log(true, "existing item with same hash");
-            return null;
-        }
-        if(hash is null)
-        {
-            log(true, "null hash");
-            return null;
-        }
-        if (hash is not null && _indexedHashes.Contains(hash))
-        {
-            log(true, $"hash already indexed");
-            return null;
-        }
-        if(location.BestAvailableView() is null)
-        {
-            log(true, "no available view");
-            return null;
+            (candidate is null, "candidate is null"),
+            (await ItemManager.TryUpdateAnyMatchingItemAsync(hash, location), "existing item"),
+            (hash is null, "hash is null"),
+            (hash is not null && _indexedHashes.Contains(hash), "indexed hash"),
+            (location.BestAvailableView() is null, "no available view")
+        };
+        foreach((bool assertion, string msg) in assertions) {
+            if(assertion)
+            {
+                log(true, msg);
+                return null;
+            }
         }
         log(false);
         return candidate;
