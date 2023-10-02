@@ -56,50 +56,36 @@ public class UrlHandler
     {
         string result = $"{Prefix}{IdFor(url)}{Suffix}";
         return result;
-    }
-    public static string? BestUrlFor(string url)
-        => BestFor(url)?.UrlFor(url);
-    public HttpRequestMessage RequestMessageFor(string url, HttpMethod? method = null)
-    {
-        if(!Supports(url))
-        {
-            throw new ArgumentException($"UrlRule {Name} does not match url {url}!", nameof(url));
-        }
-        Utils.Log($"`{Name}`.RequestMessageFor({url}, {method.PrintNull()})");
-        HttpRequestMessage result = new(method ?? HttpMethod.Get, UrlFor(url));
-        foreach((string key, string value) in Headers.OrderBy(x => x.Key))
-        {
-            result.Headers.Add(key, value);
-        }
-        return result;
     }    
     public string IdFor(string url) => Regex.Match(url, IdRegex).Value;
     public static string? BestIdFor(string url) => BestFor(url)?.IdFor(url);
     public static IEnumerable<UrlHandler> Matching(string s) => UrlRuleManager.UrlRules.Where(x => x.Supports(s));
     // todo: allow the user to decide
     private static readonly Dictionary<string, UrlHandler?> _bestFor = new();
+
+    public async Task<IEnumerable<string>?> TagsFor(string resourceUrl)
+        => await Api.GetTagsAsync(resourceUrl);
+    public async Task<string?> FileUrlFor(string url)
+        => await Api.GetFileUrlAsync(url);
+    #region static
     public static UrlHandler? BestFor(string s)
     {
-        UrlHandler? result;
-        if (_bestFor.TryGetValue(s, out result))
+        if (_bestFor.TryGetValue(s, out UrlHandler? result))
             return result;
         IEnumerable<UrlHandler> results = Matching(s);
         result = results.Any() ? results.First() : null;
         _bestFor[s] = result;
         return result;
     }
-    public IEnumerable<Tag> TagsFor(string url)
-    {
-        // todo: implement
-        yield break;
-    }
-    public static ItemSource? ItemSourceFor(string url)
-    {
-        UrlHandler? urlRule = BestFor(url);
-        return urlRule is not null ? new(urlRule.Name, url, urlRule.TagsFor(url).ToArray()) : null;
-    }
-    public async Task<string?> FileUrlFor(string url)
-        => await new JsonApiHandler().FileUrlAsync(url);
     public static async Task<string?> BestFileUrlFor(string url)
         => await (BestFor(url)?.FileUrlFor(url) ?? Task.FromResult<string?>(null));
+
+    public static async Task<ItemSource?> BestItemSourceFor(string url)
+    {
+        UrlHandler? urlRule = BestFor(url);
+        return urlRule is not null ? new(urlRule.Name, url, (await urlRule.TagsFor(url))?.ToArray() ?? Array.Empty<string>()) : null;
+    }
+    public static string? BestUrlFor(string url)
+        => BestFor(url)?.UrlFor(url);
+    #endregion static
 }

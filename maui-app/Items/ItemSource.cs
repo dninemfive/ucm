@@ -14,15 +14,15 @@ public class ItemSource
     [JsonInclude]
     public string SourceName { get; private set; }
     [JsonInclude]
-    public List<Tag> Tags { get; private set; }
-    public ItemSource(string sourceName, string location, params Tag[] tags)
+    public List<string> Tags { get; private set; }
+    public ItemSource(string sourceName, string location, params string[] tags)
     {
         SourceName = sourceName;
         Location = location;
         Tags = tags.ToList();
     }
     [JsonConstructor]
-    public ItemSource(string sourceName, string location, List<Tag> tags)
+    public ItemSource(string sourceName, string location, List<string> tags)
     {
         SourceName = sourceName;
         Location = location;

@@ -62,7 +62,7 @@ public class CandidateItem
     }
     public async Task<bool> SaveAsync()
     {
-        Item? result = Item.From(this);
+        Item? result = await Item.FromAsync(this);
         if(result is not null)
         {
             ItemManager.Register(result);

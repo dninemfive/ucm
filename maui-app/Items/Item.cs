@@ -61,7 +61,7 @@ public class Item
     [JsonIgnore]
     public IEnumerable<string> Locations
         => Sources.Select(x => x.Location);
-    public static Item? From(CandidateItem ci)
+    public static async Task<Item?> FromAsync(CandidateItem ci)
     {        
         if(File.Exists(ci.Location))
         {
@@ -82,8 +82,7 @@ public class Item
                        id,
                        new ItemSource(urlRule.Name,
                                       ci.Location,
-                                      urlRule.TagsFor(ci.Location)
-                                             .ToArray()));
+                                      (await urlRule.TagsFor(ci.Location))?.ToArray() ?? Array.Empty<string>()));
         }
         Utils.Log($"Failed to make item for {ci}.");
         return null;
