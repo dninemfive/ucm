@@ -143,7 +143,27 @@ public partial class AcquisitionPage : ContentPage
             if (_currentCandidate is null)
                 continue;
             _ = _indexedHashes.Add(_currentCandidate.Hash);
-            ItemHolder.Content = (await _currentCandidate.GetSourceUrlAsync() ?? _currentCandidate.Location)?.BestAvailableView();
+            string? sourceUrl = await _currentCandidate.GetSourceUrlAsync();
+            if(sourceUrl is not null)
+            {
+                try
+                {
+                    byte[] imageData = await MauiProgram.HttpClient.GetByteArrayAsync(sourceUrl);
+                    ItemHolder.Content = new Image()
+                    {
+                        Source = ImageSource.FromStream(() => new MemoryStream(imageData)),
+                        IsAnimationPlaying = true,
+                        Aspect = Aspect.AspectFit
+                    };
+                } catch(Exception e)
+                {
+                    Utils.Log($"Issue getting image data for {sourceUrl}: {e.Message}");
+                }
+            } 
+            else
+            {
+                ItemHolder.Content = _currentCandidate.Location.BestAvailableView();
+            }
             Utils.Log($"ItemHolder content: {(ItemHolder.Content as Image)?.Source}");
             CurrentPendingItemInfo.Text = $"{Index}/{_candidateLocations?.Count.PrintNull()} ({progress:P1}) | {IdManager.CurrentId}\t{_currentCandidate?.Location.PrintNull()}";
         }
