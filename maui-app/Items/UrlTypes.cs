@@ -12,6 +12,7 @@ public abstract class UrlType
     {
         Value = s;
     }
+    public override string ToString() => Value;
 }
 public class PageUrl : UrlType
 {

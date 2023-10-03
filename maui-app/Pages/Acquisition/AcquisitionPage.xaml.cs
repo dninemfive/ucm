@@ -153,7 +153,7 @@ public partial class AcquisitionPage : ContentPage
                 ItemHolder.Content = _currentCandidate.CanonicalLocation.BestAvailableView();
             }
             string ct = (_candidateLocations?.Count).PrintNull(), location = (_currentCandidate?.CanonicalLocation).PrintNull();
-            CurrentPendingItemInfo.Text = $"{Index}/{ct} ({progress:P1}) | {IdManager.CurrentId}\t{location}";
+            CurrentPendingItemInfo.Text = $"{Index}/{ct} ({progress:P1}) | {IdManager.CurrentId}\t{location}\t{_currentCandidate?.SourceUrl.FileExtension()}";
             SetButtonsActive(true);
         }
     }

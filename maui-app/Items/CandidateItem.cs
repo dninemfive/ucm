@@ -42,6 +42,7 @@ public class CandidateItem
             {
                 ApiUrl? apiUrl = UrlRule.BestApiUrlFor(pageUrl);                
                 string? sourceUrl = await GetFileUrlAsync(pageUrl!);
+                if(sourceUrl is null || sourceUrl.FileExtension() is ".mp4") return null;
                 Utils.Log($"{canonicalLocation,-80}\t{apiUrl.PrintNull(),-80}\t{sourceUrl.PrintNull()}");
                 byte[] data = await MauiProgram.HttpClient.GetByteArrayAsync(sourceUrl);
                 string? hash = await data.HashAsync();
