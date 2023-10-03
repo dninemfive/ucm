@@ -13,9 +13,9 @@ namespace d9.ucm;
 public abstract class ApiDef
 {
 #pragma warning disable CS1998 // "lacks await": intentionally not implemented
-    public virtual async Task<string?> GetFileUrlAsync(string resourceUrl)
+    public virtual async Task<string?> GetFileUrlAsync(ApiUrl apiUrl)
         => throw new NotImplementedException();
-    public virtual async Task<IEnumerable<string>?> GetTagsAsync(string resourceUrl)
+    public virtual async Task<IEnumerable<string>?> GetTagsAsync(ApiUrl apiUrl)
         => throw new NotImplementedException();
 #pragma warning restore CS1998
 }
@@ -70,8 +70,9 @@ public class JsonApiDef : ApiDef
         }
         return root;
     }
-    public async Task<JsonElement?> GetResponse(string apiUrl)
+    public async Task<JsonElement?> GetResponse(ApiUrl url)
     {
+        string apiUrl = url.Value;
         if (_responses.TryGetValue(apiUrl, out JsonElement response))
             return response;
         JsonElement? response2;
@@ -91,12 +92,14 @@ public class JsonApiDef : ApiDef
         }
         return response2;
     }
-    public override async Task<string?> GetFileUrlAsync(string apiUrl)
+    public override async Task<string?> GetFileUrlAsync(ApiUrl? apiUrl)
     {
+        if (apiUrl is null)
+            return null;
         JsonElement? response = await GetResponse(apiUrl);
         return response?.GetProperty(FileUrlKey).GetString();
     }
-    public override async Task<IEnumerable<string>?> GetTagsAsync(string? apiUrl)
+    public override async Task<IEnumerable<string>?> GetTagsAsync(ApiUrl? apiUrl)
     {
         if (apiUrl is null)
             return null;

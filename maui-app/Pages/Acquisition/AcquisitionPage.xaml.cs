@@ -63,7 +63,7 @@ public partial class AcquisitionPage : ContentPage
         }
         List<string> bookmarks = JsonSerializer.Deserialize<List<string>>
             (File.ReadAllText(@"C:\Users\dninemfive\Documents\workspaces\misc\ucm\bookmark-plugin\ucm-bookmarks-firefox\bookmarks.json"))!;
-        foreach(string? url in bookmarks.Select(UrlRule.BestCanonicalUrlFor).Distinct())
+        foreach(string? url in bookmarks.Select(x => UrlRule.BestCanonicalUrlFor(x)?.Value).Distinct())
         {
             if (url is null || _locations.Contains(url))
                 continue;

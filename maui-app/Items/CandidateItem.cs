@@ -11,7 +11,7 @@ public class CandidateItem
 {
     public string Hash { get; private set; }
     public string CanonicalLocation { get; private set; }
-    public string? ApiUrl { get; private set; }
+    public ApiUrl? ApiUrl { get; private set; }
     public byte[]? Data { get; private set; }
     public string? SourceUrl { get; private set; }
     public enum LocationType
@@ -20,7 +20,7 @@ public class CandidateItem
         Local
     }
     public LocationType Type { get; private set; }
-    private CandidateItem(string canonicalLocation, string? apiUrl, string hash, LocationType type, string? sourceUrl = null, byte[]? data = null)
+    private CandidateItem(string canonicalLocation, ApiUrl? apiUrl, string hash, LocationType type, string? sourceUrl = null, byte[]? data = null)
     {
         CanonicalLocation = canonicalLocation;
         ApiUrl = apiUrl;
@@ -34,13 +34,15 @@ public class CandidateItem
         string? uriScheme = canonicalLocation.UriScheme();
         if(uriScheme is "http" or "https")
         {
-            UrlRule? urlRule = UrlRule.BestFor(canonicalLocation);
+            PageUrl pageUrl = new(canonicalLocation);
+            UrlRule? urlRule = UrlRule.BestFor(pageUrl);
             if (urlRule is null)
                 return null;
             try
             {
-                string? apiUrl = UrlRule.BestApiUrlFor(canonicalLocation);
-                string? sourceUrl = await GetFileUrlAsync(apiUrl!);
+                ApiUrl? apiUrl = UrlRule.BestApiUrlFor(pageUrl);                
+                string? sourceUrl = await GetFileUrlAsync(pageUrl!);
+                Utils.Log($"{canonicalLocation,-80}\t{apiUrl.PrintNull(),-80}\t{sourceUrl.PrintNull()}");
                 byte[] data = await MauiProgram.HttpClient.GetByteArrayAsync(sourceUrl);
                 string? hash = await data.HashAsync();
                 if(hash is not null)
@@ -73,8 +75,8 @@ public class CandidateItem
         }
         return result is not null;
     }
-    public static async Task<string?> GetFileUrlAsync(string canonicalLocation)
-        => await UrlRule.BestFileUrlFor(canonicalLocation);
+    public static async Task<string?> GetFileUrlAsync(PageUrl url)
+        => await UrlRule.BestFileUrlFor(url);
     public override string ToString()
         => $"CI({CanonicalLocation}, {Hash}, {Type})";
 }
