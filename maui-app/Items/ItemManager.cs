@@ -54,7 +54,8 @@ public static class ItemManager
         foreach (Item item in MauiProgram.TEMP_SAVE_LOCATION.LoadAll<Item>(x =>
         {
             (string src, Item item) = x;
-            bool result = File.Exists(item.Path);
+            Utils.Log($"{src}, {item}, {item.LocalPath.PrintNull()}, {item.Id}");
+            bool result = item.LocalPath.Exists;
             if (!result)
             {
                 src.MoveFileTo(Path.Join(src.DirectoryName(), "missing", src.FileName()));
@@ -85,7 +86,7 @@ public static class ItemManager
     {
         if(hash is not null && ItemsByHash.TryGetValue(hash, out Item? item) && !item.HasSourceInfoFor(location))
         {
-            if (item.Path.IsInFolder(MauiProgram.ITEM_FILE_LOCATION))
+            if (item.LocalPath.IsInFolder(MauiProgram.ITEM_FILE_LOCATION))
                 return true;
             ItemSource? source = await location.ItemSourceAsync();
             if (source is not null)

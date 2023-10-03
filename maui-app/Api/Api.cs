@@ -89,7 +89,13 @@ public class JsonApiDef : ApiDef
             _ = Directory.CreateDirectory(cacheFolder);
             string? id = UrlRule.BestIdFor(apiUrl);
             if (id is not null)
+            {
                 File.WriteAllText(Path.Join(cacheFolder, $"{id}.json"), JsonSerializer.Serialize(response2));
+            }
+            else
+            {
+                Utils.Log($"best id was null for {apiUrl}");
+            }
         }
         else
         {

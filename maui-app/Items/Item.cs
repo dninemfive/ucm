@@ -17,13 +17,13 @@ public class Item
     /// The canonical path where this item will be loaded, as opposed to source locations
     /// </summary>
     [JsonInclude]
-    public string Path { get; }
+    public LocalPath LocalPath { get; }
     [JsonInclude]
     public string Hash { get; }
     [JsonInclude]
     public ItemId Id { get; }
     [JsonIgnore]
-    public View? View => Path.BestAvailableView();
+    public View? View => LocalPath.Value.BestAvailableView();
     [JsonIgnore]
     private Image? _thumbnail = null;
     [JsonIgnore]
@@ -39,18 +39,18 @@ public class Item
     public List<ItemSource> Sources { get; private set; } = new();
     #endregion
     #region constructors
-    public Item(string path, string hash, ItemId id, params ItemSource[] sources) : this(path, hash, id, sources.ToList()) { }
+    public Item(string path, string hash, ItemId id, params ItemSource[] sources) : this(new(path), hash, id, sources.ToList()) { }
     [JsonConstructor]
-    public Item(string path, string hash, ItemId id, List<ItemSource>? sources)
+    public Item(LocalPath localPath, string hash, ItemId id, List<ItemSource>? sources)
     {
-        Path = path;
+        LocalPath = localPath;
         Hash = hash;
         Id = IdManager.Register(id);
-        Sources = sources?.ToList() ?? new() { new("Local Filesystem", path) };
+        Sources = sources?.ToList() ?? new() { new("Local Filesystem", localPath.Value) };
     }
     #endregion
     public override string ToString()
-        => $"Item {Id} @ {Path}";
+        => $"Item {Id} @ {LocalPath}";
     public async Task SaveAsync()
     {
         await File.WriteAllTextAsync(@$"{MauiProgram.TEMP_SAVE_LOCATION}\{Id}.json",
@@ -73,7 +73,7 @@ public class Item
             ItemId id = IdManager.Register();
             if (ci.Data is not null)
             {
-                string? newPath = System.IO.Path.Join(MauiProgram.ITEM_FILE_LOCATION, $"{id}{System.IO.Path.GetExtension(ci.SourceUrl)}");
+                string? newPath = Path.Join(MauiProgram.ITEM_FILE_LOCATION, $"{id}{Path.GetExtension(ci.SourceUrl)}");
                 File.WriteAllBytes(newPath, ci.Data);
                 return new(newPath,
                        ci.Hash,

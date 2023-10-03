@@ -13,7 +13,7 @@ namespace d9.ucm;
 public class UrlRule
 {
     public abstract class UrlBuilder<T, U>
-        where U : UrlType
+        where U : StringAlias
     {
         [JsonInclude]
         public string Prefix { get; private set; }

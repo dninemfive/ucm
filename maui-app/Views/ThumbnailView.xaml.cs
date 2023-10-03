@@ -11,7 +11,7 @@ public partial class ThumbnailView : ContentView
 		if(item.Thumbnail is not null)
 		{
 			// Thumbnail = item.Thumbnail;
-			Thumbnail.Source = item.Path;
+			Thumbnail.Source = item.LocalPath.Value;
             if (sortItem is not null)
             {
                 Label.Text = sortItem.ToString();
