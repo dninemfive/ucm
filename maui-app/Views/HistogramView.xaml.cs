@@ -49,17 +49,18 @@ public partial class HistogramView : ContentView
 		Utils.Log($"{lowerBound}\t{upperBound}\t{maxValue}\t{bins}\t{height}\t{width}");
 		for(int i = lowerBound; i <= upperBound; i++)
 		{
-			Rectangle rect = new()
+			RatioBoxView box = new()
 			{
 				WidthRequest = width,
-				HeightRequest = counter[i] / maxValue * height,
-				VerticalOptions = LayoutOptions.End,
-				BackgroundColor = ForegroundColor,
-				Margin = new(1, 0)
+				HeightRequest = height,
+				TopColor = BackgroundColor,
+				BottomColor = ForegroundColor,
+				Margin = new(1, 0),
+				Ratio = counter[i] / maxValue
 			};
-			Utils.Log($"{rect.WidthRequest}\t{rect.HeightRequest}");
-			ToolTipProperties.SetText(rect, $"[{i}, {i + 1}): {counter[i]}");
-            Container.Add(rect);
+			Utils.Log($"{box.WidthRequest}\t{box.HeightRequest}");
+			ToolTipProperties.SetText(box, $"{i}: {counter[i]}");
+            Container.Add(box);
 		}
 	}
 }
