@@ -38,6 +38,7 @@
                     <Button x:Name="RightIrrelevant" Text="Irrelevant" Clicked="RightIrrelevant_Clicked" Grid.Column="4"/>
                 </Grid>
             </Grid>
+            <local:HistogramView x:Name="Histogram" IsVisible="False" HorizontalOptions="CenterAndExpand" HeightRequest="100"/>
         </VerticalStackLayout>
     </ScrollView>    
 </ContentPage>

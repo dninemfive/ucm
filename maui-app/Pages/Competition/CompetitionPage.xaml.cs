@@ -84,5 +84,6 @@ public partial class CompetitionPage : ContentPage
         Update(LeftItemView, Side.Left);
         Update(RightItemView, Side.Right);
         UpdateButtonActivation();
+        Histogram.ReplaceData(Competition!.Ratings.Select(x => x.Value.TotalRatings));
     }
 }
