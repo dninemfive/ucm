@@ -53,7 +53,6 @@ public partial class HistogramView : ContentView
 				WidthRequest = width,
 				HeightRequest = height,
 				ForegroundColor = ForegroundColor,
-				BackgroundColor = Colors.Magenta,
 				Margin = new(1, 0),
 				Ratio = counter[i] / maxValue
 			};

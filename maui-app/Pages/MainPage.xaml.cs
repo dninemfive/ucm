@@ -12,8 +12,13 @@ public partial class MainPage : ContentPage
 	public MainPage()
 	{
         InitializeComponent();
-		ToolTipProperties.SetText(Ratio, "aw;eitua;wgj");
-		Ratio.Ratio = 0.44;
+		Random random = new Random();
+		List<double> data = new();
+		for(int i = 0; i < 1000; i++)
+		{
+			data.Add(random.Next(0, 13));
+		}
+		Histogram.ReplaceData(data);
 	}
 }
 

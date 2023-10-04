@@ -10,7 +10,7 @@
             Padding="30,0"
             VerticalOptions="Center">
             <!-- Entry x:Name="DataPathEntry" -->
-            <local:RatioBoxView x:Name="Ratio" BackgroundColor="Magenta" ForegroundColor="Lime" Ratio="0.69" HeightRequest="420" WidthRequest="69"/>
+            <local:HistogramView x:Name="Histogram" BackgroundColor="Magenta" ForegroundColor="Lime" HeightRequest="420" WidthRequest="69"/>
         </VerticalStackLayout>
     </ScrollView>
 
