@@ -12,21 +12,15 @@ public partial class RatioBoxView : ContentView
 													  "The ratio in a RatioBoxView must be between 0 and 1, inclusive.");
 			IsVisible = value > 0;
 			_ratio = value;
-			Utils.Log($"set_Ratio({value})");
-			Rectangle.HeightRequest = HeightRequest * _ratio;
-			Utils.Log($"\t{HeightRequest} {Rectangle.HeightRequest}");
-			Rectangle.WidthRequest = WidthRequest;
+			TopRectangle.HeightRequest = HeightRequest * (1 - _ratio);
+			TopRectangle.WidthRequest = WidthRequest;
+			BottomRectangle.HeightRequest = HeightRequest * _ratio;
+            BottomRectangle.WidthRequest = WidthRequest;
 		}
 	}
-	public Color ForegroundColor { get => Rectangle.BackgroundColor; set => Rectangle.BackgroundColor = value; }
-	public new Color BackgroundColor { get => BackgroundRectangle.BackgroundColor; set => BackgroundRectangle.BackgroundColor = value; }
+	public Color ForegroundColor { get => BottomRectangle.BackgroundColor; set => BottomRectangle.BackgroundColor = value; }
 	public RatioBoxView()
 	{
 		InitializeComponent();
-	}
-	public void SetTooltip(string tooltip)
-	{
-		ToolTipProperties.SetText(Rectangle, "rectangle");
-		ToolTipProperties.SetText(BackgroundRectangle, "background");
 	}
 }

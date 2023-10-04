@@ -58,7 +58,6 @@ public partial class HistogramView : ContentView
 				Ratio = counter[i] / maxValue
 			};
 			ToolTipProperties.SetText(box, $"{i}: {counter[i]}");
-			box.SetTooltip("");
             Container.Add(box);
 		}
 	}

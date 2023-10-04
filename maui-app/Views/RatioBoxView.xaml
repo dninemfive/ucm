@@ -2,15 +2,8 @@
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="d9.ucm.RatioBoxView">
-    <AbsoluteLayout>
-        <!-- included to make the tooltip show up -->
-        <Rectangle x:Name="BackgroundRectangle" 
-                   BackgroundColor="Transparent" 
-                   VerticalOptions="Fill" 
-                   HorizontalOptions="Fill"
-                   ZIndex="0" 
-                   AnchorX="0"
-                   AnchorY="0"/>
-        <Rectangle x:Name="Rectangle" BackgroundColor="White" AnchorX="0" AnchorY="0" HorizontalOptions="Fill" ZIndex="1"/>
-    </AbsoluteLayout>
+    <VerticalStackLayout InputTransparent="False">
+        <Rectangle x:Name="TopRectangle" BackgroundColor="Transparent"/>
+        <Rectangle x:Name="BottomRectangle"/>
+    </VerticalStackLayout>
 </ContentView>
