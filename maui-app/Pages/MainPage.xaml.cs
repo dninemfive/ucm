@@ -12,6 +12,8 @@ public partial class MainPage : ContentPage
 	public MainPage()
 	{
         InitializeComponent();
+		ToolTipProperties.SetText(Ratio, "aw;eitua;wgj");
+		Ratio.Ratio = 0.44;
 	}
 }
 

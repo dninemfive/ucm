@@ -11,12 +11,11 @@ public partial class RatioBoxView : ContentView
 				throw new ArgumentOutOfRangeException(nameof(value), 
 													  "The ratio in a RatioBoxView must be between 0 and 1, inclusive.");
 			_ratio = value;
-			TopRectangle.HeightRequest = HeightRequest * (1 - _ratio);
-			BottomRectangle.HeightRequest = HeightRequest * _ratio;
+			Rectangle.HeightRequest = HeightRequest * _ratio;
+			Utils.Log($"{HeightRequest} {Rectangle.HeightRequest}");
 		}
 	}
-	public Color TopColor { get => TopRectangle.BackgroundColor; set => TopRectangle.BackgroundColor = value; }
-	public Color BottomColor { get => BottomRectangle.BackgroundColor; set => BottomRectangle.BackgroundColor = value; }
+	public Color ForegroundColor { get => Rectangle.BackgroundColor; set => Rectangle.BackgroundColor = value; }
 	public RatioBoxView()
 	{
 		InitializeComponent();

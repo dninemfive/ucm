@@ -46,19 +46,16 @@ public partial class HistogramView : ContentView
 			   bins = Math.Abs(upperBound - lowerBound) + 1,
 			   height = HeightRequest,
 			   width = Math.Max(WidthRequest / bins, 10);
-		Utils.Log($"{lowerBound}\t{upperBound}\t{maxValue}\t{bins}\t{height}\t{width}");
 		for(int i = lowerBound; i <= upperBound; i++)
 		{
 			RatioBoxView box = new()
 			{
 				WidthRequest = width,
 				HeightRequest = height,
-				TopColor = BackgroundColor,
-				BottomColor = ForegroundColor,
+				ForegroundColor = ForegroundColor,
 				Margin = new(1, 0),
 				Ratio = counter[i] / maxValue
 			};
-			Utils.Log($"{box.WidthRequest}\t{box.HeightRequest}");
 			ToolTipProperties.SetText(box, $"{i}: {counter[i]}");
             Container.Add(box);
 		}

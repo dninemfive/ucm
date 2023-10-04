@@ -3,7 +3,6 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="d9.ucm.RatioBoxView">
     <VerticalStackLayout>
-        <Rectangle x:Name="TopRectangle" BackgroundColor="Transparent" VerticalOptions="Start"/>
-        <Rectangle x:Name="BottomRectangle" BackgroundColor="White" VerticalOptions="End"/>
+        <Rectangle x:Name="Rectangle" BackgroundColor="White"/>
     </VerticalStackLayout>
 </ContentView>

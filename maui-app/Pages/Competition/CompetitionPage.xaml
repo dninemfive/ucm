@@ -40,9 +40,10 @@
             </Grid>
             <local:HistogramView x:Name="Histogram" 
                                  IsVisible="False" 
-                                 HorizontalOptions="CenterAndExpand" 
+                                 HorizontalOptions="Center" 
                                  HeightRequest="50" 
                                  ForegroundColor="Orange"
+                                 BackgroundColor="Green"
                                  ForcedLowerBound="0"/>
         </VerticalStackLayout>
     </ScrollView>    
