@@ -10,13 +10,13 @@ public partial class RatioBoxView : ContentView
 			if (value is < 0 or > 1)
 				throw new ArgumentOutOfRangeException(nameof(value), 
 													  "The ratio in a RatioBoxView must be between 0 and 1, inclusive.");
-			IsVisible = value > 0;
 			_ratio = value;
 			TopRectangle.WidthRequest = WidthRequest;
 			BottomRectangle.HeightRequest = HeightRequest * _ratio;
 			TopRectangle.HeightRequest = HeightRequest - BottomRectangle.HeightRequest;
             BottomRectangle.WidthRequest = WidthRequest;
-			Utils.Log($"{HeightRequest}\t{TopRectangle.HeightRequest}\t{TopRectangle.HeightRequest}\t{BottomRectangle.HeightRequest}\t{TopRectangle.HeightRequest + BottomRectangle.HeightRequest}");
+			TopRectangle.IsVisible = TopRectangle.HeightRequest > 0.5;
+            BottomRectangle.IsVisible = BottomRectangle.HeightRequest > 0.5;
 		}
 	}
 	public Color ForegroundColor { get => BottomRectangle.BackgroundColor; set => BottomRectangle.BackgroundColor = value; }
