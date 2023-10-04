@@ -10,59 +10,61 @@ namespace d9.ucm;
 public class CandidateItem
 {
     public string Hash { get; private set; }
-    public string CanonicalLocation { get; private set; }
-    public ApiUrl? ApiUrl { get; private set; }
+    public UrlSet? UrlSet { get; private set; }
     public byte[]? Data { get; private set; }
     public string? SourceUrl { get; private set; }
-    public enum LocationType
+    public string? LocalPath { get; private set; }
+    public string Location => (LocalPath ?? UrlSet?.CanonUrl)!;
+    private CandidateItem(string hash, string? sourceUrl = null, byte[]? data = null)
     {
-        Internet,
-        Local
-    }
-    public LocationType Type { get; private set; }
-    private CandidateItem(string canonicalLocation, ApiUrl? apiUrl, string hash, LocationType type, string? sourceUrl = null, byte[]? data = null)
-    {
-        CanonicalLocation = canonicalLocation;
-        ApiUrl = apiUrl;
         Hash = hash;
-        Type = type;
         SourceUrl = sourceUrl;
         Data = data;
     }
-    public static async Task<CandidateItem?> MakeFromAsync(string canonicalLocation)
+    private CandidateItem(UrlSet urlSet, string hash, string? sourceUrl = null, byte[]? data = null) 
+        : this(hash, sourceUrl, data)
     {
-        string? uriScheme = canonicalLocation.UriScheme();
+        UrlSet = urlSet;        
+    }
+    private CandidateItem(string localPath, string hash, string? sourceUrl = null, byte[]? data = null)
+        : this(hash, sourceUrl, data)
+    {
+        LocalPath = localPath;
+    }
+    public static async Task<CandidateItem?> MakeFromAsync(string location)
+    {
+        string? uriScheme = location.UriScheme();
         if(uriScheme is "http" or "https")
         {
-            PageUrl pageUrl = new(canonicalLocation);
-            UrlRule? urlRule = UrlRule.BestFor(pageUrl);
-            if (urlRule is null)
+            UrlSet? urlSet = UrlSet.From(location);
+            if (!urlSet.IsFullyValid())
                 return null;
             try
-            {
-                ApiUrl? apiUrl = UrlRule.BestApiUrlFor(pageUrl);                
-                string? sourceUrl = await GetFileUrlAsync(pageUrl!);
+            {             
+                string? sourceUrl = await GetFileUrlAsync(urlSet!);
                 if(sourceUrl is null || sourceUrl.FileExtension() is ".mp4" or ".zip") return null;
                 byte[] data = await MauiProgram.HttpClient.GetByteArrayAsync(sourceUrl);
                 string? hash = await data.HashAsync();
                 if(hash is not null)
                 {
-                    return new(canonicalLocation, apiUrl, hash, LocationType.Internet, sourceUrl, data);
+                    return new(urlSet!, hash, sourceUrl, data);
                 } 
             } catch(Exception e)
             {
-                Utils.Log($"Error creating CandidateItem from location `{canonicalLocation}`: {e.Message}");
+                Utils.Log($"Error creating CandidateItem from location `{location}`: {e.Message}");
                 return null;
             }
         } else if(uriScheme is "file")
         {
-            string? hash = await canonicalLocation.FileHashAsync();
+            if (!File.Exists(location))
+                return null;
+            string? hash = await location.FileHashAsync();
             if (hash is not null)
             {
-                return new(canonicalLocation, null, hash, LocationType.Local);
+                return new(localPath: location, hash);
             }
         }
-        Utils.Log($"Error creating CandidateItem from location `{canonicalLocation}`: Unrecognized scheme {uriScheme.PrintNull()}.");
+        Utils.Log($"Error creating CandidateItem from location `{location}`: Unrecognized scheme {uriScheme.PrintNull()}.");
         return null;
     }
     public async Task<bool> SaveAsync()
@@ -75,8 +77,16 @@ public class CandidateItem
         }
         return result is not null;
     }
-    public static async Task<string?> GetFileUrlAsync(PageUrl url)
-        => await UrlRule.BestFileUrlFor(url);
+    public static async Task<string?> GetFileUrlAsync(UrlSet urlSet)
+        => await urlSet.UrlRule.FileUrlFor(urlSet);
     public override string ToString()
-        => $"CI({CanonicalLocation}, {Hash}, {Type})";
+        => $"CI {Hash} @ {Location}";
+    public async Task<ItemSource?> GetItemSourceAsync()
+    //    => File.Exists(location) ? new("Local Filesystem", location) : await UrlRule.BestItemSourceFor(location);
+    {
+        if (LocalPath is not null)
+            return new("Local Filesystem", LocalPath);
+        else
+            return new(UrlSet!.UrlRule.Name, UrlSet!.CanonUrl!, (await UrlSet.UrlRule.TagsFor(UrlSet))?.ToArray() ?? Array.Empty<string>());
+    }
 }

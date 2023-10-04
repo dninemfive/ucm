@@ -63,11 +63,11 @@ public class Item
         => Sources.Select(x => x.Location);
     public static async Task<Item?> FromAsync(CandidateItem ci)
     {        
-        if(File.Exists(ci.CanonicalLocation))
+        if(ci.LocalPath is not null)
         {
-            return new(ci.CanonicalLocation, ci.Hash, IdManager.Register(), new ItemSource("Local Filesystem", ci.CanonicalLocation));
-        }        
-        UrlRule? urlRule = UrlRule.BestFor(ci.CanonicalLocation);
+            return new(ci.LocalPath, ci.Hash, IdManager.Register(), (await ci.GetItemSourceAsync())!);
+        }
+        UrlRule? urlRule = ci.UrlSet?.UrlRule;
         if (urlRule is not null)
         {
             ItemId id = IdManager.Register();
@@ -75,12 +75,7 @@ public class Item
             {
                 string? newPath = Path.Join(MauiProgram.ITEM_FILE_LOCATION, $"{id}{Path.GetExtension(ci.SourceUrl)}");
                 File.WriteAllBytes(newPath, ci.Data);
-                return new(newPath,
-                       ci.Hash,
-                       id,
-                       new ItemSource(urlRule.Name,
-                                      ci.CanonicalLocation,
-                                      (await urlRule.TagsFor(ci.ApiUrl))?.ToArray() ?? Array.Empty<string>()));
+                return new(newPath, ci.Hash, id, (await ci.GetItemSourceAsync())!);
             }            
         }
         Utils.Log($"Failed to make item for {ci}.");

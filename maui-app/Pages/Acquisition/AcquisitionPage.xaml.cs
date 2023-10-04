@@ -84,7 +84,7 @@ public partial class AcquisitionPage : ContentPage
     {        
         List<string> result = new(),
                      bookmarks = (await JsonSerializer.DeserializeAsync<List<string>>(File.OpenRead(_bookmarksPath)))!;
-        foreach (string? url in await Task.Run(() => bookmarks.Select(x => UrlRule.BestCanonicalUrlFor(x)?.Value).Distinct()))
+        foreach (string? url in await Task.Run(() => bookmarks.Select(x => UrlRule.BestCanonicalUrlFor(x)).Distinct()))
         {
             if (url is null || _locations.Contains(url))
                 continue;
@@ -107,7 +107,7 @@ public partial class AcquisitionPage : ContentPage
         List<(bool assertion, string msg)> assertions = new()
         {
             (candidate is null, "candidate is null"),
-            (await ItemManager.TryUpdateAnyMatchingItemAsync(hash, candidateLocation), "existing item"),
+            (await ItemManager.TryUpdateAnyMatchingItemAsync(candidate!), "existing item"),
             (hash is null, "hash is null"),
             (hash is not null && _indexedHashes.Contains(hash), "indexed hash"),
             (candidateLocation.BestAvailableView() is null, "no available view")
@@ -166,9 +166,9 @@ public partial class AcquisitionPage : ContentPage
             } 
             else
             {
-                ItemHolder.Content = _currentCandidate.CanonicalLocation.BestAvailableView();
+                ItemHolder.Content = _currentCandidate.Location.BestAvailableView();
             }
-            string ct = (_candidateLocations?.Count).PrintNull(), location = (_currentCandidate?.CanonicalLocation).PrintNull();
+            string ct = (_candidateLocations?.Count).PrintNull(), location = (_currentCandidate?.Location).PrintNull();
             CurrentPendingItemInfo.Text = $"{Index}/{ct} ({progress:P1}) | {IdManager.CurrentId}\t{location}\t{_currentCandidate?.SourceUrl.FileExtension()}";
             SetButtonsActive(true);
         }

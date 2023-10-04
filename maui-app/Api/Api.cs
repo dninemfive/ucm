@@ -13,9 +13,9 @@ namespace d9.ucm;
 public abstract class ApiDef
 {
 #pragma warning disable CS1998 // "lacks await": intentionally not implemented
-    public virtual async Task<string?> GetFileUrlAsync(ApiUrl apiUrl)
+    public virtual async Task<string?> GetFileUrlAsync(UrlSet urlSet)
         => throw new NotImplementedException();
-    public virtual async Task<IEnumerable<string>?> GetTagsAsync(ApiUrl apiUrl)
+    public virtual async Task<IEnumerable<string>?> GetTagsAsync(UrlSet urlSet)
         => throw new NotImplementedException();
 #pragma warning restore CS1998
 }
@@ -70,9 +70,11 @@ public class JsonApiDef : ApiDef
         }
         return root;
     }
-    public async Task<JsonElement?> GetResponse(ApiUrl url)
+    public async Task<JsonElement?> GetResponse(UrlSet urlSet)
     {
-        string apiUrl = url.Value;
+        if (!urlSet.IsFullyValid())
+            return null;
+        string apiUrl = urlSet.ApiUrl!;
         if (_responses.TryGetValue(apiUrl, out JsonElement response))
             return response;
         JsonElement? response2 = null;
@@ -82,22 +84,14 @@ public class JsonApiDef : ApiDef
         } 
         catch(Exception e)
         {
-            Utils.Log($"GetResponse({url}): {e.GetType().Name} {e.Message}");
+            Utils.Log($"GetResponse({apiUrl}): {e.GetType().Name} {e.Message}");
         }        
         if(response2 is not null)
         {
             _responses[apiUrl] = response2.Value;
             string cacheFolder = Path.Join(MauiProgram.TEMP_SAVE_LOCATION, "cache", new Uri(apiUrl).Host);
             _ = Directory.CreateDirectory(cacheFolder);
-            string? id = UrlRule.BestIdFor(apiUrl);
-            if (id is not null)
-            {
-                File.WriteAllText(Path.Join(cacheFolder, $"{id}.json"), JsonSerializer.Serialize(response2));
-            }
-            else
-            {
-                Utils.Log($"best id was null for {apiUrl}");
-            }
+            File.WriteAllText(Path.Join(cacheFolder, $"{urlSet.Id}.json"), JsonSerializer.Serialize(response2));
         }
         else
         {
@@ -105,18 +99,18 @@ public class JsonApiDef : ApiDef
         }
         return response2;
     }
-    public override async Task<string?> GetFileUrlAsync(ApiUrl? apiUrl)
+    public override async Task<string?> GetFileUrlAsync(UrlSet urlSet)
     {
-        if (apiUrl is null)
+        if (urlSet.ApiUrl is null)
             return null;
-        JsonElement? response = await GetResponse(apiUrl);
+        JsonElement? response = await GetResponse(urlSet);
         return response?.GetProperty(FileUrlKey).GetString();
     }
-    public override async Task<IEnumerable<string>?> GetTagsAsync(ApiUrl? apiUrl)
+    public override async Task<IEnumerable<string>?> GetTagsAsync(UrlSet urlSet)
     {
-        if (apiUrl is null)
+        if (urlSet.ApiUrl is null)
             return null;
-        JsonElement? response = await GetResponse(apiUrl);
+        JsonElement? response = await GetResponse(urlSet);
         return response?.GetProperty(TagKey).GetString()?.Split(TagDelimiter);
     }
 }

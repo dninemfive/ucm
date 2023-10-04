@@ -12,8 +12,7 @@ using System.Threading.Tasks;
 namespace d9.ucm;
 public class UrlRule
 {
-    public abstract class UrlBuilder<T, U>
-        where U : StringAlias
+    public class UrlBuilder
     {
         [JsonInclude]
         public string Prefix { get; private set; }
@@ -25,19 +24,7 @@ public class UrlRule
             Prefix = prefix;
             Suffix = suffix;
         }
-        public abstract U For(T url);
-    }
-    public class PageUrlBuilder : UrlBuilder<string, PageUrl>
-    {
-        public PageUrlBuilder(string prefix, string suffix) : base(prefix, suffix) { }
-        public override PageUrl For(string url)
-            => new($"{Prefix}{BestIdFor(url)}{Suffix}");
-    }
-    public class ApiUrlBuilder : UrlBuilder<PageUrl, ApiUrl>
-    {
-        public ApiUrlBuilder(string prefix, string suffix) : base(prefix, suffix) { }
-        public override ApiUrl For(PageUrl url)
-            => new($"{Prefix}{BestIdFor(url)}{Suffix}");
+        public string? For(string? id) => id is null ? null : $"{Prefix}{id}{Suffix}";
     }
     [JsonInclude]
     public string Domain { get; private set; }
@@ -48,11 +35,13 @@ public class UrlRule
     [JsonInclude]
     public string MatchRegex { get; private set; }
     [JsonInclude]
-    public string IdRegex { get; private set; }
+    public string IdKey { get; private set; }
     [JsonInclude]
-    public PageUrlBuilder CanonicalUrl { get; private set; }
+    public int IdType { get; private set; }
     [JsonInclude]
-    public ApiUrlBuilder ApiUrl { get; private set; }
+    public UrlBuilder CanonicalUrl { get; private set; }
+    [JsonInclude]
+    public UrlBuilder ApiUrl { get; private set; }
     [JsonInclude]
     public Dictionary<string, string> Headers { get; private set; }
     [JsonInclude]
@@ -61,16 +50,18 @@ public class UrlRule
     public UrlRule(string domain, 
                    string type, 
                    string matchRegex, 
-                   string idRegex, 
-                   PageUrlBuilder canonicalUrl,
-                   ApiUrlBuilder apiUrl, 
+                   string idKey,
+                   int idType,
+                   UrlBuilder canonicalUrl,
+                   UrlBuilder apiUrl, 
                    Dictionary<string, string> headers, 
                    JsonApiDef api)
     {
         Domain = domain;
         Type = type;
         MatchRegex = matchRegex;
-        IdRegex = idRegex;
+        IdKey = idKey;
+        IdType = idType;
         CanonicalUrl = canonicalUrl;
         ApiUrl = apiUrl;
         Headers = headers;
@@ -79,18 +70,16 @@ public class UrlRule
     public bool Supports(string url)
         => Regex.IsMatch(url, MatchRegex);
     public override string ToString() => Name;
-    public string IdFor(string url) => Regex.Match(url, IdRegex).Value;
-    public string IdFor(PageUrl url) => Regex.Match(url.Value, IdRegex).Value;
+    public string? IdFor(string url) => IdGetter.IdFor(url, (IdGetter.Type)IdType, IdKey);
     public static string? BestIdFor(string url) => BestFor(url)?.IdFor(url);
-    public static string? BestIdFor(PageUrl url) => BestFor(url)?.IdFor(url);
     public static IEnumerable<UrlRule> Matching(string s) => UrlRuleManager.UrlRules.Where(x => x.Supports(s));
     // todo: allow the user to decide
     private static readonly Dictionary<string, UrlRule?> _bestFor = new();
 
-    public async Task<IEnumerable<string>?> TagsFor(ApiUrl? apiUrl)
-        => await Api.GetTagsAsync(apiUrl);
-    public async Task<string?> FileUrlFor(ApiUrl apiUrl)
-        => await Api.GetFileUrlAsync(apiUrl);
+    public async Task<IEnumerable<string>?> TagsFor(UrlSet urlSet)
+        => await Api.GetTagsAsync(urlSet);
+    public async Task<string?> FileUrlFor(UrlSet urlSet)
+        => await Api.GetFileUrlAsync(urlSet);
     #region static
     public static UrlRule? BestFor(string? url)
     {
@@ -103,28 +92,11 @@ public class UrlRule
         _bestFor[url] = result;
         return result;
     }
-    public static UrlRule? BestFor(PageUrl? url) => BestFor(url?.Value);
-    public static async Task<string?> BestFileUrlFor(PageUrl url)
-    {
-        UrlRule? bestRule = BestFor(url);
-        ApiUrl? apiUrl = bestRule?.ApiUrl.For(url);
-        if (bestRule is null || apiUrl is null)
-            return null;
-        return await bestRule.FileUrlFor(apiUrl);
-    }
-
-    public static async Task<ItemSource?> BestItemSourceFor(string url)
-    {
-        UrlRule? urlRule = BestFor(url);
-        return urlRule is not null ? new(urlRule.Name, url, (await urlRule.TagsFor(new ucm.ApiUrl(url)))?.ToArray() ?? Array.Empty<string>()) : null;
-    }
-    public static PageUrl? BestCanonicalUrlFor(string url)
+    public static string? BestCanonicalUrlFor(string url)
     {
         UrlRule? best = BestFor(url);
-        return best?.CanonicalUrl.For(url);
+        string? id = best?.IdFor(url);
+        return best?.CanonicalUrl.For(id);
     }
-    //    => BestFor(url)?.CanonicalUrl.For(url);
-    public static ApiUrl? BestApiUrlFor(PageUrl url)
-        => BestFor(url)?.ApiUrl.For(url);
     #endregion static
 }

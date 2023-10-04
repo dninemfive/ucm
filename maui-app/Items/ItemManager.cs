@@ -83,13 +83,13 @@ public static class ItemManager
             }
         }
     }
-    public static async Task<bool> TryUpdateAnyMatchingItemAsync(string? hash, string location)
+    public static async Task<bool> TryUpdateAnyMatchingItemAsync(CandidateItem ci)
     {
-        if(hash is not null && ItemsByHash.TryGetValue(hash, out Item? item) && !item.HasSourceInfoFor(location))
+        if(ItemsByHash.TryGetValue(ci.Hash, out Item? item) && !item.HasSourceInfoFor(ci.Location))
         {
             if (item.LocalPath.IsInFolder(MauiProgram.ITEM_FILE_LOCATION))
                 return true;
-            ItemSource? source = await location.ItemSourceAsync();
+            ItemSource? source = await ci.GetItemSourceAsync();
             if (source is not null)
             {
                 item.Sources.Add(source);
