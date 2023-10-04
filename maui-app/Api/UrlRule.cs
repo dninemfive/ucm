@@ -67,7 +67,6 @@ public class UrlRule
                    Dictionary<string, string> headers, 
                    JsonApiDef api)
     {
-        Utils.Log($"Creating UrlRule {domain} {type}...");
         Domain = domain;
         Type = type;
         MatchRegex = matchRegex;

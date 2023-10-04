@@ -48,12 +48,7 @@ public class JsonApiDef : ApiDef
             if(type is not null)
             {
                 MetadataTypes[k] = type;
-                Utils.Log($"Successfully added metadata {k} of type {type}.");
             }
-            else
-            {
-                Utils.Log($"Unable to add metadata {k}: unrecognized type {v}.");
-            } 
         }
         RootPath = rootPath;
     }
@@ -80,8 +75,15 @@ public class JsonApiDef : ApiDef
         string apiUrl = url.Value;
         if (_responses.TryGetValue(apiUrl, out JsonElement response))
             return response;
-        JsonElement? response2;
-        response2 = GetRoot(await MauiProgram.HttpClient.GetFromJsonAsync<JsonDocument>(apiUrl));
+        JsonElement? response2 = null;
+        try
+        {
+            response2 = GetRoot(await MauiProgram.HttpClient.GetFromJsonAsync<JsonDocument>(apiUrl));
+        } 
+        catch(Exception e)
+        {
+            Utils.Log($"GetResponse({url}): {e.GetType().Name} {e.Message}");
+        }        
         if(response2 is not null)
         {
             _responses[apiUrl] = response2.Value;

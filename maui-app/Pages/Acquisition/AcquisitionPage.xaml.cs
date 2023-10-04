@@ -45,37 +45,52 @@ public partial class AcquisitionPage : ContentPage
     {
         _candidateLocations.Clear();
         _locations = ItemManager.AllLocations.ToHashSet();
-        int previousCount = 0;
-        void logct(string msg)
-        {
-            Utils.Log($"Added {_candidateLocations.Count - previousCount} candidate locations from {msg}.");
-            previousCount = _candidateLocations.Count;
-        }        
-        foreach (string srcFolder in await File.ReadAllLinesAsync(@"C:\Users\dninemfive\Documents\workspaces\misc\ucm\maui-app\localFolderList.txt.secret"))
-        {
-            foreach (string path in await Task.Run(srcFolder.EnumerateFilesRecursive))
-            {
-                if (_locations.Contains(path))
-                    continue;
-                _candidateLocations.Add(path);
-            }
-            logct(srcFolder);
-        }
-        List<string> bookmarks = JsonSerializer.Deserialize<List<string>>
-            (File.ReadAllText(@"C:\Users\dninemfive\Documents\workspaces\misc\ucm\bookmark-plugin\ucm-bookmarks-firefox\bookmarks.json"))!;
-        foreach(string? url in bookmarks.Select(x => UrlRule.BestCanonicalUrlFor(x)?.Value).Distinct())
-        {
-            if (url is null || _locations.Contains(url))
-                continue;
-            _candidateLocations.Add(url);
-        }
-        logct("bookmarks");
+        Utils.Log($"All locations:");
+        foreach (string location in _locations.Order())
+            Utils.Log($"\t{location}");
+        // load local paths first,
+        _candidateLocations = await LoadLocalPathsAsync();
+        // then add bookmarks after, shuffled
+        _candidateLocations.AddRange(await LoadBookmarksAsync());
         Utils.Log($"Candidate count by best url rule:");
         foreach(UrlRule rule in UrlRuleManager.UrlRules)
         {
             Utils.Log($"\t{rule.Name}\t{_candidateLocations.Count(x => UrlRule.BestFor(x)?.Name == rule.Name)})");
         }
-        _candidateLocations = await Task.Run(() => _candidateLocations = _candidateLocations.Shuffled().ToList());
+    }
+    private static void LogCount(string location, int count)
+    {
+        Utils.Log($"Added {count} candidate locations from {location}.");
+    }
+    private async Task<List<string>> LoadLocalPathsAsync()
+    {
+        List<string> result = new();
+        foreach (string srcFolder in await File.ReadAllLinesAsync(@"C:\Users\dninemfive\Documents\workspaces\misc\ucm\maui-app\localFolderList.txt.secret"))
+        {
+            int ct = 0;
+            foreach (string path in await Task.Run(srcFolder.EnumerateFilesRecursive))
+            {
+                if (_locations.Contains(path))
+                    continue;
+                ct++;
+                result.Add(path);
+            }
+            LogCount(srcFolder, ct);
+        }
+        return result;
+    }
+    private const string _bookmarksPath = @"C:\Users\dninemfive\Documents\workspaces\misc\ucm\bookmark-plugin\ucm-bookmarks-firefox\bookmarks.json";
+    private async Task<List<string>> LoadBookmarksAsync()
+    {        
+        List<string> result = new(),
+                     bookmarks = (await JsonSerializer.DeserializeAsync<List<string>>(File.OpenRead(_bookmarksPath)))!;
+        foreach (string? url in await Task.Run(() => bookmarks.Select(x => UrlRule.BestCanonicalUrlFor(x)?.Value).Distinct()))
+        {
+            if (url is null || _locations.Contains(url))
+                continue;
+            result.Add(url);
+        }
+        return result.Shuffled().ToList();
     }
     private async Task<CandidateItem?> MakeCandidateFor(string candidateLocation)
     {
@@ -129,6 +144,7 @@ public partial class AcquisitionPage : ContentPage
             }
             float progress = Index/(float)_candidateLocations.Count;
             ProgressBar.Progress = progress;
+            CurrentPendingItemInfo.Text = $"{Index}/{_candidateLocations.Count} ({progress:P1}) | {IdManager.CurrentId}";
             _currentCandidate = await MakeCandidateFor(_candidateLocations[_index]);
             if (_currentCandidate is null)
                 continue;

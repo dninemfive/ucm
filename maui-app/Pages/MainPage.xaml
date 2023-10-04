@@ -8,8 +8,7 @@
             Spacing="25"
             Padding="30,0"
             VerticalOptions="Center">
-            <Label Text="Fuck" x:Name="Text" TextColor="White"/>
-            <Button Clicked="Button_Clicked"/>
+            <Entry x:Name="DataPathEntry"/>
         </VerticalStackLayout>
     </ScrollView>
 

@@ -12,14 +12,6 @@ public partial class MainPage : ContentPage
 	public MainPage()
 	{
         InitializeComponent();
-        string type = "Int32";
-        Text.Text = (Type.GetType(type) 
-                  ?? Type.GetType($"System.{type}") 
-                  ?? Type.GetType($"d9.ucm.{type}"))?.Name.PrintNull();
 	}
-
-    private void Button_Clicked(object sender, EventArgs e)
-    {
-    }
 }
 

@@ -54,7 +54,6 @@ public static class ItemManager
         foreach (Item item in MauiProgram.TEMP_SAVE_LOCATION.LoadAll<Item>(x =>
         {
             (string src, Item item) = x;
-            Utils.Log($"{src}, {item}, {item.LocalPath.PrintNull()}, {item.Id}");
             bool result = item.LocalPath.Exists;
             if (!result)
             {
@@ -77,8 +76,10 @@ public static class ItemManager
         {
             foreach(Item item in Items)
             {
+                string localPath = item.LocalPath.Value;
+                yield return localPath;
                 foreach (string location in item.Locations)
-                    yield return location;
+                    if(location != localPath) yield return location;
             }
         }
     }
