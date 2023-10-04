@@ -2,6 +2,6 @@
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="d9.ucm.HistogramView">
-    <HorizontalStackLayout x:Name="Container">
-    </HorizontalStackLayout>
+    <!-- https://stackoverflow.com/a/73627718 -->
+    <HorizontalStackLayout x:Name="Container"/>
 </ContentView>

@@ -21,6 +21,9 @@
     <MauiXaml Update="Views\CompetitionSelector.xaml">
       <SubType>Designer</SubType>
     </MauiXaml>
+    <MauiXaml Update="Views\HistogramView.xaml">
+      <SubType>Designer</SubType>
+    </MauiXaml>
     <MauiXaml Update="Views\ThumbnailView.xaml">
       <SubType>Designer</SubType>
     </MauiXaml>

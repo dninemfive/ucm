@@ -73,6 +73,9 @@
 	  <Compile Update="Views\CompetitionSelector.xaml.cs">
 	    <DependentUpon>CompetitionSelector.xaml</DependentUpon>
 	  </Compile>
+	  <Compile Update="Views\HistogramView.xaml.cs">
+	    <DependentUpon>HistogramView.xaml</DependentUpon>
+	  </Compile>
 	  <Compile Update="Views\ThumbnailView.xaml.cs">
 	    <DependentUpon>ThumbnailView.xaml</DependentUpon>
 	  </Compile>
@@ -92,6 +95,9 @@
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Views\CompetitionSelector.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Views\HistogramView.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Views\ThumbnailView.xaml">

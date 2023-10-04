@@ -7,7 +7,9 @@ public partial class HistogramView : ContentView
 {
 	private readonly List<double> _data = new();
 	public IEnumerable<double> Data => _data;
-	public Color ForegroundColor { get; private set; } = Colors.White;
+	public Color ForegroundColor { get; set; } = Colors.White;
+	public int? ForcedLowerBound { get; set; } = null;
+	public int? ForcedUpperBound { get; set; } = null;
 	public HistogramView()
 	{
 		InitializeComponent();
@@ -39,17 +41,25 @@ public partial class HistogramView : ContentView
 		{
 			counter.Increment((int)datum);
 		}
-        int minKey = counter.Keys.Min(), maxKey = counter.Keys.Max();
-        double maxValue = counter.Values.Max(), height = HeightRequest, width = WidthRequest, bins = Math.Abs(minKey - maxKey) + 1;		
-		for(int i = minKey; i <= maxKey; i++)
+        int lowerBound = ForcedLowerBound ?? counter.Keys.Min(), upperBound = ForcedUpperBound ?? counter.Keys.Max();
+		double maxValue = counter.Values.Max(),
+			   bins = Math.Abs(upperBound - lowerBound) + 1,
+			   height = HeightRequest,
+			   width = Math.Max(WidthRequest / bins, 10);
+		Utils.Log($"{lowerBound}\t{upperBound}\t{maxValue}\t{bins}\t{height}\t{width}");
+		for(int i = lowerBound; i <= upperBound; i++)
 		{
-			Container.Add(new Rectangle()
+			Rectangle rect = new()
 			{
-				WidthRequest = width / bins,
+				WidthRequest = width,
 				HeightRequest = counter[i] / maxValue * height,
 				VerticalOptions = LayoutOptions.End,
-				BackgroundColor = ForegroundColor
-			});
+				BackgroundColor = ForegroundColor,
+				Margin = new(1, 0)
+			};
+			Utils.Log($"{rect.WidthRequest}\t{rect.HeightRequest}");
+			ToolTipProperties.SetText(rect, $"[{i}, {i + 1}): {counter[i]}");
+            Container.Add(rect);
 		}
 	}
 }

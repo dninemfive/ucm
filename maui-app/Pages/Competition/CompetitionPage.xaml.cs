@@ -65,10 +65,12 @@ public partial class CompetitionPage : ContentPage
         if (Competition is null)
         {
             RatingScreen.IsVisible = false;
+            Histogram.IsVisible = false;
             return;
         }
         CompetitionCreation.IsVisible = false;
         RatingScreen.IsVisible = true;
+        Histogram.IsVisible = true;
         Competition.NextItems();
         await UpdateViews();
     }
@@ -84,6 +86,8 @@ public partial class CompetitionPage : ContentPage
         Update(LeftItemView, Side.Left);
         Update(RightItemView, Side.Right);
         UpdateButtonActivation();
-        Histogram.ReplaceData(Competition!.Ratings.Select(x => x.Value.TotalRatings));
+        List<double> data = Competition!.Ratings.Select(x => x.Value.TotalRatings).Select(x => (double)x).ToList();
+        data.AddRange(Competition!.RelevantUnratedItems.Select(x => 0.0));
+        Histogram.ReplaceData(data);
     }
 }

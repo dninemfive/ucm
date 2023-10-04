@@ -115,6 +115,7 @@ public class Competition
     }
     [JsonIgnore]
     public IEnumerable<Item> RelevantItems => ItemManager.Items.Where(x => !IsIrrelevant(x.Id));
+    public IEnumerable<Item> RelevantUnratedItems => RelevantItems.Where(x => RatingOf(x) is null);
     private Item? _previousItem = null;
     [JsonIgnore]
     public Item NextItem

@@ -18,11 +18,11 @@
                 <local:CompetitionItemView x:Name="LeftItemView" 
                              Grid.Row="0" 
                              Grid.Column="0"
-                             HeightRequest="900"/>
+                             HeightRequest="850"/>
                 <local:CompetitionItemView x:Name="RightItemView" 
                              Grid.Row="0" 
                              Grid.Column="1"
-                             HeightRequest="900"/>
+                             HeightRequest="850"/>
                 <Grid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
@@ -38,7 +38,12 @@
                     <Button x:Name="RightIrrelevant" Text="Irrelevant" Clicked="RightIrrelevant_Clicked" Grid.Column="4"/>
                 </Grid>
             </Grid>
-            <local:HistogramView x:Name="Histogram" IsVisible="False" HorizontalOptions="CenterAndExpand" HeightRequest="100"/>
+            <local:HistogramView x:Name="Histogram" 
+                                 IsVisible="False" 
+                                 HorizontalOptions="CenterAndExpand" 
+                                 HeightRequest="50" 
+                                 ForegroundColor="Orange"
+                                 ForcedLowerBound="0"/>
         </VerticalStackLayout>
     </ScrollView>    
 </ContentPage>
