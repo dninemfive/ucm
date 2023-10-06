@@ -55,6 +55,11 @@ public class CandidateItem : IItemViewable
         if (urlSet.IsFullyValid())
         {
             sourceLocation = await GetFileUrlAsync(urlSet!);
+            if(sourceLocation is null)
+            {
+                Utils.Log($"SourceLocation was null for UrlSet {urlSet}, which was allegedly fully valid.");
+                return null;
+            }
             locationType = LocationType.Url;
         }
         else if(File.Exists(location))

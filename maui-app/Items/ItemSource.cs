@@ -32,6 +32,7 @@ public class ItemSource
         Tags = tags;
         AcquiredAt = acquiredAt;
     }
+    [JsonIgnore]
     public string LabelText
         => $"Source: {Location} ({SourceName})\nAcquired at: {AcquiredAt:g}\n- {Tags.ListJoin()}";
 }

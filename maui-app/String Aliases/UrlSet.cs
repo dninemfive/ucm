@@ -28,7 +28,8 @@ public class UrlSet
         if (id is null)
             return null;
         return new(rawUrl, id, urlRule);
-    }    
+    }
+    public override string ToString() => $"UrlSet({CanonUrl}, {this.IsFullyValid()})";
 }
 public static class UrlSetExt
 {

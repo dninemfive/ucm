@@ -103,8 +103,16 @@ public class JsonApiDef : ApiDef
     {
         if (urlSet.ApiUrl is null)
             return null;
-        JsonElement? response = await GetResponse(urlSet);
-        return response?.GetProperty(FileUrlKey).GetString();
+        try
+        {
+            JsonElement? response = await GetResponse(urlSet);
+            return response?.GetProperty(FileUrlKey).GetString();
+        } catch(Exception e)
+        {
+            Utils.Log(e);
+            return null;
+        }
+        
     }
     public override async Task<IEnumerable<string>?> GetTagsAsync(UrlSet urlSet)
     {
