@@ -36,39 +36,28 @@ public class CandidateItem : IItemViewable
     }
     public static async Task<CandidateItem?> MakeFromAsync(string location)
     {
-        string? uriScheme = location.UriScheme();
-        if(uriScheme is "http" or "https")
+        LocationType locationType = LocationType.Invalid;
+        UrlSet? urlSet = UrlSet.From(location);
+        string? sourceLocation = null;
+        if (urlSet.IsFullyValid())
         {
-            UrlSet? urlSet = UrlSet.From(location);
-            if (!urlSet.IsFullyValid())
-                return null;
-            try
-            {             
-                string? sourceUrl = await GetFileUrlAsync(urlSet!);
-                if(sourceUrl is null || sourceUrl.FileExtension() is ".mp4" or ".zip") return null;
-                byte[] data = await MauiProgram.HttpClient.GetByteArrayAsync(sourceUrl);
-                string? hash = await data.HashAsync();
-                if(hash is not null)
-                {
-                    return new(urlSet!, hash, sourceUrl, data);
-                } 
-            } catch(Exception e)
-            {
-                Utils.Log($"Error creating CandidateItem from location `{location}`: {e.Message}");
-                return null;
-            }
-        } else if(uriScheme is "file")
-        {
-            if (!File.Exists(location))
-                return null;
-            string? hash = await location.FileHashAsync();
-            if (hash is not null)
-            {
-                return new(localPath: location, hash);
-            }
+            sourceLocation = await GetFileUrlAsync(urlSet!);
+            locationType = LocationType.Url;
         }
-        Utils.Log($"Error creating CandidateItem from location `{location}`: Unrecognized scheme {uriScheme.PrintNull()}.");
-        return null;
+        else if(File.Exists(location))
+        {
+            sourceLocation = location;
+            locationType = LocationType.Path;
+        }
+        if (sourceLocation is null || !sourceLocation.ExtensionIsSupported())
+            return null;
+        byte[]? data = await sourceLocation.GetBytesAsync(locationType);
+        string? hash = await (data?.HashAsync() ?? Task.FromResult<string?>(null));
+        if (data is null || hash is null)
+            return null;
+        if (urlSet is not null)
+            return new(urlSet!, hash, sourceLocation, data);
+        return new(localPath: sourceLocation, hash);
     }
     public async Task<bool> SaveAsync()
     {
@@ -85,7 +74,6 @@ public class CandidateItem : IItemViewable
     public override string ToString()
         => $"CI {Hash} @ {Location}";
     public async Task<ItemSource?> GetItemSourceAsync()
-    //    => File.Exists(location) ? new("Local Filesystem", location) : await UrlRule.BestItemSourceFor(location);
     {
         if (LocalPath is not null)
             return new("Local Filesystem", LocalPath);

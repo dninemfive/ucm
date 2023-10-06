@@ -20,7 +20,6 @@ public readonly struct ItemId : IComparable<ItemId>
     public string IntString => $"{Value}";
     [JsonConstructor]
     public ItemId(ulong value) { Value = value; }
-    public static ItemId FromIntString(string str) => new(ulong.Parse(str));
     private static ulong ValueOf(char c) => (ulong)ALPHABET.IndexOf(c); 
     #region operators
     public static bool operator >(ItemId a, ItemId b) => a.Value > b.Value;
@@ -69,11 +68,11 @@ public readonly struct ItemId : IComparable<ItemId>
 public class ItemIdConverter : JsonConverter<ItemId>
 {
     public override ItemId Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) 
-        => ItemId.FromIntString(reader.GetString()!);
+        => reader.GetString()!;
     public override void Write(Utf8JsonWriter writer, ItemId value, JsonSerializerOptions options)
         => writer.WriteStringValue(value.ToString());
     public override ItemId ReadAsPropertyName(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-        => ItemId.FromIntString(reader.GetString()!);
+        => reader.GetString()!;
     public override void WriteAsPropertyName(Utf8JsonWriter writer, ItemId value, JsonSerializerOptions options)
         => writer.WritePropertyName(value.ToString());
 }

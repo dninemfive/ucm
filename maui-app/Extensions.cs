@@ -11,14 +11,7 @@ using System.Threading.Tasks;
 namespace d9.ucm;
 public static class Extensions
 {
-    public static string? FileHash(this string path)
-    {
-        if (!File.Exists(path))
-            return null;
-        using SHA512 sha512 = SHA512.Create();
-        using FileStream fs = File.OpenRead(path);
-        return JsonSerializer.Serialize(sha512.ComputeHash(fs)).Replace("\"","");
-    }
+    public static string? FileHash(this string path) => Hash(File.ReadAllBytes(path));
     public static async Task<string?> FileHashAsync(this string path) => await Task.Run(path.FileHash);
     public static string? Hash(this byte[] bytes) => JsonSerializer.Serialize(SHA512.HashData(bytes)).Replace("\"", "");
     public static async Task<string?> HashAsync(this byte[] bytes) => await Task.Run(bytes.Hash);
@@ -30,6 +23,8 @@ public static class Extensions
         ".xcf" or ".pdf" or ".zip" => null,
         _ => new Image() { Source = path, IsAnimationPlaying = true, Aspect = Aspect.AspectFit }
     };
+    public static bool ExtensionIsSupported(this string path)
+        => Path.GetExtension(path).ToLower() is not (".mov" or ".mp4" or ".webm" or ".xcf" or ".pdf" or ".zip");
     public static double StandardDeviation(this IEnumerable<double> vals)
     {
         if (!vals.Any())
@@ -89,4 +84,27 @@ public static class Extensions
         1 => $"{sep}{objects.First()}",
         _ => $"{sep}{objects.Aggregate((x, y) => $"{x}{sep}{y}")}"
     };
+    public static async Task<byte[]?> GetBytesAsync(this string location, LocationType locationType)
+    {
+        try
+        {
+            return locationType switch
+            {
+                LocationType.Url => await MauiProgram.HttpClient.GetByteArrayAsync(location),
+                LocationType.Path => await File.ReadAllBytesAsync(location),
+                _ => throw new InvalidOperationException($"Attempted to get bytes for location {location} with unrecognized location type {locationType}.")
+            };
+        }
+        catch (Exception e)
+        {
+            Utils.Log($"{e.GetType().Name} when attempting to get bytes for {location}: {e.Message}");
+            return null;
+        }
+    }    
+}
+public enum LocationType
+{
+    Path,
+    Url,
+    Invalid
 }
