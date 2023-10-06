@@ -146,26 +146,7 @@ public partial class AcquisitionPage : ContentPage
             if (_currentCandidate is null)
                 continue;
             _ = _indexedHashes.Add(_currentCandidate.Hash);
-            if(_currentCandidate.SourceUrl is not null)
-            {
-                try
-                {
-                    ItemHolder.Content = new Image()
-                    {
-                        Source = ImageSource.FromStream(() => new MemoryStream(_currentCandidate.Data!)),
-                        IsAnimationPlaying = true,
-                        Aspect = Aspect.AspectFit
-                    };
-                    ToolTipProperties.SetText(ItemHolder, _currentCandidate!.Source.Tags.ListJoin());
-                } catch(Exception e)
-                {
-                    Utils.Log($"Issue getting image data for {_currentCandidate}: {e.Message}");
-                }
-            } 
-            else
-            {
-                ItemHolder.Content = _currentCandidate.Location.BestAvailableView();
-            }
+            ItemView.Item = _currentCandidate;
             string ct = (_candidateLocations?.Count).PrintNull(), location = (_currentCandidate?.Location).PrintNull();
             CurrentPendingItemInfo.Text = $"{Index}/{ct} ({progress:P1}) | {IdManager.CurrentId}\t{location}\t{_currentCandidate?.SourceUrl.FileExtension()}";
             SetButtonsActive(true);

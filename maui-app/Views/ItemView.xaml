@@ -2,8 +2,14 @@
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="d9.ucm.ItemView">
-    <HorizontalStackLayout>
-        <VerticalStackLayout x:Name="SourceList"/>
-        <ContentView x:Name="ContentHolder"/>
-    </HorizontalStackLayout>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <ScrollView HorizontalOptions="Start" Grid.Column="0">
+            <VerticalStackLayout x:Name="SourceList"/>
+        </ScrollView>
+        <ContentView x:Name="ContentHolder" HorizontalOptions="Center" Grid.Column="1"/>
+    </Grid>
 </ContentView>

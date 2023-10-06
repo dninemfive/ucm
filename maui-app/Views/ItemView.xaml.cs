@@ -9,10 +9,10 @@ public partial class ItemView : ContentView
 		set
 		{
 			_item = value;
-			if (value is null)
+            SourceList.Children.Clear();
+            if (value is null)
 			{
-                ContentHolder.Content = null;
-				SourceList.Children.Clear();
+                ContentHolder.Content = null;				
 				return;
             }
 			ContentHolder.Content = _item!.View;
@@ -22,7 +22,8 @@ public partial class ItemView : ContentView
 				{
 					Text = labelText,
 					BackgroundColor = Colors.LightGrey,
-					TextColor = Colors.Black
+					TextColor = Colors.Black,
+					Margin = new(4)
 				});
 			}
 		}

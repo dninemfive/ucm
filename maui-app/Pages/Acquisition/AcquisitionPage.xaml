@@ -1,20 +1,21 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:d9.ucm"
              x:Class="d9.ucm.AcquisitionPage">
     <VerticalStackLayout>
         <Button x:Name="StartButton" Text="Start" Clicked="StartButton_Clicked" ZIndex="1"/>
         <Label x:Name="Alert" Text="No candidate items remaining!" IsVisible="False" ZIndex="2"/>
-        <Grid x:Name="AcquisitionBlock" IsVisible="False" VerticalOptions="FillAndExpand">
+        <Grid x:Name="AcquisitionBlock" IsVisible="False" VerticalOptions="Fill">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             <Label x:Name="CurrentPendingItemInfo" Grid.Row="0"/>
-            <ContentView x:Name="ItemHolder" Grid.Row="1" VerticalOptions="FillAndExpand" HorizontalOptions="FillAndExpand" HeightRequest="800"/>
-            <HorizontalStackLayout HorizontalOptions="CenterAndExpand" VerticalOptions="EndAndExpand" Grid.Row="2">
+            <local:ItemView x:Name="ItemView" Grid.Row="1" HeightRequest="850"/>
+            <HorizontalStackLayout HorizontalOptions="Center" Grid.Row="2">
                 <Button x:Name="Accept" Text="Accept" Clicked="Accept_Clicked"/>
                 <Button x:Name="Skip" Text="Skip" Clicked="Skip_Clicked"/>
                 <Button x:Name="Reject" Text="Reject" Clicked="Reject_Clicked"/>
