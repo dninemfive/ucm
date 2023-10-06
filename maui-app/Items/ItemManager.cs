@@ -91,12 +91,8 @@ public static class ItemManager
         {
             if (item.LocalPath.IsInFolder(MauiProgram.ITEM_FILE_LOCATION))
                 return true;
-            ItemSource? source = await ci.GetItemSourceAsync();
-            if (source is not null)
-            {
-                item.Sources.Add(source);
-                await item.SaveAsync();
-            }
+            item.Sources.Add(ci.Source);
+            await item.SaveAsync();
             return true;
         }
         return false;

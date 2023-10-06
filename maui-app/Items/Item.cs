@@ -63,11 +63,11 @@ public class Item : IItemViewable
     [JsonIgnore]
     public IEnumerable<string> Locations
         => Sources.Select(x => x.Location);
-    public static async Task<Item?> FromAsync(CandidateItem ci)
+    public static Item? From(CandidateItem ci)
     {        
         if(ci.LocalPath is not null)
         {
-            return new(ci.LocalPath, ci.Hash, IdManager.Register(), (await ci.GetItemSourceAsync())!);
+            return new(ci.LocalPath, ci.Hash, IdManager.Register(), ci.Source);
         }
         UrlRule? urlRule = ci.UrlSet?.UrlRule;
         if (urlRule is not null)
@@ -77,7 +77,7 @@ public class Item : IItemViewable
             {
                 string? newPath = Path.Join(MauiProgram.ITEM_FILE_LOCATION, $"{id}{Path.GetExtension(ci.SourceUrl)}");
                 File.WriteAllBytes(newPath, ci.Data);
-                return new(newPath, ci.Hash, id, (await ci.GetItemSourceAsync())!);
+                return new(newPath, ci.Hash, id, ci.Source);
             }            
         }
         Utils.Log($"Failed to make item for {ci}.");

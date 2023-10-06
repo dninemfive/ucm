@@ -10,27 +10,40 @@ using System.Threading.Tasks;
 namespace d9.ucm;
 public class CandidateItem : IItemViewable
 {
-    public View View => throw new NotImplementedException();
-    public IEnumerable<ItemSource> ItemSources => throw new NotImplementedException();
+    public View View => new Image()
+    {
+        Source = ImageSource.FromStream(() => new MemoryStream(Data)),
+        IsAnimationPlaying = true,
+        Aspect = Aspect.AspectFit
+    };
+    public IEnumerable<ItemSource> ItemSources
+    {
+        get
+        {
+            yield return Source;
+        }
+    }
     public string Hash { get; private set; }
     public UrlSet? UrlSet { get; private set; }
-    public byte[]? Data { get; private set; }
+    public byte[] Data { get; private set; }
     public string? SourceUrl { get; private set; }
     public string? LocalPath { get; private set; }
     public string Location => (LocalPath ?? UrlSet?.CanonUrl)!;
-    private CandidateItem(string hash, string? sourceUrl = null, byte[]? data = null)
+    public ItemSource Source { get; private set; }
+    private CandidateItem(string hash, byte[] data, ItemSource source, string? sourceUrl = null)
     {
         Hash = hash;
         SourceUrl = sourceUrl;
         Data = data;
+        Source = source;
     }
-    private CandidateItem(UrlSet urlSet, string hash, string? sourceUrl = null, byte[]? data = null) 
-        : this(hash, sourceUrl, data)
+    private CandidateItem(UrlSet urlSet, string hash, byte[] data, ItemSource source, string? sourceUrl = null) 
+        : this(hash, data, source, sourceUrl)
     {
         UrlSet = urlSet;        
     }
-    private CandidateItem(string localPath, string hash, string? sourceUrl = null, byte[]? data = null)
-        : this(hash, sourceUrl, data)
+    private CandidateItem(string localPath, string hash, byte[] data, ItemSource source, string? sourceUrl = null)
+        : this(hash, data, source, sourceUrl)
     {
         LocalPath = localPath;
     }
@@ -56,12 +69,12 @@ public class CandidateItem : IItemViewable
         if (data is null || hash is null)
             return null;
         if (urlSet is not null)
-            return new(urlSet!, hash, sourceLocation, data);
-        return new(localPath: sourceLocation, hash);
+            return new(urlSet!, hash, data, await GetItemSourceAsync(null, urlSet), sourceLocation);
+        return new(localPath: sourceLocation, hash, data, await GetItemSourceAsync(sourceLocation, null));
     }
     public async Task<bool> SaveAsync()
     {
-        Item? result = await Item.FromAsync(this);
+        Item? result = Item.From(this);
         if(result is not null)
         {
             ItemManager.Register(result);
@@ -73,11 +86,11 @@ public class CandidateItem : IItemViewable
         => await urlSet.UrlRule.FileUrlFor(urlSet);
     public override string ToString()
         => $"CI {Hash} @ {Location}";
-    public async Task<ItemSource?> GetItemSourceAsync()
+    public static async Task<ItemSource> GetItemSourceAsync(string? localPath, UrlSet? urlSet)
     {
-        if (LocalPath is not null)
-            return new("Local Filesystem", LocalPath);
+        if (localPath is not null)
+            return new("Local Filesystem", localPath);
         else
-            return new(UrlSet!.UrlRule.Name, UrlSet!.CanonUrl!, (await UrlSet.UrlRule.TagsFor(UrlSet))?.ToArray() ?? Array.Empty<string>());
+            return new(urlSet!.UrlRule.Name, urlSet!.CanonUrl!, (await urlSet.UrlRule.TagsFor(urlSet))?.ToArray() ?? Array.Empty<string>());
     }
 }

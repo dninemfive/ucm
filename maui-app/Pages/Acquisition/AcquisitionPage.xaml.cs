@@ -156,7 +156,7 @@ public partial class AcquisitionPage : ContentPage
                         IsAnimationPlaying = true,
                         Aspect = Aspect.AspectFit
                     };
-                    ToolTipProperties.SetText(ItemHolder, (await _currentCandidate.GetItemSourceAsync())!.Tags.ListJoin());
+                    ToolTipProperties.SetText(ItemHolder, _currentCandidate!.Source.Tags.ListJoin());
                 } catch(Exception e)
                 {
                     Utils.Log($"Issue getting image data for {_currentCandidate}: {e.Message}");
