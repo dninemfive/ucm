@@ -12,13 +12,16 @@ public partial class MainPage : ContentPage
 	public MainPage()
 	{
         InitializeComponent();
-		Random random = new Random();
-		List<double> data = new();
-		for(int i = 0; i < 1000; i++)
-		{
-			data.Add(random.Next(0, 13));
-		}
-		Histogram.ReplaceData(data);
 	}
+
+    private async void ResaveAllItems(object sender, EventArgs e)
+    {
+        ResaveButton.Text = "Saving...";
+        ResaveButton.IsEnabled = false;
+        foreach (Item item in ItemManager.Items)
+            await item.SaveAsync();
+        ResaveButton.IsEnabled = true;
+        ResaveButton.Text = "Resave All Items";
+    }
 }
 

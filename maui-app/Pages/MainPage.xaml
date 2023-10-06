@@ -10,7 +10,7 @@
             Padding="30,0"
             VerticalOptions="Center">
             <!-- Entry x:Name="DataPathEntry" -->
-            <local:HistogramView x:Name="Histogram" BackgroundColor="Magenta" ForegroundColor="Lime" HeightRequest="420" WidthRequest="69"/>
+            <Button x:Name="ResaveButton" Text="Resave All Items" Clicked="ResaveAllItems"/>
         </VerticalStackLayout>
     </ScrollView>
 
