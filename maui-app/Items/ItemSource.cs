@@ -33,5 +33,5 @@ public class ItemSource
         AcquiredAt = acquiredAt;
     }
     public string LabelText
-        => $"Source: {Location} ({SourceName})\nAcquired at: {AcquiredAt:g}\n{Tags.Aggregate((x, y) => $"{x}\n{y}")}";
+        => $"Source: {Location} ({SourceName})\nAcquired at: {AcquiredAt:g}\n- {Tags.ListJoin()}";
 }
