@@ -78,7 +78,7 @@ public partial class CompetitionPage : ContentPage
     {
         if (Competition is null)
             return;
-        itemView.UpdateWith(Competition[side], $"Ratings: {Competition.RatingOf(side)?.TotalRatings}");
+        itemView.UpdateWith(Competition[side], $"Ratings: {Competition.RatingOf(side)?.TotalRatings ?? 0}");
     }
     private async Task UpdateViews()
     {

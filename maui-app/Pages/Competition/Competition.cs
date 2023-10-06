@@ -63,14 +63,9 @@ public class Competition
     [JsonConstructor]
     public Competition(string name, HashSet<ItemId> irrelevantItems, Dictionary<ItemId, Rating> ratings)
     {
-        static ItemId fix(ItemId asdf)
-            => new ItemId(ulong.Parse(asdf.ToString()));
         Name = name;
-        IrrelevantItems = irrelevantItems.Select(x => fix(x)).ToHashSet();
-        foreach((ItemId k, Rating v) in ratings)
-        {
-            Ratings[fix(k)] = v;
-        }
+        IrrelevantItems = irrelevantItems;
+        Ratings = ratings;
     }
     public bool IsIrrelevant(ItemId id) => IrrelevantItems.Contains(id);
     public Rating? RatingOf(ItemId id) => IsIrrelevant(id) ? null : Ratings.TryGetValue(id, out Rating? r) ? r : null;
