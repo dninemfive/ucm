@@ -18,8 +18,11 @@ public partial class MainPage : ContentPage
     {
         ResaveButton.Text = "Saving...";
         ResaveButton.IsEnabled = false;
-        foreach (Item item in ItemManager.Items)
+        foreach ((Item item, int i) in ItemManager.Items.WithProgress())
+        {
             await item.SaveAsync();
+            ProgressBar.Progress = i / (double)ItemManager.Items.Count();
+        }
         ResaveButton.IsEnabled = true;
         ResaveButton.Text = "Resave All Items";
     }
