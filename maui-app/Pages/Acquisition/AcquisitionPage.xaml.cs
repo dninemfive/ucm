@@ -45,9 +45,6 @@ public partial class AcquisitionPage : ContentPage
     {
         _candidateLocations.Clear();
         _locations = ItemManager.AllLocations.ToHashSet();
-        Utils.Log($"All locations:");
-        foreach (string location in _locations.Order())
-            Utils.Log($"\t{location}");
         // load local paths first,
         _candidateLocations = await LoadLocalPathsAsync();
         // then add bookmarks after, shuffled
@@ -107,7 +104,7 @@ public partial class AcquisitionPage : ContentPage
         List<(bool assertion, string msg)> assertions = new()
         {
             (candidate is null, "candidate is null"),
-            (await ItemManager.TryUpdateAnyMatchingItemAsync(candidate!), "existing item"),
+            (await ItemManager.TryUpdateAnyMatchingItemAsync(candidate), "existing item OR null candidate (again??)"),
             (hash is null, "hash is null"),
             (hash is not null && _indexedHashes.Contains(hash), "indexed hash"),
             (candidateLocation.BestAvailableView() is null, "no available view")
