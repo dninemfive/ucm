@@ -10,7 +10,7 @@ using d9.utl;
 using System.Runtime.CompilerServices;
 
 namespace d9.ucm;
-public class Item
+public class Item : IItemViewable
 {
     #region properties
     /// <summary>
@@ -23,7 +23,7 @@ public class Item
     [JsonInclude]
     public ItemId Id { get; }
     [JsonIgnore]
-    public View? View => LocalPath.Value.BestAvailableView();
+    public View View => LocalPath.Value.BestAvailableView()!;
     [JsonIgnore]
     private Image? _thumbnail = null;
     [JsonIgnore]
@@ -37,6 +37,8 @@ public class Item
     }
     [JsonInclude]
     public List<ItemSource> Sources { get; private set; } = new();
+    [JsonIgnore]
+    public IEnumerable<ItemSource> ItemSources => Sources;
     #endregion
     #region constructors
     public Item(string path, string hash, ItemId id, params ItemSource[] sources) : this(new(path), hash, id, sources.ToList()) { }

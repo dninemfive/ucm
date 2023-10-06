@@ -2,13 +2,16 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace d9.ucm;
-public class CandidateItem
+public class CandidateItem : IItemViewable
 {
+    public View View => throw new NotImplementedException();
+    public IEnumerable<ItemSource> ItemSources => throw new NotImplementedException();
     public string Hash { get; private set; }
     public UrlSet? UrlSet { get; private set; }
     public byte[]? Data { get; private set; }
