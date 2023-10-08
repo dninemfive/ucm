@@ -13,6 +13,7 @@
             <Button x:Name="ResaveButton" Text="Resave All Items" Clicked="ResaveAllItems"/>
             <Button x:Name="TestHashThingButton" Text="test hash thing" Clicked="TestHashThing"/>
             <ProgressBar x:Name="ProgressBar"/>
+            <Button Text="Open Debug Console" Clicked="OpenDebugConsole"/>
         </VerticalStackLayout>
     </ScrollView>
 

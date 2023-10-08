@@ -104,7 +104,7 @@ public partial class AcquisitionPage : ContentPage
         List<(bool assertion, string msg)> assertions = new()
         {
             (candidate is null, "candidate is null"),
-            (await ItemManager.TryUpdateAnyMatchingItemAsync(candidate), "existing item OR null candidate (again??)"),
+            (await ItemManager.TryUpdateAnyMatchingItemAsync(candidate), "existing item"),
             (hash is null, "hash is null"),
             (hash is not null && _indexedHashes.Contains(hash), "indexed hash"),
             (candidateLocation.BestAvailableView() is null, "no available view")

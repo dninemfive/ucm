@@ -50,5 +50,16 @@ public partial class MainPage : ContentPage
         (sender as Button)!.IsEnabled = true;
         Utils.Log($"Done!");
     }
+
+    private void OpenDebugConsole(object sender, EventArgs e)
+    {
+        ConsolePage console = new();
+        Window DebugConsole = new()
+        {
+            Page = console
+        };
+        Utils.DefaultLog = new(MauiProgram.LOG_PATH, console, false);
+        Application.Current?.OpenWindow(DebugConsole);
+    }
 }
 
