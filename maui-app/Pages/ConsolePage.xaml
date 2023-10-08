@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="d9.ucm.ConsolePage"
              Title="ConsolePage">
-    <ScrollView>
+    <ScrollView x:Name="ScrollBar" Scrolled="ScrollBar_Scrolled">
         <VerticalStackLayout x:Name="LabelHolder">
 
         </VerticalStackLayout>
