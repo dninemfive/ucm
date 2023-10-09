@@ -88,7 +88,7 @@ public class Item : IItemViewable
     {
         get
         {
-            string text = $"{this}\nRatings:\n{CompetitionManager.Competitions.OrderBy(x => x.Name)
+            string text = $"{this}\n\nRatings:{CompetitionManager.Competitions.OrderBy(x => x.Name)
                                                                               .Select(x => $"{x.Name}: {x.RatingOf(this)?.ToString() ?? "(no rating)"}")
                                                                               .AsBulletedList()}";
             return new()

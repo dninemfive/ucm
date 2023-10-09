@@ -8,7 +8,7 @@
             <ColumnDefinition Width="Auto"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
-        <toolkit:Expander ExpandedChanged="Expander_ExpandedChanged" IsExpanded="True">
+        <toolkit:Expander ExpandedChanged="Expander_ExpandedChanged" IsExpanded="True" WidthRequest="500">
             <toolkit:Expander.Header>
                 <Label x:Name="ExpanderHeaderText" Text="◀" FontAttributes="Bold" FontSize="Medium"/>
             </toolkit:Expander.Header>

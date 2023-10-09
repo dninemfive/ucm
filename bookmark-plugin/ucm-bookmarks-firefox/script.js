@@ -22,7 +22,7 @@ function doSearch() {
         let download = browser.downloads.download({url: url, filename: "bookmarks.json"}).then(downloadSuccess, printError);
     }    
     let search = browser.bookmarks.search("booru")
-                        .then(saveResults, printError);    
+                        .then(saveResults, printError);  
 }
 function revokeUrlAfterDownload(obj) {    
     if(obj.id === id && obj.state.current === "complete") {
