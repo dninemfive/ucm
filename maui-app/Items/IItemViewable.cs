@@ -9,4 +9,5 @@ public interface IItemViewable
 {
     public IEnumerable<ItemSource> ItemSources { get; }
     public View View { get; }
+    public Label InfoLabel { get; }
 }

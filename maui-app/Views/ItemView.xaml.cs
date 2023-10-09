@@ -9,30 +9,34 @@ public partial class ItemView : ContentView
 		set
 		{
 			_item = value;
-            SourceList.Children.Clear();
-            if (value is null)
-			{
-                ContentHolder.Content = null;				
-				return;
-            }
-			ContentHolder.Content = _item!.View;
-			foreach(string labelText in _item.ItemSources.Select(x => x.LabelText))
-			{
-				SourceList.Add(new Label()
-				{
-					Text = labelText,
-					BackgroundColor = Colors.LightGrey,
-					TextColor = Colors.Black,
-					Margin = new(4)
-				});
-			}
+            UpdateInfo();
 		}
 	}
 	public ItemView()
 	{
 		InitializeComponent();
 	}
-
+	private void UpdateInfo()
+	{
+        SourceList.Children.Clear();
+        if (_item is null)
+        {
+            ContentHolder.Content = null;
+            return;
+        }
+        ContentHolder.Content = _item!.View;        
+        SourceList.Add(_item.InfoLabel);
+        foreach (string labelText in _item.ItemSources.Select(x => x.LabelText))
+        {
+            SourceList.Add(new Label()
+            {
+                Text = labelText,
+                BackgroundColor = Colors.LightGrey,
+                TextColor = Colors.Black,
+                Margin = new(4)
+            });
+        }
+    }
     private void Expander_ExpandedChanged(object sender, ExpandedChangedEventArgs e)
     {
 		if (ExpanderHeaderText is null)

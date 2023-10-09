@@ -77,7 +77,7 @@ public static class Extensions
     public static Type? ToType(this string typeName) => Type.GetType(typeName)
                                                      ?? Type.GetType($"System.{typeName}")
                                                      ?? Type.GetType($"d9.ucm.{typeName}");
-    public static string ListJoin(this IEnumerable<object> objects, string sep = "\n- ") => objects.Count() switch
+    public static string AsBulletedList(this IEnumerable<object> objects, string sep = "\n- ") => objects.Count() switch
     {
         < 0 => throw new Exception("wtf how"),
         0 => "",

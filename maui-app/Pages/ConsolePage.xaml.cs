@@ -31,6 +31,6 @@ public partial class ConsolePage : ContentPage, IConsole
     private bool _autoScroll = true;
     private void ScrollBar_Scrolled(object sender, ScrolledEventArgs e)
     {
-        _autoScroll = e.ScrollY == ScrollBar.ScrollSpace();
+        _autoScroll = e.ScrollY >= ScrollBar.ScrollSpace();
     }
 }

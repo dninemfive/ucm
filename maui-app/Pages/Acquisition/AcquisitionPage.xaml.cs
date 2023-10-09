@@ -91,31 +91,28 @@ public partial class AcquisitionPage : ContentPage
     }
     private async Task<CandidateItem?> MakeCandidateFor(string candidateLocation)
     {
+        if (_locations.Contains(candidateLocation))
+            return null;
         void log(bool rejected, string? info = null)
         {
             string rejection = rejected ? "❌" : "✔";
             info = info is null ? "" : $"({info})";
             Utils.Log($"\t{info,-24} {rejection} {candidateLocation}");        
-        }
-        if (_locations.Contains(candidateLocation))
-            return null;
+        }        
         CandidateItem? candidate = await CandidateItem.MakeFromAsync(candidateLocation);
         string? hash = candidate?.Hash;
-        List<(bool assertion, string msg)> assertions = new()
+        bool assert(bool assertion, string msg)
         {
-            (candidate is null, "candidate is null"),
-            (await ItemManager.TryUpdateAnyMatchingItemAsync(candidate), "existing item"),
-            (hash is null, "hash is null"),
-            (hash is not null && _indexedHashes.Contains(hash), "indexed hash"),
-            (candidateLocation.BestAvailableView() is null, "no available view")
-        };
-        foreach((bool assertion, string msg) in assertions) {
-            if(assertion)
-            {
+            if (assertion)
                 log(true, msg);
-                return null;
-            }
+            return assertion;
         }
+        if (assert(candidate is null, "candidate is null")
+         || assert(await ItemManager.TryUpdateAnyMatchingItemAsync(candidate), "existing item")
+         || assert(hash is null, "hash is null")
+         || assert(_indexedHashes.Contains(hash!), "indexed hash")
+         || assert(candidateLocation.BestAvailableView() is null, "no available view"))
+            return null;
         log(false);
         return candidate;
     }

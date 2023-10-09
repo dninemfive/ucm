@@ -83,6 +83,9 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <MauiXaml Update="Pages\BrowsePage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="Pages\Competition\CompetitionPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>

@@ -98,4 +98,12 @@ public class CandidateItem : IItemViewable
         else
             return new(urlSet!.UrlRule.Name, urlSet!.CanonUrl!, (await urlSet.UrlRule.TagsFor(urlSet))?.ToArray() ?? Array.Empty<string>());
     }
+    [JsonIgnore]
+    public Label InfoLabel => new()
+    {
+        Text = $"{this}",
+        BackgroundColor = Colors.Transparent,
+        TextColor = Colors.White,
+        Padding = new(4)
+    };
 }

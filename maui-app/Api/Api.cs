@@ -61,7 +61,6 @@ public class JsonApiDef : ApiDef
         JsonElement root = doc.RootElement;
         foreach(string s in RootPath.Split("/", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
         {
-            Utils.Log(s);
             root = root.ValueKind switch
             {
                 JsonValueKind.Object => root.GetProperty(s),

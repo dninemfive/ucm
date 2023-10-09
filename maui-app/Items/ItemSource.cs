@@ -34,5 +34,5 @@ public class ItemSource
     }
     [JsonIgnore]
     public string LabelText
-        => $"Source: {Location} ({SourceName})\nAcquired at: {AcquiredAt:g}\n- {Tags.ListJoin()}";
+        => $"Source: {Location} ({SourceName})\nAcquired at: {AcquiredAt:g}{Tags.AsBulletedList()}";
 }

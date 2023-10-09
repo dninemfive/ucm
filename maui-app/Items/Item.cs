@@ -83,4 +83,21 @@ public class Item : IItemViewable
         Utils.Log($"Failed to make item for {ci}.");
         return null;
     }
+    [JsonIgnore]
+    public Label InfoLabel
+    {
+        get
+        {
+            string text = $"{this}\nRatings:\n{CompetitionManager.Competitions.OrderBy(x => x.Name)
+                                                                              .Select(x => $"{x.Name}: {x.RatingOf(this)?.ToString() ?? "(no rating)"}")
+                                                                              .AsBulletedList()}";
+            return new()
+            {
+                Text = text,
+                BackgroundColor = Colors.Transparent,
+                TextColor = Colors.White,
+                Padding = new(4)
+            };
+        }
+    }
 }

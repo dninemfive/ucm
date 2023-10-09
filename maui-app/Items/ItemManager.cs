@@ -87,7 +87,6 @@ public static class ItemManager
     {
         if (ci is null)
         {
-            Utils.Log($"TryUpdateAnyMatchingItemAsync(): ci was null");
             return true;
         }
         if(ItemsByHash.TryGetValue(ci.Hash, out Item? item) && !item.HasSourceInfoFor(ci.Location))

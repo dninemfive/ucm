@@ -23,6 +23,10 @@
         Title="Collection"
         ContentTemplate="{DataTemplate local:CollectionPage}"
         Route="Collection" />
+        <ShellContent
+        Title="Browse"
+        ContentTemplate="{DataTemplate local:BrowsePage}"
+        Route="Browse" />
     </TabBar>
 
 </Shell>
