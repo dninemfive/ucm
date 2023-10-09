@@ -1,28 +1,25 @@
+using d9.utl;
 namespace d9.ucm;
-
 public partial class BrowsePage : ContentPage
 {
-	private List<Item> Items = new();
-	private int index = 0;
+	private Cycle<Item> Items = new();
 	public BrowsePage()
 	{
 		InitializeComponent();
         UpdateVisibility();
+        for(int i = -10; i < 21; i++)
+        {
+            Utils.Log($"{i,-3} % 10 == {i % 10}");
+        }
 	}
 
     private void Previous(object sender, EventArgs e)
     {
-		index--;
-		if (index < 0)
-			index = Items.Count - 1;
-		ItemView.Item = Items[index];
+        ItemView.Item = Items.PreviousItem();
     }
     private void Next(object sender, EventArgs e)
     {
-		index++;
-		if (index >= Items.Count)
-			index = 0;
-		ItemView.Item = Items[index];
+        ItemView.Item = Items.NextItem();
     }
     private void UpdateVisibility()
     {
@@ -38,11 +35,10 @@ public partial class BrowsePage : ContentPage
         } else
         {
             List<(Item item, Competition.Rating? rating)> pairs = ItemManager.Items.Zip(ItemManager.Items.Select(CompetitionSelector.Competition.RatingOf))
-                                                                              .ToList();
-            Items = pairs.Where(x => x.rating?.CiUpperBound > 0.7)
-                         .WeightedShuffled(x => 1 / x.rating!.Weight)
-                         .Select(x => x.item)
-                         .ToList();
+                                                                                   .ToList();
+            Items = new(pairs.Where(x => x.rating?.CiUpperBound > 0.7)
+                             .WeightedShuffled(x => 1 / x.rating!.Weight)
+                             .Select(x => x.item));
             ItemView.Item = Items.First();
         }
         
