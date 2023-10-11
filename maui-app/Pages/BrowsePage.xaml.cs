@@ -2,7 +2,7 @@ using d9.utl;
 namespace d9.ucm;
 public partial class BrowsePage : ContentPage
 {
-	private Cycle<Item> Items = new();
+	private Cycle<Item> _items = new();
 	public BrowsePage()
 	{
 		InitializeComponent();
@@ -12,36 +12,34 @@ public partial class BrowsePage : ContentPage
             Utils.Log($"{i,-3} % 10 == {i % 10}");
         }
 	}
-
     private void Previous(object sender, EventArgs e)
     {
-        ItemView.Item = Items.PreviousItem();
+        ItemView.Item = _items.PreviousItem();
     }
     private void Next(object sender, EventArgs e)
     {
-        ItemView.Item = Items.NextItem();
+        ItemView.Item = _items.NextItem();
     }
     private void UpdateVisibility()
     {
-        Buttons.IsVisible = CompetitionSelector.Competition is not null;
-        ItemView.IsVisible = CompetitionSelector.Competition is not null;
+        Buttons.IsVisible = Selected.Competition is not null;
+        ItemView.IsVisible = Selected.Competition is not null;
     }
-    private void CompetitionSelector_CompetitionSelected(object sender, EventArgs e)
+    private void CompetitionSelected(object sender, EventArgs e)
     {
-        if(CompetitionSelector.Competition is null)
+        if(Selected.Competition is null)
         {
-            Items.Clear();
+            _items.Clear();
             ItemView.Item = null;
         } else
         {
-            List<(Item item, Competition.Rating? rating)> pairs = ItemManager.Items.Zip(ItemManager.Items.Select(CompetitionSelector.Competition.RatingOf))
+            List<(Item item, Competition.Rating? rating)> pairs = ItemManager.Items.Zip(ItemManager.Items.Select(Selected.Competition.RatingOf))
                                                                                    .ToList();
-            Items = new(pairs.Where(x => x.rating?.CiUpperBound > 0.7)
-                             .WeightedShuffled(x => 1 / x.rating!.Weight)
-                             .Select(x => x.item));
-            ItemView.Item = Items.First();
-        }
-        
+            _items = new(pairs.Where(x => x.rating?.CiLowerBound > 0.7)
+                              .Shuffled()
+                              .Select(x => x.item));
+            ItemView.Item = _items.First();
+        }        
         UpdateVisibility();
     }
 }

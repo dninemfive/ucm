@@ -5,7 +5,7 @@
              x:Class="d9.ucm.BrowsePage"
              Title="BrowsePage">
     <VerticalStackLayout>
-        <local:CompetitionSelector x:Name="CompetitionSelector" CompetitionSelected="CompetitionSelector_CompetitionSelected"/>
+        <local:CompetitionSelector x:Name="Selected" CompetitionSelected="CompetitionSelected"/>
         <local:ItemView x:Name="ItemView" Grid.Row="1" HeightRequest="800"/>
         <HorizontalStackLayout HorizontalOptions="Center" x:Name="Buttons">
             <Button Text="Previous" Clicked="Previous" WidthRequest="100"/>
