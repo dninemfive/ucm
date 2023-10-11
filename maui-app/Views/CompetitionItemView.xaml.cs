@@ -35,7 +35,10 @@ public partial class CompetitionItemView : ContentView
 	{
 		Item = item;
 		ItemHolder.Content = item.View;
-		if (extraTooltipInfo is not null)
+		ItemHolder.WidthRequest = WidthRequest;
+		ItemHolder.HeightRequest = HeightRequest - IrrelevantButton.HeightRequest - SelectButton.HeightRequest;
+        Utils.Log($"this {HeightRequest} ItemHolder {ItemHolder.HeightRequest} button 1 {IrrelevantButton.HeightRequest} button 2 {SelectButton.HeightRequest}");
+        if (extraTooltipInfo is not null)
 			extraTooltipInfo = $"\n\n{extraTooltipInfo}";
 		ToolTipProperties.SetText(ItemHolder, $"{item}{extraTooltipInfo}");
 		IsIrrelevant = isIrrelevant;

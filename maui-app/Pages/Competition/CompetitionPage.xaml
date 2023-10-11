@@ -4,30 +4,20 @@
              xmlns:local="clr-namespace:d9.ucm"
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              x:Class="d9.ucm.CompetitionPage">
-    <ScrollView>
-        <toolkit:DockLayout>
-            <local:CompetitionSelector x:Name="CompetitionCreation" AllowNewItem="True" toolkit:DockLayout.DockPosition="Top"/>
-            <Grid x:Name="ItemViews" IsVisible="False">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition/>
-                    <ColumnDefinition/>
-                </Grid.ColumnDefinitions>
-                <local:CompetitionItemView x:Name="LeftItemView"
-                             Grid.Column="0"
-                             HeightRequest="850"/>
-                <local:CompetitionItemView x:Name="RightItemView"
-                             Grid.Column="1"
-                             HeightRequest="850"/>                
-            </Grid>
-            <VerticalStackLayout x:Name="BottomDock" toolkit:DockLayout.DockPosition="Bottom">
-                <Button x:Name="SkipButton" Text="Skip" Clicked="Skip_Clicked"/>
-                <local:HistogramView x:Name="Histogram" 
+    <toolkit:DockLayout x:Name="MainLayout">
+        <local:CompetitionSelector x:Name="CompetitionCreation" AllowNewItem="True" toolkit:DockLayout.DockPosition="Top"/>
+        <HorizontalStackLayout x:Name="ItemViews" IsVisible="False">
+            <local:CompetitionItemView x:Name="LeftItemView"/>
+            <local:CompetitionItemView x:Name="RightItemView"/>
+        </HorizontalStackLayout>
+        <VerticalStackLayout x:Name="BottomDock" toolkit:DockLayout.DockPosition="Bottom">
+            <Button x:Name="SkipButton" Text="Skip" Clicked="Skip_Clicked" HeightRequest="50"/>
+            <local:HistogramView x:Name="Histogram" 
                                  IsVisible="False" 
                                  HorizontalOptions="Center" 
                                  HeightRequest="50" 
                                  ForegroundColor="#EE6900"
                                  ForcedLowerBound="0"/>
-            </VerticalStackLayout>            
-        </toolkit:DockLayout>
-    </ScrollView>    
+        </VerticalStackLayout>
+    </toolkit:DockLayout>
 </ContentPage>

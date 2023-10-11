@@ -51,18 +51,23 @@ public partial class CompetitionPage : ContentPage
         if(Competition is not null)
         {
             CompetitionCreation.IsVisible = false;
-            Competition.NextItems();
+            Competition.NextItems();            
             await UpdateViews();
         }        
     }
     public void Update(CompetitionItemView itemView, Side side)
     {
         if (Competition is null)
-            return;
+            return;        
+        itemView.WidthRequest = Window.Width / 2;
+        itemView.HeightRequest = Height - BottomDock.HeightRequest;
+        Utils.Log($"Window height = {Window.Height} width = {Window.Width} BottomDock Height = {BottomDock.Height} this {Height}");
         itemView.UpdateWith(Competition[side], $"Ratings: {Competition.RatingOf(side)?.TotalRatings ?? 0}");
     }
     private async Task UpdateViews()
     {
+        BottomDock.HeightRequest = SkipButton.HeightRequest + Histogram.HeightRequest;
+        UpdateChildrenLayout();
         await Competition!.SaveAsync();
         Update(LeftItemView, Side.Left);
         Update(RightItemView, Side.Right);

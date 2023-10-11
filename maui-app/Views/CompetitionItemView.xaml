@@ -2,12 +2,10 @@
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="d9.ucm.CompetitionItemView">
-    
-    <VerticalStackLayout>
-        <ContentView x:Name="ItemHolder">
 
-        </ContentView>
-        <Button x:Name="IrrelevantButton" Clicked="IrrelevantButton_Clicked"/>
-        <Button x:Name="SelectButton" Clicked="SelectButton_Clicked"/>
+    <VerticalStackLayout>
+        <ContentView x:Name="ItemHolder"/>
+        <Button x:Name="IrrelevantButton" Clicked="IrrelevantButton_Clicked" HeightRequest="50"/>
+        <Button x:Name="SelectButton" Text="Select" Clicked="SelectButton_Clicked" HeightRequest="50"/>
     </VerticalStackLayout>
 </ContentView>
