@@ -46,17 +46,14 @@ public partial class CompetitionPage : ContentPage
     private async void UpdateButtonActivation(object? sender, EventArgs e) => await UpdateButtonActivation();
     private async void CompetitionCreated(object? sender, EventArgs e)
     {
-        if (Competition is null)
+        ItemViews.IsVisible = Competition is not null;
+        BottomDock.IsVisible = Competition is not null;
+        if(Competition is not null)
         {
-            RatingScreen.IsVisible = false;
-            Histogram.IsVisible = false;
-            return;
-        }
-        CompetitionCreation.IsVisible = false;
-        RatingScreen.IsVisible = true;
-        Histogram.IsVisible = true;
-        Competition.NextItems();
-        await UpdateViews();
+            CompetitionCreation.IsVisible = false;
+            Competition.NextItems();
+            await UpdateViews();
+        }        
     }
     public void Update(CompetitionItemView itemView, Side side)
     {

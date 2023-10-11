@@ -2,35 +2,32 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:local="clr-namespace:d9.ucm"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              x:Class="d9.ucm.CompetitionPage">
     <ScrollView>
-        <VerticalStackLayout>
-            <local:CompetitionSelector x:Name="CompetitionCreation" AllowNewItem="True"/>
-            <Grid x:Name="RatingScreen" IsVisible="False">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="50"/>
-                </Grid.RowDefinitions>
+        <toolkit:DockLayout>
+            <local:CompetitionSelector x:Name="CompetitionCreation" AllowNewItem="True" toolkit:DockLayout.DockPosition="Top"/>
+            <Grid x:Name="ItemViews" IsVisible="False">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition/>
                     <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
-                <local:CompetitionItemView x:Name="LeftItemView" 
-                             Grid.Row="0" 
+                <local:CompetitionItemView x:Name="LeftItemView"
                              Grid.Column="0"
                              HeightRequest="850"/>
-                <local:CompetitionItemView x:Name="RightItemView" 
-                             Grid.Row="0" 
+                <local:CompetitionItemView x:Name="RightItemView"
                              Grid.Column="1"
-                             HeightRequest="850"/>
-                <Button x:Name="SkipButton" Text="Skip" Clicked="Skip_Clicked" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"/>
+                             HeightRequest="850"/>                
             </Grid>
-            <local:HistogramView x:Name="Histogram" 
+            <VerticalStackLayout x:Name="BottomDock" toolkit:DockLayout.DockPosition="Bottom">
+                <Button x:Name="SkipButton" Text="Skip" Clicked="Skip_Clicked"/>
+                <local:HistogramView x:Name="Histogram" 
                                  IsVisible="False" 
                                  HorizontalOptions="Center" 
                                  HeightRequest="50" 
-                                 ForegroundColor="Orange"
+                                 ForegroundColor="#EE6900"
                                  ForcedLowerBound="0"/>
-        </VerticalStackLayout>
+            </VerticalStackLayout>            
+        </toolkit:DockLayout>
     </ScrollView>    
 </ContentPage>
