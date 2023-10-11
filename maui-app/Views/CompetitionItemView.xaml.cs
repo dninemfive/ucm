@@ -10,9 +10,23 @@ public partial class CompetitionItemView : ContentView
 		set
 		{
 			_isIrrelevant = value;
-			ItemHolder.Content.Opacity = _isIrrelevant ? 0.42 : 1;
+			ItemHolder.Content.Opacity = value ? 0.42 : 1;			
+			IrrelevantButton.Text = value ? "Mark relevant" : "Mark irrelevant";
+            SelectButton.IsEnabled = !value && Selectable;
+        }
+	}
+	private bool _selectable = true;
+	public bool Selectable
+	{
+		get => _selectable;
+		set
+		{
+			_selectable = value;
+			SelectButton.IsEnabled = value;
 		}
 	}
+	public Side Side { get; private set; } = Side.None;
+	public Competition? Competition { get; private set; } = null;
 	public CompetitionItemView()
 	{
 		InitializeComponent();
@@ -25,5 +39,17 @@ public partial class CompetitionItemView : ContentView
 			extraTooltipInfo = $"\n\n{extraTooltipInfo}";
 		ToolTipProperties.SetText(ItemHolder, $"{item}{extraTooltipInfo}");
 		IsIrrelevant = isIrrelevant;
+    }
+	public event EventHandler? IrrelevantButtonClicked;
+    private void IrrelevantButton_Clicked(object sender, EventArgs e)
+    {
+		IsIrrelevant = !IsIrrelevant;
+		Competition?.SetIrrelevant(Item?.Id, IsIrrelevant);
+		IrrelevantButtonClicked?.Invoke(sender, e);
+    }
+    public event EventHandler? SelectButtonClicked;
+    private void SelectButton_Clicked(object sender, EventArgs e)
+    {
+        SelectButtonClicked?.Invoke(sender, e);
     }
 }

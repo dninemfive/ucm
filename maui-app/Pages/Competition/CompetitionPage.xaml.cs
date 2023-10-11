@@ -13,6 +13,7 @@ public partial class CompetitionPage : ContentPage
     {
         InitializeComponent();
         CompetitionCreation.CompetitionSelected += CompetitionCreated;
+        LeftItemView.IrrelevantButtonClicked += UpdateButtonActivation;
     }
     private async void Left_Clicked(object sender, EventArgs e)
     {
@@ -31,35 +32,18 @@ public partial class CompetitionPage : ContentPage
         Competition!.Choose(Side.Right);
         await UpdateViews();
     }
-    private async void LeftIrrelevant_Clicked(object sender, EventArgs e)
+    private async Task UpdateButtonActivation()
     {
-        Competition!.MarkIrrelevant(Side.Left);
-        LeftItemView.IsIrrelevant = true;
+        bool eitherIrrelevant = LeftItemView.IsIrrelevant || RightItemView.IsIrrelevant;
+        LeftItemView.Selectable = !eitherIrrelevant;
+        RightItemView.Selectable = !eitherIrrelevant;
         if (LeftItemView.IsIrrelevant && RightItemView.IsIrrelevant)
         {
             await Skip();
             return;
         }
-        UpdateButtonActivation();
     }
-    private async void RightIrrelevant_Clicked(object sender, EventArgs e)
-    {
-        Competition!.MarkIrrelevant(Side.Right);
-        RightItemView.IsIrrelevant = true;
-        if (LeftItemView.IsIrrelevant && RightItemView.IsIrrelevant)
-        {
-            await Skip();
-            return;
-        }
-        UpdateButtonActivation();
-    }       
-    private void UpdateButtonActivation()
-    {
-        LeftIrrelevant.IsEnabled = !LeftItemView.IsIrrelevant;
-        SelectLeft.IsEnabled = !(LeftItemView.IsIrrelevant || RightItemView.IsIrrelevant);
-        SelectRight.IsEnabled = !(LeftItemView.IsIrrelevant || RightItemView.IsIrrelevant);
-        RightIrrelevant.IsEnabled = !RightItemView.IsIrrelevant;
-    }
+    private async void UpdateButtonActivation(object? sender, EventArgs e) => await UpdateButtonActivation();
     private async void CompetitionCreated(object? sender, EventArgs e)
     {
         if (Competition is null)
@@ -85,7 +69,7 @@ public partial class CompetitionPage : ContentPage
         await Competition!.SaveAsync();
         Update(LeftItemView, Side.Left);
         Update(RightItemView, Side.Right);
-        UpdateButtonActivation();
+        await UpdateButtonActivation();
         List<double> data = Competition!.Ratings.Select(x => x.Value.TotalRatings).Select(x => (double)x).ToList();
         data.AddRange(Competition!.RelevantUnratedItems.Select(x => 0.0));
         Histogram.ReplaceData(data);

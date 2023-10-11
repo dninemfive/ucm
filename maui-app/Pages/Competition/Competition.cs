@@ -135,6 +135,19 @@ public class Competition
     {
         _ = IrrelevantItems.Add(this[side].Id);
     }
+    public void SetIrrelevant(ItemId? id, bool value)
+    {
+        if (id is null)
+            return;
+        if (value)
+        {
+            _ = IrrelevantItems.Add(id.Value);
+        } 
+        else
+        {
+            _ = IrrelevantItems.Remove(id.Value);
+        }
+    }
     public static async Task<Competition?> LoadOrCreateAsync(string? name)
     {
         if (name is null or "")
@@ -161,7 +174,7 @@ public class Competition
     public Rating? RatingOf(Side side) 
         => RatingOf(this[side].Id);
 }
-public enum Side { Left, Right }
+public enum Side { Left, Right, None }
 public static class SideExtensions
 {
     public static Side Opposite(this Side side) => side switch

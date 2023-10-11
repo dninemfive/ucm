@@ -5,49 +5,26 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace d9.ucm;
-public interface IExpression
+public delegate bool Expression<T>(T value, params Expression<T>[] children);
+public static class Expressions
 {
-    public bool Evaluate();
-}
-public abstract class ExpressionWithChildren : IExpression
-{
-    public IEnumerable<IExpression> Children => _children;
-    private List<IExpression> _children = new();
-    public ExpressionWithChildren(params IExpression[] children)
+    public static bool Evaluate<T>(this Expression<T> root, T value, params Expression<T>[] children)
+        => root(value, children);
+    public static bool Or<T>(T value, params Expression<T>[] children)
     {
-        _children = children.ToList();
-    }
-    public abstract bool Evaluate();
-}
-public class OrExpression : ExpressionWithChildren
-{
-    public override bool Evaluate()
-    {
-        foreach(IExpression child in Children)
+        foreach(Expression<T> child in children)
         {
-            if (child.Evaluate())
-                return true;
+            if(child(value)) return true;
         }
         return false;
     }
-}
-public class AndExpression : ExpressionWithChildren
-{
-    public override bool Evaluate()
+    public static bool And<T>(T value, params Expression<T>[] children)
     {
-        foreach(IExpression child in Children)
+        foreach (Expression<T> child in children)
         {
-            if (!child.Evaluate())
+            if (!child(value))
                 return false;
         }
         return true;
-    }
-}
-public class ExpressionOnData<T> : IExpression
-{
-    private Func<T, bool> _expr;
-    public ExpressionOnData(Func<T, bool> expr)
-    {
-        _expr = expr;
     }
 }
