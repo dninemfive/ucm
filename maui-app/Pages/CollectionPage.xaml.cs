@@ -23,10 +23,13 @@ public partial class CollectionPage : ContentPage
         } 
         else
         {
-            _items = await Task.Run(() => Competition?.RelevantItems.OrderByDescending(x => Competition?.RatingOf(x)?.CiLowerBound).ToList());
+            _items = await Task.Run(() => Competition?.RelevantItems.OrderBy(x => Competition?.IsIrrelevant(x) ?? false)
+                                                                    .ThenByDescending(x => Competition?.RatingOf(x)?.CiLowerBound)
+                                                                    .ToList());
         }
         LoadItems(sender, e);
     }
+    // todo: paginate, then load items for current page
 	public void LoadItems(object? sender, EventArgs e)
 	{
         if (_loading)
@@ -47,7 +50,9 @@ public partial class CollectionPage : ContentPage
             if (!_items!.Any())
                 break;
             Item item = _items!.First();
-            ItemsHolder.Add(new ThumbnailView(item, ITEM_SIZE, $"{Competition?.RatingOf(item)}" ?? item.Id.ToString()));
+            ItemsHolder.Add(new ThumbnailView(item, ITEM_SIZE, 
+                            $"{Competition?.RatingOf(item)}" ?? item.Id.ToString(), 
+                            Competition?.IsIrrelevant(item) ?? false));
             _items!.RemoveAt(0);
         }
     }

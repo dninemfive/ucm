@@ -10,10 +10,9 @@
             <local:CompetitionItemView x:Name="LeftItemView"/>
             <local:CompetitionItemView x:Name="RightItemView"/>
         </HorizontalStackLayout>
-        <VerticalStackLayout x:Name="BottomDock" toolkit:DockLayout.DockPosition="Bottom">
-            <Button x:Name="SkipButton" Text="Skip" Clicked="Skip_Clicked" HeightRequest="50"/>
+        <VerticalStackLayout x:Name="BottomDock" toolkit:DockLayout.DockPosition="Bottom" IsVisible="False">
+            <Button x:Name="SkipButton" Text="abcdefghijkl" Clicked="Skip_Clicked" HeightRequest="50"/>
             <local:HistogramView x:Name="Histogram" 
-                                 IsVisible="False" 
                                  HorizontalOptions="Center" 
                                  HeightRequest="50" 
                                  ForegroundColor="#EE6900"

@@ -1,7 +1,7 @@
 namespace d9.ucm;
 public partial class ThumbnailView : ContentView
 {
-	public ThumbnailView(Item item, double size = 100, object? sortItem = null)
+	public ThumbnailView(Item item, double size = 100, object? sortItem = null, bool isIrrelevant = false)
 	{
 		InitializeComponent();
 		// HeightRequest = size;
@@ -17,6 +17,8 @@ public partial class ThumbnailView : ContentView
                 Label.Text = sortItem.ToString();
 				Label.IsVisible = true;
             }
+			if (isIrrelevant)
+				Thumbnail.Opacity = 0.42;
         } 
 		else
 		{

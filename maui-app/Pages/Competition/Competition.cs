@@ -92,6 +92,7 @@ public class Competition
     }
     public void Choose(Side side)
     {
+        Utils.Log($"Choose({side})");
         ItemId chosenId = this[side].Id, rejectedId = this[side.Opposite()].Id;
 #pragma warning disable CA1854 // "prefer TryGetValue": need reference access to object
         if (Ratings.ContainsKey(chosenId))
@@ -112,6 +113,22 @@ public class Competition
         }
 #pragma warning restore CA1854
         NextItems();
+    }
+    public void Choose(ItemId? id)
+    {
+        Utils.Log($"Choose({id.PrintNull()})");
+        if (this[Side.Left].Id == id)
+        {
+            Choose(Side.Left);
+        } 
+        else if (this[Side.Right].Id == id)
+        {
+            Choose(Side.Right);
+        }
+        else
+        {
+            throw new ArgumentException($"Neither the left ({this[Side.Left].Id}) or right ({this[Side.Right].Id}) ids match {id.PrintNull()}!");
+        }
     }
     [JsonIgnore]
     public IEnumerable<Item> RelevantItems => ItemManager.Items.Where(x => !IsIrrelevant(x.Id));

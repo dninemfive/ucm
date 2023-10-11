@@ -100,4 +100,5 @@ public class Item : IItemViewable
             };
         }
     }
+    public static implicit operator ItemId(Item item) => item.Id;
 }

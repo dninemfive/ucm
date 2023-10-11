@@ -25,8 +25,7 @@ public partial class CompetitionItemView : ContentView
 			SelectButton.IsEnabled = value;
 		}
 	}
-	public Side Side { get; private set; } = Side.None;
-	public Competition? Competition { get; private set; } = null;
+	public Competition? Competition { get; set; } = null;
 	public CompetitionItemView()
 	{
 		InitializeComponent();
@@ -37,8 +36,7 @@ public partial class CompetitionItemView : ContentView
 		ItemHolder.Content = item.View;
 		ItemHolder.WidthRequest = WidthRequest;
 		ItemHolder.HeightRequest = HeightRequest - IrrelevantButton.HeightRequest - SelectButton.HeightRequest;
-        Utils.Log($"this {HeightRequest} ItemHolder {ItemHolder.HeightRequest} button 1 {IrrelevantButton.HeightRequest} button 2 {SelectButton.HeightRequest}");
-        if (extraTooltipInfo is not null)
+		if (extraTooltipInfo is not null)
 			extraTooltipInfo = $"\n\n{extraTooltipInfo}";
 		ToolTipProperties.SetText(ItemHolder, $"{item}{extraTooltipInfo}");
 		IsIrrelevant = isIrrelevant;
@@ -47,12 +45,13 @@ public partial class CompetitionItemView : ContentView
     private void IrrelevantButton_Clicked(object sender, EventArgs e)
     {
 		IsIrrelevant = !IsIrrelevant;
-		Competition?.SetIrrelevant(Item?.Id, IsIrrelevant);
+		Competition!.SetIrrelevant(Item?.Id, IsIrrelevant);
 		IrrelevantButtonClicked?.Invoke(sender, e);
     }
     public event EventHandler? SelectButtonClicked;
     private void SelectButton_Clicked(object sender, EventArgs e)
     {
+		Competition!.Choose(Item?.Id);
         SelectButtonClicked?.Invoke(sender, e);
     }
 }

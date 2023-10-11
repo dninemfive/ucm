@@ -14,6 +14,9 @@ public partial class CompetitionPage : ContentPage
         InitializeComponent();
         CompetitionCreation.CompetitionSelected += CompetitionCreated;
         LeftItemView.IrrelevantButtonClicked += UpdateButtonActivation;
+        RightItemView.IrrelevantButtonClicked += UpdateButtonActivation;
+        LeftItemView.SelectButtonClicked += UpdateViews;
+        LeftItemView.SelectButtonClicked += UpdateViews;
     }
     private async void Left_Clicked(object sender, EventArgs e)
     {
@@ -25,13 +28,8 @@ public partial class CompetitionPage : ContentPage
         Competition!.NextItems();
         await UpdateViews();
     }
-    private async void Skip_Clicked(object sender, EventArgs e)
+    private async void Skip_Clicked(object? sender, EventArgs e)
         => await Skip();
-    private async void Right_Clicked(object sender, EventArgs e)
-    {
-        Competition!.Choose(Side.Right);
-        await UpdateViews();
-    }
     private async Task UpdateButtonActivation()
     {
         bool eitherIrrelevant = LeftItemView.IsIrrelevant || RightItemView.IsIrrelevant;
@@ -61,7 +59,7 @@ public partial class CompetitionPage : ContentPage
             return;        
         itemView.WidthRequest = Window.Width / 2;
         itemView.HeightRequest = Height - BottomDock.HeightRequest;
-        Utils.Log($"Window height = {Window.Height} width = {Window.Width} BottomDock Height = {BottomDock.Height} this {Height}");
+        itemView.Competition = Competition;
         itemView.UpdateWith(Competition[side], $"Ratings: {Competition.RatingOf(side)?.TotalRatings ?? 0}");
     }
     private async Task UpdateViews()
@@ -76,4 +74,5 @@ public partial class CompetitionPage : ContentPage
         data.AddRange(Competition!.RelevantUnratedItems.Select(x => 0.0));
         Histogram.ReplaceData(data);
     }
+    private async void UpdateViews(object? sender, EventArgs e) => await UpdateViews();
 }
