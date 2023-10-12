@@ -15,7 +15,7 @@ public partial class CollectionPage : ContentPage
     public Competition? Competition => CompetitionSelector.Competition;
     private List<Item>? _items = null;
     private bool _loading = false;
-    private static int _itemsPerPage = 24;
+    private static int _itemsPerPage = 28;
     private static List<(int a, int b)> _itemsPerPageFactors = _itemsPerPage.Factors().ToList();
     public static int ItemsPerPage
     {

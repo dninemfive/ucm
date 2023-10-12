@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="d9.ucm.Views.NavigationView">
+    <HorizontalStackLayout>
+        <Button x:Name="FirstItemButton" Text="«" Clicked="FirstItemButton_Clicked"/>
+        <Button x:Name="PreviousItemButton" Text="‹" Clicked="PreviousItemButton_Clicked"/>
+        <HorizontalStackLayout x:Name="NumericalButtonHolder"/>
+        <Button x:Name="NextItemButton" Text="›" Clicked="NextItemButton_Clicked"/>
+        <Button x:Name="LastItemButton" Text="»" Clicked="LastItemButton_Clicked"/>
+    </HorizontalStackLayout>
+</ContentView>

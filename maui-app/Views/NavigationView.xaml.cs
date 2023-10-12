@@ -1,0 +1,125 @@
+namespace d9.ucm.Views;
+
+public partial class NavigationView : ContentView
+{
+    public class EventArgs : System.EventArgs
+    {
+        public int ResultPage { get; private set; }
+        public EventArgs(int resultPage)
+        {
+            ResultPage = resultPage;
+        }
+        public static implicit operator NavigationView.EventArgs(int z) => new(z);
+    }
+#pragma warning disable IDE0001 // "name can be simplified": intentionally using full name to clarify
+    public delegate void EventHandler(NavigationView.EventArgs e);
+    public event NavigationView.EventHandler? Navigated;
+#pragma warning restore IDE0001
+    private int _maxPage = 0;
+    public int MaxPage
+    {
+        get => _maxPage;
+        set
+        {
+            
+            _maxPage = value;
+            if (CurrentIndex > value)
+            {
+                CurrentIndex = value;
+            } 
+            else
+            {
+                // called by setting currentindex otherwise
+                UpdateButtonActivation();
+            }            
+        }
+    }
+    private int _maxNumericalButtons = 7;
+    public int MaxNumericalButtons
+    {
+        get => _maxNumericalButtons;
+        set
+        {
+            _maxNumericalButtons = value;
+        }
+    }
+    private int _currentIndex = 0;
+    public int CurrentIndex
+    {
+        get => _currentIndex;
+        set
+        {
+            if (value < 0 || value > MaxPage || value == _currentIndex)
+                return;
+            _currentIndex = value;
+            Navigated?.Invoke(value);
+            UpdateButtonActivation();
+        }
+    }
+    public NavigationView()
+	{
+		InitializeComponent();
+	}
+    private void FirstItemButton_Clicked(object sender, System.EventArgs e) => CurrentIndex = 0;
+    private void PreviousItemButton_Clicked(object sender, System.EventArgs e) => CurrentIndex--;
+    private void NextItemButton_Clicked(object sender, System.EventArgs e) => CurrentIndex++;
+    private void LastItemButton_Clicked(object sender, System.EventArgs e) => CurrentIndex = MaxPage;
+    public void UpdateButtonActivation()
+    {
+        FirstItemButton.IsEnabled = CurrentIndex > 0;
+        PreviousItemButton.IsEnabled = CurrentIndex > 0;
+        NextItemButton.IsEnabled = CurrentIndex < MaxPage;
+        LastItemButton.IsEnabled = CurrentIndex < MaxPage;
+        foreach(IView iv in NumericalButtonHolder.Children)
+        {
+            if (iv is Button b)
+                b.IsEnabled = IndexOf(b) == CurrentIndex; 
+        }
+    }
+    public void AddButton(int index)
+    {
+        Button button = new()
+        {
+            Text = $"{index + 1}",
+            IsEnabled = CurrentIndex != index,
+            WidthRequest = 40
+        };
+        button.Clicked += (sender, e) => CurrentIndex = IndexOf((sender as Button)!);
+    }
+    private static int IndexOf(Button b) => int.Parse(b.Text) - 1;
+    public void CorrectButtonCount()
+    {
+        int initialCt = NumericalButtonHolder.Children.Count, target = Math.Min(MaxPage, MaxNumericalButtons);
+        if(initialCt < target)
+        {
+            for (int i = NumericalButtonHolder.Children.Count; i < Math.Min(MaxPage, MaxNumericalButtons); i++)
+                AddButton(i);
+        }
+        else if(initialCt > target)
+        {
+            for (int i = 0; i < initialCt - target; i++)
+                NumericalButtonHolder.Children.RemoveAt(0);
+        }
+    }
+    private void UpdateButtonIndices()
+    {
+        int min = _currentIndex - MaxNumericalButtons / 2, max = _currentIndex + MaxNumericalButtons / 2;
+        if(min < 0)
+        {
+            // pad right if possible
+        }
+        else if(max > MaxPage)
+        {
+            // pad left if possible
+        }
+        else
+        {
+            int index = min;
+            foreach(Button b in NumericalButtonHolder.Children.OfType<Button>())
+            {
+                b.Text = $"{index + 1}";
+                index++;
+            } 
+        }
+    }
+}
