@@ -1,4 +1,5 @@
 ﻿using d9.utl;
+using System.Security.Cryptography.X509Certificates;
 
 namespace d9.ucm;
 
@@ -14,7 +15,7 @@ public partial class CollectionPage : ContentPage
     public Competition? Competition => CompetitionSelector.Competition;
     private List<Item>? _items = null;
     private bool _loading = false;
-    private static int _itemsPerPage = 28;
+    private static int _itemsPerPage = 24;
     private static List<(int a, int b)> _itemsPerPageFactors = _itemsPerPage.Factors().ToList();
     public static int ItemsPerPage
     {
@@ -51,7 +52,8 @@ public partial class CollectionPage : ContentPage
     public int PageIndex => _pageIndex;
     public void GoToPage(int page)
     {
-        if (page < 0 || page > _items!.Count / ItemsPerPage)
+        Utils.Log($"GoToPage({page})");
+        if (page < 0 || page >= MaxPage)
             return;
         _pageIndex = page;
         CurrentPage.Text = _pageIndex.ToString();
@@ -59,10 +61,12 @@ public partial class CollectionPage : ContentPage
     }
     private void LoadPage()
     {
-        CalculateItemSize();
+        Utils.Log($"LoadPage({_pageIndex})");
         if (_loading)
             return;
         _loading = true;
+        PreviousPage.IsEnabled = _pageIndex > 0;
+        NextPage.IsEnabled = _pageIndex < MaxPage;
         int start = _pageIndex * ItemsPerPage;
         ItemsHolder.Clear();
         for (int i = start; i < start + ItemsPerPage; i++)
@@ -76,8 +80,8 @@ public partial class CollectionPage : ContentPage
                 IsIrrelevant = Competition?.IsIrrelevant(item) ?? false,
                 Size = 100
             });
-            _items!.RemoveAt(0);
         }
+        CalculateItemSize();
         _loading = false;
     }
     private void ScrollView_Scrolled(object sender, ScrolledEventArgs e)
@@ -101,33 +105,36 @@ public partial class CollectionPage : ContentPage
             }
         }
     }
+    public (double width, double height) ItemSpace
+        => (Width, Height - CompetitionSelector.Height - NavigationButtonHolder.Height);
     private void CalculateItemSize()
     {
         // calculate best size for current thumbnailviews
         // "best" being the size which leaves the least empty space
         // which i guess is the one with the least remainder for screen width / n or screen height / n
         // where 0 < n < ItemsPerScreen with an additional constraint based on screen proportions
-        // probably constrain size to avoid items which are too large or small        
-        Utils.Log($"PageSizedChanged()");
-        double smallSize = Math.Min(ItemsHolder.Width, ItemsHolder.Height),
-               largeSize = Math.Max(ItemsHolder.Width, ItemsHolder.Height),
+        // probably constrain size to avoid items which are too large or small  
+        Utils.Log($"ItemSpace: {ItemSpace}");
+        double smallSize = Math.Min(ItemSpace.width, ItemSpace.height),
+               largeSize = Math.Max(ItemSpace.width, ItemSpace.height),
                ratio = largeSize / smallSize;
-        Utils.Log($"smallSize: {smallSize}, largeSize: {largeSize}, ratio: {ratio}");
         (int a, int b) closestPair = _itemsPerPageFactors.First();
         double closestDiff = double.MaxValue;
-        Utils.Log($"closestPair: {closestPair}, closestDiff: {closestDiff}");
+        
         foreach((int a, int b) pair in _itemsPerPageFactors)
         {            
             double diff = Math.Abs(ratio - (pair.b / (double)pair.a));
-            Utils.Log($"\tpair: {pair}, diff: {diff}");
             if (diff < closestDiff)
             {
                 closestPair = pair;
                 closestDiff = diff;
             }
         }
-        Utils.Log($"closestPair: {closestPair}, closestDiff: {closestDiff}");
-        double size1 = largeSize / closestPair.b, size2 = smallSize / closestPair.a,
+        double thumbnailMargin = 5 * 2; // todo: actually sync this with the value used
+        smallSize -= thumbnailMargin * closestPair.a;
+        largeSize -= thumbnailMargin * closestPair.b;
+        double size1 = largeSize / closestPair.b, 
+               size2 = smallSize / closestPair.a,
                d1 = smallSize - (size1 * closestPair.a), d2 = largeSize - (size2 * closestPair.b);
         ItemSize = d1 < d2 ? size1 : size2;
     }
@@ -137,22 +144,16 @@ public partial class CollectionPage : ContentPage
     {
         if (_pageIndex > 0)
         {
-            _pageIndex--;
-            LoadPage();
+            GoToPage(--_pageIndex);
         }
-        PreviousPage.IsEnabled = _pageIndex > 0;
-        NextPage.IsEnabled = _pageIndex < MaxPage;
     }
 
     private void NextPage_Clicked(object sender, EventArgs e)
     {
         if (_pageIndex < MaxPage)
         {
-            _pageIndex++;
-            LoadPage();
+            GoToPage(++_pageIndex);
         }
-        PreviousPage.IsEnabled = _pageIndex > 0;
-        NextPage.IsEnabled = _pageIndex < MaxPage;
     }
 }
 

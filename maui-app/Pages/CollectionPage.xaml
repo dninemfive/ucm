@@ -12,8 +12,8 @@
                 Direction="Row" 
                 FlowDirection="LeftToRight"
                 Wrap="Wrap"
-                AlignItems="Start"
-                AlignContent="Start">
+                AlignItems="Center"
+                AlignContent="Center">
             </FlexLayout>
         </ScrollView>
         <HorizontalStackLayout x:Name="NavigationButtonHolder" HorizontalOptions="Center" VerticalOptions="End" IsVisible="False">
