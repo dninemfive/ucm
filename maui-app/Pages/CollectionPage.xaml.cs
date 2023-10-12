@@ -10,7 +10,7 @@ public partial class CollectionPage : ContentPage
         InitializeComponent();
         CompetitionSelector.CompetitionSelected += CompetitionSelected;
         SizeChanged += PageSizedChanged;
-
+        NavigationButtons.Navigated += GoToPage;
     }
     public Competition? Competition => CompetitionSelector.Competition;
     private List<Item>? _items = null;
@@ -41,7 +41,8 @@ public partial class CollectionPage : ContentPage
         }
         _pageIndex = 0;
         LoadPage();
-        NavigationButtonHolder.IsVisible = true;        
+        NavigationButtons.IsVisible = true;
+        NavigationButtons.MaxPage = MaxPage;
     }
 	public void LoadItems(object? sender, EventArgs e)
 	{
@@ -50,13 +51,12 @@ public partial class CollectionPage : ContentPage
     private int _pageIndex = 0;
     public int MaxPage => (int)Math.Ceiling((double)_items!.Count / ItemsPerPage);
     public int PageIndex => _pageIndex;
-    public void GoToPage(int page)
+    private void GoToPage(NavigationView.EventArgs page)
     {
         Utils.Log($"GoToPage({page})");
         if (page < 0 || page >= MaxPage)
             return;
         _pageIndex = page;
-        CurrentPage.Text = _pageIndex.ToString();
         LoadPage();
     }
     private void LoadPage()
@@ -65,8 +65,6 @@ public partial class CollectionPage : ContentPage
         if (_loading)
             return;
         _loading = true;
-        PreviousPage.IsEnabled = _pageIndex > 0;
-        NextPage.IsEnabled = _pageIndex < MaxPage;
         int start = _pageIndex * ItemsPerPage;
         ItemsHolder.Clear();
         for (int i = start; i < start + ItemsPerPage; i++)
@@ -106,7 +104,7 @@ public partial class CollectionPage : ContentPage
         }
     }
     public (double width, double height) ItemSpace
-        => (Width, Height - CompetitionSelector.Height - NavigationButtonHolder.Height);
+        => (Width, Height - CompetitionSelector.Height - NavigationButtons.Height);
     private void CalculateItemSize()
     {
         // calculate best size for current thumbnailviews
@@ -139,21 +137,5 @@ public partial class CollectionPage : ContentPage
         ItemSize = d1 < d2 ? size1 : size2;
     }
     private void PageSizedChanged(object? sender, EventArgs e) => CalculateItemSize();
-
-    private void PreviousPage_Clicked(object sender, EventArgs e)
-    {
-        if (_pageIndex > 0)
-        {
-            GoToPage(--_pageIndex);
-        }
-    }
-
-    private void NextPage_Clicked(object sender, EventArgs e)
-    {
-        if (_pageIndex < MaxPage)
-        {
-            GoToPage(++_pageIndex);
-        }
-    }
 }
 

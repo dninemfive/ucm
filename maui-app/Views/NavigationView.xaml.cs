@@ -1,4 +1,4 @@
-namespace d9.ucm.Views;
+namespace d9.ucm;
 
 public partial class NavigationView : ContentView
 {
@@ -9,9 +9,10 @@ public partial class NavigationView : ContentView
         {
             ResultPage = resultPage;
         }
-        public static implicit operator NavigationView.EventArgs(int z) => new(z);
-    }
 #pragma warning disable IDE0001 // "name can be simplified": intentionally using full name to clarify
+        public static implicit operator NavigationView.EventArgs(int z) => new(z);
+        public static implicit operator int(NavigationView.EventArgs nvea) => nvea.ResultPage;
+    }
     public delegate void EventHandler(NavigationView.EventArgs e);
     public event NavigationView.EventHandler? Navigated;
 #pragma warning restore IDE0001
@@ -26,12 +27,8 @@ public partial class NavigationView : ContentView
             if (CurrentIndex > value)
             {
                 CurrentIndex = value;
-            } 
-            else
-            {
-                // called by setting currentindex otherwise
-                UpdateButtonActivation();
-            }            
+            }
+            CorrectButtonCount();
         }
     }
     private int _maxNumericalButtons = 7;
@@ -41,6 +38,7 @@ public partial class NavigationView : ContentView
         set
         {
             _maxNumericalButtons = value;
+            CorrectButtonCount();
         }
     }
     private int _currentIndex = 0;
@@ -53,12 +51,13 @@ public partial class NavigationView : ContentView
                 return;
             _currentIndex = value;
             Navigated?.Invoke(value);
-            UpdateButtonActivation();
+            UpdateButtonIndices();
         }
     }
     public NavigationView()
 	{
 		InitializeComponent();
+        Utils.Log($"NavigationView()");
 	}
     private void FirstItemButton_Clicked(object sender, System.EventArgs e) => CurrentIndex = 0;
     private void PreviousItemButton_Clicked(object sender, System.EventArgs e) => CurrentIndex--;
@@ -100,26 +99,27 @@ public partial class NavigationView : ContentView
             for (int i = 0; i < initialCt - target; i++)
                 NumericalButtonHolder.Children.RemoveAt(0);
         }
+        UpdateButtonIndices();
     }
     private void UpdateButtonIndices()
     {
-        int min = _currentIndex - MaxNumericalButtons / 2, max = _currentIndex + MaxNumericalButtons / 2;
-        if(min < 0)
+        int min = _currentIndex - MaxNumericalButtons / 2,
+            buttonCt = NumericalButtonHolder.Children.Count;
+        
+        if(min + buttonCt > MaxPage)
         {
-            // pad right if possible
+            min = MaxPage - buttonCt;
         }
-        else if(max > MaxPage)
+        if (min < 0)
         {
-            // pad left if possible
+            min = 0;
         }
-        else
+        int index = min;
+        foreach (Button b in NumericalButtonHolder.Children.OfType<Button>())
         {
-            int index = min;
-            foreach(Button b in NumericalButtonHolder.Children.OfType<Button>())
-            {
-                b.Text = $"{index + 1}";
-                index++;
-            } 
+            b.Text = $"{index + 1}";
+            index++;
         }
+        UpdateButtonActivation();
     }
 }
