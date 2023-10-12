@@ -1,33 +1,58 @@
 namespace d9.ucm;
 public partial class ThumbnailView : ContentView
 {
-	public ThumbnailView(Item item, double size = 100, object? sortItem = null, bool isIrrelevant = false)
+	private Item _item;
+	public Item Item
 	{
-		InitializeComponent();
-		// HeightRequest = size;
-		// WidthRequest = size;
+		get => _item;
+		set
+		{
+			_item = value;
+            if (value.Thumbnail is not null)
+            {
+                Thumbnail.Source = value.LocalPath.Value;         
+            }
+            else
+            {
+                Label.IsVisible = true;
+                Label.Text = "invalid item";
+                Label.VerticalOptions = LayoutOptions.Center;
+                Label.HorizontalOptions = LayoutOptions.Center;
+                Label.TextColor = Colors.Red;
+            }
+            ToolTipProperties.SetText(this, value);
+        }
+	}
+    private string? _overlayText = null;
+    public string? OverlayText
+    {
+        get => _overlayText;
+        set
+        {
+            _overlayText = value;
+            Label.Text = value;     
+            Label.IsVisible = !string.IsNullOrEmpty(value);
+        }
+    }
+    private bool _isIrrelevant = false;
+    public bool IsIrrelevant
+    {
+        get => _isIrrelevant;
+        set
+        {
+            _isIrrelevant = value;
+            Thumbnail.Opacity = value ? 0.42 : 1;
+        }
+    }
+#pragma warning disable CS8618 // "_item must be non-null": get_Item sets it properly
+    public ThumbnailView(Item item, double size = 100, object? sortItem = null, bool isIrrelevant = false)
+#pragma warning restore CS8618
+    {
+        InitializeComponent();
 		Thumbnail.HeightRequest = size;
 		Thumbnail.WidthRequest = size;
-		if(item.Thumbnail is not null)
-		{
-			// Thumbnail = item.Thumbnail;
-			Thumbnail.Source = item.LocalPath.Value;
-            if (sortItem is not null)
-            {
-                Label.Text = sortItem.ToString();
-				Label.IsVisible = true;
-            }
-			if (isIrrelevant)
-				Thumbnail.Opacity = 0.42;
-        } 
-		else
-		{
-			Label.IsVisible = true;
-			Label.Text = "invalid item";
-			Label.VerticalOptions = LayoutOptions.Center;
-			Label.HorizontalOptions = LayoutOptions.Center;
-			Label.TextColor = Colors.Red;
-		}		
-		ToolTipProperties.SetText(this, item);
+        Item = item;
+        OverlayText = sortItem?.ToString();
+        IsIrrelevant = isIrrelevant;
 	}
 }

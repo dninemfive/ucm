@@ -2,23 +2,19 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:local="clr-namespace:d9.ucm"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              x:Class="d9.ucm.CollectionPage">
     <!-- https://stackoverflow.com/a/75227107 -->
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
-        <local:CompetitionSelector x:Name="CompetitionSelector" HorizontalOptions="StartAndExpand" AllowNewItem="False"/>
-        <ScrollView x:Name="ScrollView" VerticalOptions="FillAndExpand" Grid.Row="1" Scrolled="ScrollView_Scrolled">    
+    <toolkit:DockLayout>
+        <local:CompetitionSelector x:Name="CompetitionSelector" AllowNewItem="False" toolkit:DockLayout.DockPosition="Top"/>
+        <ScrollView x:Name="ScrollView" Scrolled="ScrollView_Scrolled">    
             <FlexLayout x:Name="ItemsHolder" 
                 Direction="Row" 
                 FlowDirection="LeftToRight"
                 Wrap="Wrap"
                 AlignItems="Start"
                 AlignContent="Start">
-
             </FlexLayout>
         </ScrollView>
-    </Grid>
+    </toolkit:DockLayout>
 </ContentPage>

@@ -16,7 +16,7 @@ public partial class CompetitionPage : ContentPage
         LeftItemView.IrrelevantButtonClicked += UpdateButtonActivation;
         RightItemView.IrrelevantButtonClicked += UpdateButtonActivation;
         LeftItemView.SelectButtonClicked += UpdateViews;
-        LeftItemView.SelectButtonClicked += UpdateViews;
+        RightItemView.SelectButtonClicked += UpdateViews;
     }
     private async void Left_Clicked(object sender, EventArgs e)
     {
