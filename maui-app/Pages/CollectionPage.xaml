@@ -13,9 +13,13 @@
                 FlowDirection="LeftToRight"
                 Wrap="Wrap"
                 AlignItems="Start"
-                AlignContent="Start"
-                SizeChanged="ItemsHolder_SizeChanged">
+                AlignContent="Start">
             </FlexLayout>
         </ScrollView>
+        <HorizontalStackLayout x:Name="NavigationButtonHolder" HorizontalOptions="Center" VerticalOptions="End" IsVisible="False">
+            <Button x:Name="PreviousPage" Text="Previous" WidthRequest="100" HeightRequest="40" Clicked="PreviousPage_Clicked"/>
+            <Label x:Name="CurrentPage" Text="0" Padding="5"/>
+            <Button x:Name="NextPage" Text="Next" WidthRequest="100" HeightRequest="40" Clicked="NextPage_Clicked"/>
+        </HorizontalStackLayout>
     </toolkit:DockLayout>
 </ContentPage>

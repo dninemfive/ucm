@@ -101,6 +101,20 @@ public static class Extensions
             return null;
         }
     }    
+    public static IEnumerable<(int a, int b)> Factors(this int z)
+    {
+        Utils.Log($"Factor pairs of {z}:");
+        double sqrt = Math.Sqrt(z);
+        for(int a = 1; a < sqrt; a++)
+        {
+            int b = z / a;
+            if (a * b == z)
+            {
+                Utils.Log($"{a}, {b}");
+                yield return (a, b);
+            }
+        }
+    }
 }
 public enum LocationType
 {
