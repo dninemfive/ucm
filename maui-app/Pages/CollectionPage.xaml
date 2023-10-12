@@ -13,7 +13,8 @@
                 FlowDirection="LeftToRight"
                 Wrap="Wrap"
                 AlignItems="Start"
-                AlignContent="Start">
+                AlignContent="Start"
+                SizeChanged="ItemsHolder_SizeChanged">
             </FlexLayout>
         </ScrollView>
     </toolkit:DockLayout>

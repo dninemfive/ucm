@@ -1,4 +1,5 @@
 ﻿using d9.utl;
+using ModelIO;
 
 namespace d9.ucm;
 
@@ -12,8 +13,7 @@ public partial class CollectionPage : ContentPage
     public Competition? Competition => CompetitionSelector.Competition;
     private List<Item>? _items = null;
     private bool _loading = false;
-    public const int ITEMS_PER_ROW = 7;
-    public const double ITEM_SIZE = 1920 / (double)ITEMS_PER_ROW - 10;
+    public static int ItemsPerPage { get; private set; } = 28;
     public async void CompetitionSelected(object? sender, EventArgs e)
     {
         ItemsHolder.Children.Clear();
@@ -43,16 +43,29 @@ public partial class CollectionPage : ContentPage
         }        
         _loading = false;
     }
-    private void LoadOneRow()
+    private int _pageIndex = 0;
+    public int PageIndex => _pageIndex;
+    public async void GoToPage(int page)
     {
-        for (int i = 0; i < ITEMS_PER_ROW; i++)
+        if (page < 0 || page > _items!.Count / ItemsPerPage)
+            return;
+
+    }
+    private async Task LoadPage()
+    {
+        int start = _pageIndex * ItemsPerPage;
+        ItemsHolder.Clear();
+        for (int i = start; i < start + ItemsPerPage; i++)
         {
-            if (!_items!.Any())
-                break;
-            Item item = _items!.First();
-            ItemsHolder.Add(new ThumbnailView(item, ITEM_SIZE, 
-                            $"{Competition?.RatingOf(item)}" ?? item.Id.ToString(), 
-                            Competition?.IsIrrelevant(item) ?? false));
+            if(i > _items!.Count) break;
+            Item item = _items![i];
+            await Task.Run(() => ItemsHolder.Add(new ThumbnailView()
+            {
+                Item = item,
+                OverlayText = $"{Competition?.RatingOf(item)}" ?? item.Id.ToString(),
+                IsIrrelevant = Competition?.IsIrrelevant(item) ?? false,
+                Size = 100
+            }));
             _items!.RemoveAt(0);
         }
     }
@@ -60,6 +73,30 @@ public partial class CollectionPage : ContentPage
     {
         if (e.ScrollY >= ScrollView.ScrollSpace())
             LoadItems(sender, e);
+    }
+    private double _itemSize = 100;
+    public double ItemSize
+    {
+        get => _itemSize;
+        set
+        {
+            _itemSize = value;
+            foreach(IView? item in ItemsHolder)
+            {
+                if(item is ThumbnailView thumbnail)
+                {
+                    thumbnail.Size = value;
+                }
+            }
+        }
+    }
+    private void ItemsHolder_SizeChanged(object sender, EventArgs e)
+    {
+        // calculate best size for current thumbnailviews
+        // "best" being the size which leaves the least empty space
+        // which i guess is the one with the least remainder for screen width / n or screen height / n
+        // where 0 < n < ItemsPerScreen with an additional constraint based on screen proportions
+        // set all views to this size
     }
 }
 
