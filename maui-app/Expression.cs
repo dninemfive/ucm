@@ -6,29 +6,29 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace d9.ucm;
-public interface IExpression
+public interface IExpression<T>
 {
-    public bool Evaluate(object? arg);
+    public bool Evaluate(T? arg);
 }
-public class GenericExpression<T> : IExpression
+public class ValueExpression<T> : IExpression<T>
     where T : class
 {
     public Func<T?, bool> Expression { get; private set; }
     public bool Evaluate(object? arg) => Expression(arg as T);
 
-    public GenericExpression(Func<T?, bool> expression)
+    public ValueExpression(Func<T?, bool> expression)
     {
         Expression = expression;
     }
-    public static implicit operator GenericExpression<T>(Func<T?, bool> func) => new(func);
+    public static implicit operator ValueExpression<T>(Func<T?, bool> func) => new(func);
 }
-public abstract class MetaExpression : IExpression 
+public abstract class MetaExpression<T> : IExpression<T>
 {
-    private readonly IExpression[] _children;
-    public IEnumerable<IExpression> Children => _children;
+    private readonly IExpression<T>[] _children;
+    public IEnumerable<IExpression<T>> Children => _children;
     protected bool _evaluate(object? arg, bool defaultValue)
     {
-        foreach(IExpression child in Children)
+        foreach(IExpression<T> child in Children)
         {
             if (child.Evaluate(arg) == defaultValue)
                 return defaultValue;
@@ -36,29 +36,29 @@ public abstract class MetaExpression : IExpression
         return !defaultValue;
     }
     public abstract bool Evaluate(object? arg);
-    public MetaExpression(params IExpression[] children)
+    public MetaExpression(params IExpression<T>[] children)
     {
         _children = children;
     }
 }
-public class OrExpression : MetaExpression
+public class OrExpression<T> : MetaExpression<T>
 {
     public override bool Evaluate(object? arg) => _evaluate(arg, true);
-    public OrExpression(params IExpression[] children) : base(children) { }
+    public OrExpression(params IExpression<T>[] children) : base(children) { }
 }
-public class AndExpression : MetaExpression
+public class AndExpression<T> : MetaExpression<T>
 {
     public override bool Evaluate(object? arg) => _evaluate(arg, false);
-    public AndExpression(params IExpression[] children) : base(children) { }
+    public AndExpression(params IExpression<T>[] children) : base(children) { }
 }
 public static class ExpressionExampleForMyBrain
 {    
-    public static IExpression MakeExpression()
+    public static IExpression<Item> MakeExpression()
     {
         static Func<Item?, bool> hasTag(string tag) => (item) => item?.ItemSources.Any(x => x.Tags.Contains(tag)) ?? false;
-        return new AndExpression(
-            new OrExpression(
-                    new GenericExpression<Item>(hasTag("example1"))
+        return new AndExpression<Item>(
+            new OrExpression<Item>(
+                    new ValueExpression<Item>(hasTag("example1"))
                 )
             );
     }

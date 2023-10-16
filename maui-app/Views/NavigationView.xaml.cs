@@ -58,7 +58,6 @@ public partial class NavigationView : ContentView
     public NavigationView()
 	{
 		InitializeComponent();
-        Utils.Log($"NavigationView()");
 	}
     private void FirstItemButton_Clicked(object sender, System.EventArgs e) => CurrentIndex = 0;
     private void PreviousItemButton_Clicked(object sender, System.EventArgs e) => CurrentIndex--;
@@ -66,7 +65,6 @@ public partial class NavigationView : ContentView
     private void LastItemButton_Clicked(object sender, System.EventArgs e) => CurrentIndex = MaxPage;
     public void UpdateButtonActivation()
     {
-        Utils.Log($"UpdateButtonActivation()");
         FirstItemButton.IsEnabled = CurrentIndex > 0;
         PreviousItemButton.IsEnabled = CurrentIndex > 0;
         NextItemButton.IsEnabled = CurrentIndex < MaxPage;
@@ -79,7 +77,6 @@ public partial class NavigationView : ContentView
     }
     public void AddButton(int index)
     {
-        Utils.Log($"AddButton({index})");
         Button button = new()
         {
             Text = $"{index + 1}",
@@ -109,7 +106,6 @@ public partial class NavigationView : ContentView
     }
     private void UpdateButtonIndices()
     {
-        Utils.Log($"UpdateButtonIndices()");
         int min = _currentIndex - MaxNumericalButtons / 2,
             buttonCt = NumericalButtonHolder.Children.Count;        
         if(min + buttonCt > MaxPage)
