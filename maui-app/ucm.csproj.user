@@ -39,6 +39,12 @@
     <MauiXaml Update="Views\RatioBoxView.xaml">
       <SubType>Designer</SubType>
     </MauiXaml>
+    <MauiXaml Update="Views\SearchCreationView.xaml">
+      <SubType>Designer</SubType>
+    </MauiXaml>
+    <MauiXaml Update="Views\TagSelector.xaml">
+      <SubType>Designer</SubType>
+    </MauiXaml>
     <MauiXaml Update="Views\ThumbnailView.xaml">
       <SubType>Designer</SubType>
     </MauiXaml>

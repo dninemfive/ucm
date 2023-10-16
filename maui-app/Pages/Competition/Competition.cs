@@ -37,7 +37,7 @@ public class Competition
         public double MarginOfError
             => (CiUpperBound - CiLowerBound) / 2;
         [JsonIgnore]
-        public double Weight => Math.Pow(2, -TotalRatings);
+        public double Weight => Math.Pow(2, -TotalRatings) * CiUpperBound;
         [JsonIgnore]
         public bool ShouldShow => true; // TotalRatings < 7 || CiUpperBound >= 0.42;
         [JsonConstructor]
