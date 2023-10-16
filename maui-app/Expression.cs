@@ -14,7 +14,7 @@ public class ValueExpression<T> : IExpression<T>
     where T : class
 {
     public Func<T?, bool> Expression { get; private set; }
-    public bool Evaluate(object? arg) => Expression(arg as T);
+    public bool Evaluate(T? arg) => Expression(arg);
 
     public ValueExpression(Func<T?, bool> expression)
     {
@@ -26,7 +26,7 @@ public abstract class MetaExpression<T> : IExpression<T>
 {
     private readonly IExpression<T>[] _children;
     public IEnumerable<IExpression<T>> Children => _children;
-    protected bool _evaluate(object? arg, bool defaultValue)
+    protected bool _evaluate(T? arg, bool defaultValue)
     {
         foreach(IExpression<T> child in Children)
         {
@@ -35,7 +35,7 @@ public abstract class MetaExpression<T> : IExpression<T>
         }
         return !defaultValue;
     }
-    public abstract bool Evaluate(object? arg);
+    public abstract bool Evaluate(T? arg);
     public MetaExpression(params IExpression<T>[] children)
     {
         _children = children;
@@ -43,12 +43,12 @@ public abstract class MetaExpression<T> : IExpression<T>
 }
 public class OrExpression<T> : MetaExpression<T>
 {
-    public override bool Evaluate(object? arg) => _evaluate(arg, true);
+    public override bool Evaluate(T? arg) => _evaluate(arg, true);
     public OrExpression(params IExpression<T>[] children) : base(children) { }
 }
 public class AndExpression<T> : MetaExpression<T>
 {
-    public override bool Evaluate(object? arg) => _evaluate(arg, false);
+    public override bool Evaluate(T? arg) => _evaluate(arg, false);
     public AndExpression(params IExpression<T>[] children) : base(children) { }
 }
 public static class ExpressionExampleForMyBrain

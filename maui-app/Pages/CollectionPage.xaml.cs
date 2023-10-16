@@ -11,6 +11,37 @@ public partial class CollectionPage : ContentPage
         CompetitionSelector.CompetitionSelected += CompetitionSelected;
         SizeChanged += PageSizedChanged;
         NavigationButtons.Navigated += GoToPage;
+        TagSearchBar.TagSearchedFor += TagSearchBar_TagSearchedFor;
+    }
+    private async void TagSearchBar_TagSearchedFor(string tag, bool invert)
+        => await LoadItems(delegate (Item item)
+        {
+            bool result = false;
+            foreach(ItemSource source in item.Sources) if(source.Tags.Contains(tag))
+                {
+                    result = true;
+                }
+            return invert ? !result : result;
+        });
+    private async Task LoadItems(Func<Item, bool>? func = null)
+    {
+        func ??= (_) => true;
+        ItemsHolder.Children.Clear();
+        if (Competition is null)
+        {
+            _items = await Task.Run(() => ItemManager.Items.Where(func).OrderBy(x => x.Id).ToList());
+        }
+        else
+        {
+            _items = await Task.Run(() => Competition?.RelevantItems.Where(func)
+                                                                    .OrderBy(x => Competition?.IsIrrelevant(x) ?? false)
+                                                                    .ThenByDescending(x => Competition?.RatingOf(x)?.CiLowerBound)
+                                                                    .ToList());
+        }
+        _pageIndex = 0;
+        LoadPage();
+        NavigationButtons.IsVisible = true;
+        NavigationButtons.MaxPage = MaxPage;
     }
     public Competition? Competition => CompetitionSelector.Competition;
     private List<Item>? _items = null;
@@ -27,27 +58,7 @@ public partial class CollectionPage : ContentPage
         }
     }
     public async void CompetitionSelected(object? sender, EventArgs e)
-    {
-        ItemsHolder.Children.Clear();
-        if(Competition is null)
-        {
-            _items = await Task.Run(() => ItemManager.Items.OrderBy(x => x.Id).ToList());
-        } 
-        else
-        {
-            _items = await Task.Run(() => Competition?.RelevantItems.OrderBy(x => Competition?.IsIrrelevant(x) ?? false)
-                                                                    .ThenByDescending(x => Competition?.RatingOf(x)?.CiLowerBound)
-                                                                    .ToList());
-        }
-        _pageIndex = 0;
-        LoadPage();
-        NavigationButtons.IsVisible = true;
-        NavigationButtons.MaxPage = MaxPage;
-    }
-	public void LoadItems(object? sender, EventArgs e)
-	{
-        // todo: reimplement, so that scrolling moves between pages
-    }
+        => await LoadItems();
     private int _pageIndex = 0;
     public int MaxPage => (int)Math.Ceiling((double)_items!.Count / ItemsPerPage);
     public int PageIndex => _pageIndex;
@@ -81,11 +92,6 @@ public partial class CollectionPage : ContentPage
         }
         CalculateItemSize();
         _loading = false;
-    }
-    private void ScrollView_Scrolled(object sender, ScrolledEventArgs e)
-    {
-        if (e.ScrollY >= ScrollView.ScrollSpace())
-            LoadItems(sender, e);
     }
     private double _itemSize = 100;
     public double ItemSize

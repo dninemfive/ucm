@@ -42,7 +42,7 @@
     <MauiXaml Update="Views\SearchCreationView.xaml">
       <SubType>Designer</SubType>
     </MauiXaml>
-    <MauiXaml Update="Views\TagSelector.xaml">
+    <MauiXaml Update="Views\TagSearchView.xaml">
       <SubType>Designer</SubType>
     </MauiXaml>
     <MauiXaml Update="Views\ThumbnailView.xaml">
