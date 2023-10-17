@@ -6,11 +6,11 @@
              x:Class="d9.ucm.CollectionPage">
     <Grid x:Name="Grid" BackgroundColor="Red" Padding="10, 5">
         <Grid.RowDefinitions>
-            <RowDefinition Height="2*"/>
+            <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <HorizontalStackLayout x:Name="SearchTerms" Grid.Row="0" BackgroundColor="Blue" HeightRequest="80">
+        <HorizontalStackLayout x:Name="SearchTerms" Grid.Row="0" BackgroundColor="Blue" HeightRequest="50">
             <local:CompetitionSelector x:Name="CompetitionSelector" AllowNewItem="False"/>
             <local:TagSearchView x:Name="TagSearchBar"/>
         </HorizontalStackLayout>
