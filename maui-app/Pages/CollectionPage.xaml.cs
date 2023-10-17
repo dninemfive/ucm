@@ -46,7 +46,7 @@ public partial class CollectionPage : ContentPage
     public Competition? Competition => CompetitionSelector.Competition;
     private List<Item>? _items = null;
     private bool _loading = false;
-    private static int _itemsPerPage = 28;
+    private static int _itemsPerPage = 36;
     private static List<(int a, int b)> _itemsPerPageFactors = _itemsPerPage.Factors().ToList();
     public static int ItemsPerPage
     {
@@ -123,7 +123,7 @@ public partial class CollectionPage : ContentPage
         // which i guess is the one with the least remainder for screen width / n or screen height / n
         // where 0 < n < ItemsPerScreen with an additional constraint based on screen proportions
         // probably constrain size to avoid items which are too large or small  
-        Utils.Log($"ItemSpace: {ItemSpace}");
+        Utils.Log($"ItemSpace: {ItemSpace}, {Grid.RowDefinitions[1].Height}");
         double smallSize = Math.Min(ItemSpace.width, ItemSpace.height),
                largeSize = Math.Max(ItemSpace.width, ItemSpace.height),
                ratio = largeSize / smallSize;
