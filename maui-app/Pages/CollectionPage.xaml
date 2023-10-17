@@ -20,7 +20,8 @@
                 FlowDirection="LeftToRight"
                 Wrap="Wrap"
                 AlignItems="Center"
-                AlignContent="Center">
+                AlignContent="Center"
+                HorizontalOptions="Center">
             </FlexLayout>
         </ScrollView>
         <local:NavigationView x:Name="NavigationButtons" BackgroundColor="Yellow"
