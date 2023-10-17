@@ -93,7 +93,7 @@ public static class ItemManager
         {
             if (item.LocalPath.IsInFolder(MauiProgram.ITEM_FILE_LOCATION))
                 return true;
-            item.Sources.Add(ci.Source);
+            item.AddSource(ci.Source);
             await item.SaveAsync();
             return true;
         }

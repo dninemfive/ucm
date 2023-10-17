@@ -55,7 +55,7 @@ public static class ExpressionExampleForMyBrain
 {    
     public static IExpression<Item> MakeExpression()
     {
-        static Func<Item?, bool> hasTag(string tag) => (item) => item?.ItemSources.Any(x => x.Tags.Contains(tag)) ?? false;
+        static Func<Item?, bool> hasTag(string tag) => (item) => item?.Sources.Any(x => x.Tags.Contains(tag)) ?? false;
         return new AndExpression<Item>(
             new OrExpression<Item>(
                     new ValueExpression<Item>(hasTag("example1"))

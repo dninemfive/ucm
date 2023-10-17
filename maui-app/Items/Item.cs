@@ -36,9 +36,11 @@ public class Item : IItemViewable
         }
     }
     [JsonInclude]
-    public List<ItemSource> Sources { get; private set; } = new();
+    private List<ItemSource> _sources { get; set; } = new();
     [JsonIgnore]
-    public IEnumerable<ItemSource> ItemSources => Sources;
+    public IEnumerable<ItemSource> Sources => _sources;
+    [JsonIgnore]
+    IEnumerable<ItemSource> IItemViewable.ItemSources => Sources;
     #endregion
     #region constructors
     public Item(string path, string hash, ItemId id, params ItemSource[] sources) : this(new(path), hash, id, sources.ToList()) { }
@@ -48,7 +50,7 @@ public class Item : IItemViewable
         LocalPath = localPath;
         Hash = hash;
         Id = IdManager.Register(id);
-        Sources = sources?.ToList() ?? new() { new("Local Filesystem", localPath.Value) };
+        _sources = sources?.ToList() ?? new() { new("Local Filesystem", localPath.Value) };
     }
     #endregion
     public override string ToString()
@@ -59,10 +61,10 @@ public class Item : IItemViewable
                                      JsonSerializer.Serialize(this, new JsonSerializerOptions { WriteIndented = true }));
     }
     public bool HasSourceInfoFor(string location)
-        => Sources.Any(x => x.Location == location);
+        => _sources.Any(x => x.Location == location);
     [JsonIgnore]
     public IEnumerable<string> Locations
-        => Sources.Select(x => x.Location);
+        => _sources.Select(x => x.Location);
     public static Item? From(CandidateItem ci)
     {        
         if(ci.LocalPath is not null)
@@ -101,4 +103,32 @@ public class Item : IItemViewable
         }
     }
     public static implicit operator ItemId(Item item) => item.Id;
+    [JsonIgnore]
+    private HashSet<string>? _allTags = null;
+    [JsonIgnore]
+    public HashSet<string> AllTags
+    {
+        get
+        {
+            if(_allTags is null)
+            {
+                _allTags = new();
+                foreach(ItemSource source in _sources)
+                {
+                    foreach (string tag in source.Tags)
+                    {
+                        if (tag.Contains(' '))
+                            Utils.Log($"Item {Id} has tag `{tag}` from source {source.SourceName}. This tag includes spaces, meaning it cannot be searched for!");
+                        _ = _allTags.Add(tag.ToLower());
+                    }
+                }
+            }
+            return _allTags!;
+        }
+    }
+    public void AddSource(ItemSource source)
+    {
+        _sources.Add(source);
+        _allTags = null;
+    }
 }
