@@ -145,7 +145,7 @@ public partial class CollectionPage : ContentPage
         double size1 = largeSize / closestPair.b, 
                size2 = smallSize / closestPair.a,
                d1 = smallSize - (size1 * closestPair.a), d2 = largeSize - (size2 * closestPair.b);
-        ItemSize = (d1 < d2 ? size1 : size2) * 0.98;
+        ItemSize = (d1 < d2 ? size1 : size2) * 1;
         // Grid.RowDefinitions[1].Height = ItemSpace.height;
     }
     private void PageSizedChanged(object? sender, EventArgs e) => CalculateItemSize();

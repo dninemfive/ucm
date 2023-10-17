@@ -14,16 +14,17 @@
             <local:CompetitionSelector x:Name="CompetitionSelector" AllowNewItem="False"/>
             <local:TagSearchView x:Name="TagSearchBar"/>
         </HorizontalStackLayout>
-        <ScrollView x:Name="ScrollView" BackgroundColor="Magenta" Grid.Row="1" >
-            <FlexLayout x:Name="ItemsHolder" 
+        <FlexLayout x:Name="ItemsHolder" 
                 Direction="Row" 
                 FlowDirection="LeftToRight"
                 Wrap="Wrap"
                 AlignItems="Center"
                 AlignContent="Center"
-                HorizontalOptions="Center">
-            </FlexLayout>
-        </ScrollView>
+                HorizontalOptions="Center"
+                BackgroundColor="Magenta"
+                VerticalOptions="Center"
+                Grid.Row="1">
+        </FlexLayout>
         <local:NavigationView x:Name="NavigationButtons" BackgroundColor="Yellow"
                               IsVisible="False" 
                               Grid.Row="2"
