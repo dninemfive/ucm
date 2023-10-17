@@ -81,7 +81,7 @@ public partial class NavigationView : ContentView
         {
             Text = $"{index + 1}",
             IsEnabled = CurrentIndex != index,
-            WidthRequest = 40
+            WidthRequest = 80
         };
         button.Clicked += (sender, e) => CurrentIndex = IndexOf((sender as Button)!);
         NumericalButtonHolder.Add(button);

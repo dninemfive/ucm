@@ -4,14 +4,14 @@
              xmlns:local="clr-namespace:d9.ucm"
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              x:Class="d9.ucm.CollectionPage">
-    <Grid>
+    <Grid BackgroundColor="Red">
         <!-- https://stackoverflow.com/a/75227107 -->
-        <toolkit:DockLayout Padding="40">            
-            <HorizontalStackLayout x:Name="SearchTerms" toolkit:DockLayout.DockPosition="Top">
+        <toolkit:DockLayout Padding="10" BackgroundColor="Green">
+            <HorizontalStackLayout x:Name="SearchTerms" toolkit:DockLayout.DockPosition="Top" BackgroundColor="Blue">
                 <local:CompetitionSelector x:Name="CompetitionSelector" AllowNewItem="False"/>
                 <local:TagSearchView x:Name="TagSearchBar"/>
             </HorizontalStackLayout>
-            <ScrollView x:Name="ScrollView">
+            <ScrollView x:Name="ScrollView" BackgroundColor="Magenta" IsVisible="True" toolkit:DockLayout.DockPosition="Top">
                 <FlexLayout x:Name="ItemsHolder" 
                 Direction="Row" 
                 FlowDirection="LeftToRight"
@@ -20,10 +20,11 @@
                 AlignContent="Center">
                 </FlexLayout>
             </ScrollView>
-            <local:NavigationView x:Name="NavigationButtons" 
+            <local:NavigationView x:Name="NavigationButtons" BackgroundColor="Yellow"
                               IsVisible="False" 
-                              toolkit:DockLayout.DockPosition="Bottom" 
-                              HeightRequest="40"/>
+                              toolkit:DockLayout.DockPosition="Bottom"
+                              HorizontalOptions="Center"
+                              HeightRequest="50"/>
         </toolkit:DockLayout>
     </Grid>
 </ContentPage>

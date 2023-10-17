@@ -33,10 +33,10 @@ public partial class CollectionPage : ContentPage
         }
         else
         {
-            _items = await Task.Run(() => Competition?.RelevantItems.Where(func)
-                                                                    .OrderBy(x => Competition?.IsIrrelevant(x) ?? false)
-                                                                    .ThenByDescending(x => Competition?.RatingOf(x)?.CiLowerBound)
-                                                                    .ToList());
+            _items = await Task.Run(() => ItemManager.Items.Where(func)
+                                                           .OrderBy(x => Competition?.IsIrrelevant(x) ?? false)
+                                                           .ThenByDescending(x => Competition?.RatingOf(x)?.CiLowerBound)
+                                                           .ToList());
         }
         _pageIndex = 0;
         LoadPage();
@@ -61,7 +61,6 @@ public partial class CollectionPage : ContentPage
         => await LoadItems();
     private int _pageIndex = 0;
     public int MaxPage => (int)Math.Ceiling((double)_items!.Count / ItemsPerPage);
-    public int PageIndex => _pageIndex;
     private void GoToPage(NavigationView.EventArgs page)
     {
         Utils.Log($"GoToPage({page})");
@@ -80,7 +79,7 @@ public partial class CollectionPage : ContentPage
         ItemsHolder.Clear();
         for (int i = start; i < start + ItemsPerPage; i++)
         {
-            if(i > _items!.Count) break;
+            if(i >= _items!.Count) break;
             Item item = _items![i];
             ItemsHolder.Add(new ThumbnailView()
             {
@@ -110,7 +109,7 @@ public partial class CollectionPage : ContentPage
         }
     }
     public (double width, double height) ItemSpace
-        => (Width, Height - CompetitionSelector.Height - NavigationButtons.Height);
+        => (ItemsHolder.Width, Height - CompetitionSelector.Height - NavigationButtons.Height);
     private void CalculateItemSize()
     {
         // calculate best size for current thumbnailviews
