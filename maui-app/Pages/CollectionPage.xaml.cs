@@ -99,6 +99,7 @@ public partial class CollectionPage : ContentPage
         set
         {
             _itemSize = value;
+            Utils.Log($"ItemSize = {value}");
             foreach(IView? item in ItemsHolder)
             {
                 if(item is ThumbnailView thumbnail)
@@ -109,7 +110,12 @@ public partial class CollectionPage : ContentPage
         }
     }
     public (double width, double height) ItemSpace
-        => (ItemsHolder.Width, Height - CompetitionSelector.Height - NavigationButtons.Height);
+        => (Width 
+            - Grid.Padding.HorizontalThickness, 
+            Height 
+            - SearchTerms.HeightRequest 
+            - NavigationButtons.HeightRequest 
+            - Grid.Padding.VerticalThickness * 2);
     private void CalculateItemSize()
     {
         // calculate best size for current thumbnailviews
@@ -140,6 +146,7 @@ public partial class CollectionPage : ContentPage
                size2 = smallSize / closestPair.a,
                d1 = smallSize - (size1 * closestPair.a), d2 = largeSize - (size2 * closestPair.b);
         ItemSize = d1 < d2 ? size1 : size2;
+        Grid.RowDefinitions[1].Height = ItemSpace.height;
     }
     private void PageSizedChanged(object? sender, EventArgs e) => CalculateItemSize();
 }
