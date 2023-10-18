@@ -56,6 +56,8 @@ public class Competition
     }
     [JsonInclude]
     public Dictionary<ItemId, Rating> Ratings { get; set; } = new();
+    [JsonIgnore]
+    public IEnumerable<Rating> RelevantRatings => Ratings.Where(x => !IsIrrelevant(x.Key)).Select(x => x.Value);
     public Competition(string name)
     {
         Name = name;
@@ -67,7 +69,7 @@ public class Competition
         IrrelevantItems = irrelevantItems;
         Ratings = ratings;
     }
-    public bool IsIrrelevant(ItemId id) => IrrelevantItems.Contains(id);
+    public bool IsIrrelevant(ItemId id) => IrrelevantItems.Contains(id);// || (Ratings.TryGetValue(id, out Rating? r) && r.CiUpperBound < 0.3);
     public Rating? RatingOf(ItemId id) => IsIrrelevant(id) ? null : Ratings.TryGetValue(id, out Rating? r) ? r : null;
     public Rating? RatingOf(Item item) => RatingOf(item.Id);
     public static Competition? Named(string? name) 

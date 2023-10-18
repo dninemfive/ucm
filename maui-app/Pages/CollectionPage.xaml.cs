@@ -13,14 +13,13 @@ public partial class CollectionPage : ContentPage
         NavigationButtons.Navigated += GoToPage;
         TagSearchBar.TagSearchedFor += TagSearchBar_TagSearchedFor;
     }
-    private async void TagSearchBar_TagSearchedFor(string tag, bool invert)
+    private async void TagSearchBar_TagSearchedFor(IEnumerable<SearchToken> tokens, bool invert)
         => await LoadItems(delegate (Item item)
         {
-            bool result = false;
-            foreach(ItemSource source in item.Sources) if(source.Tags.Contains(tag))
-                {
-                    result = true;
-                }
+            bool result = true;
+            foreach (Func<Item, bool> match in tokens)
+                if (!match(item))
+                    result = false;
             return invert ? !result : result;
         });
     private async Task LoadItems(Func<Item, bool>? func = null)

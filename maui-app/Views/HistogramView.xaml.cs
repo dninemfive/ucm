@@ -11,6 +11,16 @@ public partial class HistogramView : ContentView
 	public Color ForegroundColor { get; set; } = Colors.White;
 	public int? ForcedLowerBound { get; set; } = null;
 	public int? ForcedUpperBound { get; set; } = null;
+	private double _binWidth = 0.1;
+	public double BinWidth
+	{
+		get => _binWidth;
+		set
+		{
+			_binWidth = value;
+			Update();
+		}
+	}
 	public HistogramView()
 	{
 		InitializeComponent();
@@ -40,24 +50,25 @@ public partial class HistogramView : ContentView
 		CountingDictionary<int, int> counter = new();
 		foreach(double datum in _data)
 		{
-			counter.Increment((int)datum);
+			counter.Increment((int)(datum / BinWidth));
 		}
         int lowerBound = ForcedLowerBound ?? counter.Keys.Min(), upperBound = ForcedUpperBound ?? counter.Keys.Max();
 		double maxValue = counter.Values.Max(),
-			   bins = Math.Abs(upperBound - lowerBound) + 1,
+			   bins = Math.Abs(upperBound - lowerBound) / BinWidth,
 			   height = HeightRequest,
 			   width = Math.Max(WidthRequest / bins, 10);
 		for(int i = lowerBound; i <= upperBound; i++)
 		{
+			double count = counter[i];
 			RatioBoxView box = new()
 			{
 				WidthRequest = width,
 				HeightRequest = height,
 				ForegroundColor = ForegroundColor,
 				Margin = new(1, 0),
-				Ratio = counter[i] / maxValue
+				Ratio = count / (double)maxValue
 			};
-			ToolTipProperties.SetText(box, $"{i}: {counter[i]}");
+			ToolTipProperties.SetText(box, $"{i * BinWidth:F2}: {count}");
             Container.Add(box);
 		}
 	}

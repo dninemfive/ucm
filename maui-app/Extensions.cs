@@ -100,12 +100,12 @@ public static class Extensions
             Utils.Log($"{e.GetType().Name} when attempting to get bytes for {location}: {e.Message}");
             return null;
         }
-    }    
+    }
     public static IEnumerable<(int a, int b)> Factors(this int z)
     {
         Utils.Log($"Factor pairs of {z}:");
         double sqrt = Math.Sqrt(z);
-        for(int a = 1; a < sqrt; a++)
+        for (int a = 1; a < sqrt; a++)
         {
             int b = z / a;
             if (a * b == z)
@@ -115,6 +115,8 @@ public static class Extensions
             }
         }
     }
+    public static string TagNormalize(this string str) => str.ToLower().Trim();
+    public static IEnumerable<SearchToken> Tokenize(this string str) => SearchToken.Tokenize(str);
 }
 public enum LocationType
 {

@@ -64,7 +64,14 @@ public class JsonApiDef : ApiDef
             root = root.ValueKind switch
             {
                 JsonValueKind.Object => root.GetProperty(s),
-                JsonValueKind.Array => root.EnumerateArray().First()
+                JsonValueKind.Array => root.EnumerateArray().First(),
+                JsonValueKind.Undefined => throw new NotImplementedException(),
+                JsonValueKind.String => throw new NotImplementedException(),
+                JsonValueKind.Number => throw new NotImplementedException(),
+                JsonValueKind.True => throw new NotImplementedException(),
+                JsonValueKind.False => throw new NotImplementedException(),
+                JsonValueKind.Null => throw new NotImplementedException(),
+                _ => throw new InvalidCastException(nameof(root))
             };
         }
         return root;

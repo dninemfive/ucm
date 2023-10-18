@@ -70,8 +70,8 @@ public partial class CompetitionPage : ContentPage
         Update(LeftItemView, Side.Left);
         Update(RightItemView, Side.Right);
         await UpdateButtonActivation();
-        List<double> data = Competition!.Ratings.Select(x => x.Value.TotalRatings).Select(x => (double)x).ToList();
-        data.AddRange(Competition!.RelevantUnratedItems.Select(x => 0.0));
+        List<double> data = Competition!.RelevantRatings.Select(x => x.CiUpperBound).ToList();
+        //data.AddRange(Competition!.RelevantUnratedItems.Select(x => 0.0));
         Histogram.ReplaceData(data);
     }
     private async void UpdateViews(object? sender, EventArgs e) => await UpdateViews();
