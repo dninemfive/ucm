@@ -12,6 +12,7 @@ public partial class MainPage : ContentPage
     public MainPage()
     {
         InitializeComponent();
+        OpenDebugConsole();
     }
 
     private async void ResaveAllItems(object sender, EventArgs e)
@@ -28,38 +29,33 @@ public partial class MainPage : ContentPage
     }
     private async void TestHashThing(object sender, EventArgs e)
     {
-        Utils.Log($"Comparing hash methods...");
+        Utils.Log($"Checking hash uniqueness...");
         (sender as Button)!.IsEnabled = false;
-        int ct = 0;
-        IEnumerable<string> filePaths = ItemManager.Items.Select(x => x.LocalPath.Value);
-        foreach (string filePath in filePaths)
-        {            
-            List<Task<string?>> tasks = new()
+        foreach(Item item in ItemManager.Items)
+        {
+            foreach(Item item2 in ItemManager.Items.Where(x => x.Id > item.Id))
             {
-                filePath.FileHashAsync(),
-                File.ReadAllBytes(filePath).HashAsync()
-            };
-            string?[] hashes = await Task.WhenAll(tasks);
-            string? hash1 = hashes[0], hash2 = hashes[1];
-            if(hash1 != hash2)
-            {
-                Utils.Log($"Difference in hashes for {filePath}:\n\t{hash1}\n\t{hash2}");
+                if (item.Hash == item2.Hash)
+                    Utils.Log($"Conflicting hashes! Items:\n\t{item}\n\t{item2}");
             }
-            ProgressBar.Progress = ++ct / (double)filePaths.Count();
         }
         (sender as Button)!.IsEnabled = true;
-        Utils.Log($"Done!");
+        Utils.Log($"Done checking hash uniqueness.");
     }
 
-    private void OpenDebugConsole(object sender, EventArgs e)
+    private void OpenDebugConsole(object? sender = null, EventArgs? e = null)
     {
         ConsolePage console = new();
         Window DebugConsole = new()
         {
             Page = console
         };
-        Utils.DefaultLog = new(MauiProgram.LOG_PATH, console, false);
+        Utils.DefaultLog = new(MauiProgram.TEMP_LOG_PATH, console, false);
         Application.Current?.OpenWindow(DebugConsole);
+    }
+
+    private async void TestUrlThing(object sender, EventArgs e)
+    {
     }
 }
 

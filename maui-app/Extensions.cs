@@ -117,6 +117,9 @@ public static class Extensions
     }
     public static string TagNormalize(this string str) => str.ToLower().Trim();
     public static IEnumerable<SearchToken> Tokenize(this string str) => SearchToken.Tokenize(str);
+    public static async Task SavePageTo(this string url, string path) 
+        => await File.WriteAllTextAsync(path, 
+                                        await MauiProgram.HttpClient.GetStringAsync(url));
 }
 public enum LocationType
 {

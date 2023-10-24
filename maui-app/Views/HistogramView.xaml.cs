@@ -17,6 +17,8 @@ public partial class HistogramView : ContentView
 		get => _binWidth;
 		set
 		{
+			if (value <= 0)
+				throw new ArgumentOutOfRangeException(nameof(value));
 			_binWidth = value;
 			Update();
 		}
@@ -31,16 +33,30 @@ public partial class HistogramView : ContentView
 			_data.Add(datum); 
 		Update();
 	}
-	public void AddData(IEnumerable<double> data) => AddData(data.ToArray());
+	public void AddData(IEnumerable<double> data, bool update = true)
+	{
+		foreach (double datum in data)
+			_data.Add(datum);
+		if(update) Update();
+	}
 	public void Clear()
     {
 		_data.Clear();
 		Update();
     }
-	public void ReplaceData(IEnumerable<double> newData)
+	public void ReplaceData(IEnumerable<double> newData, double? newBinWidth = null)
 	{
-		_data.Clear();
-		AddData(newData);
+        _data.Clear();
+		if (newBinWidth is double newValue)
+		{
+			// avoid double updates
+			AddData(newData, false);
+			BinWidth = newValue;
+		}
+		else
+		{
+			AddData(newData);
+		}
 	}
 	public void Update()
 	{
@@ -68,7 +84,7 @@ public partial class HistogramView : ContentView
 				Margin = new(1, 0),
 				Ratio = count / (double)maxValue
 			};
-			ToolTipProperties.SetText(box, $"{i * BinWidth:F2}: {count}");
+			ToolTipProperties.SetText(box, BinWidth == 1 ? $"{i}: {count}" : $"{i * BinWidth:F2}: {count}");
             Container.Add(box);
 		}
 	}

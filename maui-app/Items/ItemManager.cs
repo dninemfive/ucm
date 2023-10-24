@@ -91,6 +91,7 @@ public static class ItemManager
         }
         if(ItemsByHash.TryGetValue(ci.Hash, out Item? item) && !item.HasSourceInfoFor(ci.Location))
         {
+            Utils.Log($"TryUpdateAnyMatchingItemAsnyc({ci}) -> {item}");
             if (item.LocalPath.IsInFolder(MauiProgram.ITEM_FILE_LOCATION))
                 return true;
             item.AddSource(ci.Source);

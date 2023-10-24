@@ -11,9 +11,10 @@
             VerticalOptions="Center">
             <!-- Entry x:Name="DataPathEntry" -->
             <Button x:Name="ResaveButton" Text="Resave All Items" Clicked="ResaveAllItems"/>
-            <Button x:Name="TestHashThingButton" Text="test hash thing" Clicked="TestHashThing"/>
+            <Button x:Name="TestHashThingButton" Text="check for duplicate hashes" Clicked="TestHashThing"/>
             <ProgressBar x:Name="ProgressBar"/>
             <Button Text="Open Debug Console" Clicked="OpenDebugConsole"/>
+            <Button Text="Test Url Thing" Clicked="TestUrlThing"/>
         </VerticalStackLayout>
     </ScrollView>
 

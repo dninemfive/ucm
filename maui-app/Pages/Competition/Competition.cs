@@ -69,7 +69,8 @@ public class Competition
         IrrelevantItems = irrelevantItems;
         Ratings = ratings;
     }
-    public bool IsIrrelevant(ItemId id) => IrrelevantItems.Contains(id);// || (Ratings.TryGetValue(id, out Rating? r) && r.CiUpperBound < 0.3);
+    // todo: find a way to drop the bottom x percentile of items
+    public bool IsIrrelevant(ItemId id) => IrrelevantItems.Contains(id) || (Ratings.TryGetValue(id, out Rating? r) && r.CiUpperBound < 0.4);
     public Rating? RatingOf(ItemId id) => IsIrrelevant(id) ? null : Ratings.TryGetValue(id, out Rating? r) ? r : null;
     public Rating? RatingOf(Item item) => RatingOf(item.Id);
     public static Competition? Named(string? name) 

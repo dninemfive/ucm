@@ -90,7 +90,7 @@ public class CandidateItem : IItemViewable
     public static async Task<string?> GetFileUrlAsync(UrlSet urlSet)
         => await urlSet.UrlRule.FileUrlFor(urlSet);
     public override string ToString()
-        => $"CI {Hash} @ {Location}";
+        => $"Candidate Item @ {Location}";
     public static async Task<ItemSource> GetItemSourceAsync(string? localPath, UrlSet? urlSet)
     {
         if (localPath is not null)

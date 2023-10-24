@@ -6,11 +6,12 @@ namespace d9.ucm;
 
 public static class MauiProgram
 {
-	public const string TEMP_SAVE_LOCATION = "C:/Users/dninemfive/Pictures/misc/ucm/data";
-	public const string TEMP_COMP_LOCATION = "C:/Users/dninemfive/Pictures/misc/ucm/competitions";
+	public const string TEMP_BASE_FOLDER = "C:/Users/dninemfive/Pictures/misc/ucm/";
+    public const string TEMP_SAVE_LOCATION = TEMP_BASE_FOLDER + "data";
+	public const string TEMP_COMP_LOCATION = TEMP_BASE_FOLDER + "competitions";
 	public const string TEMP_RULE_LOCATION = @"C:\Users\dninemfive\Documents\workspaces\misc\ucm\common\urlrule";
-	public const string REJECTED_HASH_FILE = "C:/Users/dninemfive/Pictures/misc/ucm/rejected hashes.txt";
-	public const string LOG_PATH = @"C:\Users\dninemfive\Pictures\misc\ucm\general.log";
+	public const string REJECTED_HASH_FILE = TEMP_BASE_FOLDER + "rejected hashes.txt";
+    public const string TEMP_LOG_PATH = TEMP_BASE_FOLDER + "general.log";
 
     public static readonly HttpClient HttpClient = new();
 	public static readonly string ITEM_FILE_LOCATION = File.ReadAllText(@"C:\Users\dninemfive\Documents\workspaces\misc\ucm\maui-app\destFolder.txt.secret");
@@ -26,7 +27,7 @@ public static class MauiProgram
 				fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
 				fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
 			});		
-		Utils.DefaultLog = new(LOG_PATH, mode: Log.Mode.WriteImmediate);
+		Utils.DefaultLog = new(TEMP_LOG_PATH, mode: Log.Mode.WriteImmediate);
         ItemManager.Load();
 		CompetitionManager.Load();
 		string[] lines = File.ReadAllLines(@"C:\Users\dninemfive\Documents\workspaces\misc\ucm\maui-app\header.secret");
