@@ -23,9 +23,9 @@ public class UrlRule
     [JsonInclude]
     public List<InfoKeyDef> Info { get; private set; }
     [JsonInclude]
-    public UrlBuilder CanonicalUrl { get; private set; }
+    public UrlPattern CanonicalUrl { get; private set; }
     [JsonInclude]
-    public UrlBuilder ApiUrl { get; private set; }
+    public UrlPattern ApiUrl { get; private set; }
     [JsonInclude]
     public Dictionary<string, string> Headers { get; private set; }
     [JsonInclude]
@@ -35,8 +35,8 @@ public class UrlRule
                    string type, 
                    string matchRegex, 
                    List<InfoKeyDef> info,
-                   UrlBuilder canonicalUrl,
-                   UrlBuilder apiUrl, 
+                   UrlPattern canonicalUrl,
+                   UrlPattern apiUrl, 
                    Dictionary<string, string> headers, 
                    ApiDef api)
     {

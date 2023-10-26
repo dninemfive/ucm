@@ -6,12 +6,12 @@ using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace d9.ucm;
-public class UrlBuilder
+public class UrlPattern
 {
     [JsonInclude]
     public string Pattern { get; private set; }
     [JsonConstructor]
-    public UrlBuilder(string pattern)
+    public UrlPattern(string pattern)
     {
         Pattern = pattern;
     }

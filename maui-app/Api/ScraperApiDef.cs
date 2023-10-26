@@ -14,9 +14,9 @@ namespace d9.ucm;
 internal class ScraperApiDef : ApiDef
 {
     [JsonInclude]
-    public string JsonStartString { get; private set; };
+    public string JsonStartString { get; private set; }
     [JsonInclude]
-    public string JsonEndString { get; private set; };
+    public string JsonEndString { get; private set; }
     public ScraperApiDef(string jsonStartString, string jsonEndString)
     {
         JsonStartString = jsonStartString;
