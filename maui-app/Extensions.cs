@@ -120,6 +120,29 @@ public static class Extensions
     public static async Task SavePageTo(this string url, string path) 
         => await File.WriteAllTextAsync(path, 
                                         await MauiProgram.HttpClient.GetStringAsync(url));
+    public static string? ItemBetween(this string str, string start, string end)
+    {
+        string[] split = str.Split(start);
+        if (split.Length < 2)
+            return null;
+        string[] split2 = split[1].Split(end);
+        if(!split2.Any())
+            return null;
+        return split2.First();
+    }
+    private static (string, string)[] unicodeEscapeSequences = new (string, string)[]
+    {
+        ("002F", "/"),
+        ("003C", "<"),
+        ("003E", ">")
+    };
+    public static string Unescape(this string s)
+    {
+        foreach ((string seq, string replacement) in unicodeEscapeSequences) {
+            s = s.Replace($"\\\\u{seq}", replacement);
+        }
+        return s.Replace("\\", "");
+    }
 }
 public enum LocationType
 {

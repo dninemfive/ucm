@@ -11,21 +11,7 @@ using System.Threading.Tasks;
 
 namespace d9.ucm;
 public class UrlRule
-{
-    public class UrlBuilder
-    {
-        [JsonInclude]
-        public string Prefix { get; private set; }
-        [JsonInclude]
-        public string Suffix { get; private set; }
-        [JsonConstructor]
-        public UrlBuilder(string prefix, string suffix)
-        {
-            Prefix = prefix;
-            Suffix = suffix;
-        }
-        public string? For(string? id) => id is null ? null : $"{Prefix}{id}{Suffix}";
-    }
+{    
     [JsonInclude]
     public string Domain { get; private set; }
     [JsonInclude]
@@ -35,9 +21,7 @@ public class UrlRule
     [JsonInclude]
     public string MatchRegex { get; private set; }
     [JsonInclude]
-    public string IdKey { get; private set; }
-    [JsonInclude]
-    public int IdType { get; private set; }
+    public List<InfoKeyDef> Info { get; private set; }
     [JsonInclude]
     public UrlBuilder CanonicalUrl { get; private set; }
     [JsonInclude]
@@ -45,23 +29,21 @@ public class UrlRule
     [JsonInclude]
     public Dictionary<string, string> Headers { get; private set; }
     [JsonInclude]
-    public JsonApiDef Api { get; private set; }
+    public ApiDef Api { get; private set; }
     [JsonConstructor]
     public UrlRule(string domain, 
                    string type, 
                    string matchRegex, 
-                   string idKey,
-                   int idType,
+                   List<InfoKeyDef> info,
                    UrlBuilder canonicalUrl,
                    UrlBuilder apiUrl, 
                    Dictionary<string, string> headers, 
-                   JsonApiDef api)
+                   ApiDef api)
     {
         Domain = domain;
         Type = type;
         MatchRegex = matchRegex;
-        IdKey = idKey;
-        IdType = idType;
+        Info = info;
         CanonicalUrl = canonicalUrl;
         ApiUrl = apiUrl;
         Headers = headers;
@@ -70,8 +52,7 @@ public class UrlRule
     public bool Supports(string url)
         => Regex.IsMatch(url, MatchRegex);
     public override string ToString() => Name;
-    public string? IdFor(string url) => IdGetter.IdFor(url, (IdGetter.Type)IdType, IdKey);
-    public static string? BestIdFor(string url) => BestFor(url)?.IdFor(url);
+    public ApiInfoSet? InfoFor(string url) => InfoGetter.InfoFor(url, Info);
     public static IEnumerable<UrlRule> Matching(string s) => UrlRuleManager.UrlRules.Where(x => x.Supports(s));
     // todo: allow the user to decide
     private static readonly Dictionary<string, UrlRule?> _bestFor = new();
@@ -80,6 +61,8 @@ public class UrlRule
         => await Api.GetTagsAsync(urlSet);
     public async Task<string?> FileUrlFor(UrlSet urlSet)
         => await Api.GetFileUrlAsync(urlSet);
+    [JsonIgnore]
+    public string CacheFolder => Path.Join(MauiProgram.TEMP_SAVE_LOCATION, "cache", Domain);
     #region static
     public static UrlRule? BestFor(string? url)
     {
@@ -95,7 +78,7 @@ public class UrlRule
     public static string? BestCanonicalUrlFor(string url)
     {
         UrlRule? best = BestFor(url);
-        string? id = best?.IdFor(url);
+        ApiInfoSet? id = best?.InfoFor(url);
         return best?.CanonicalUrl.For(id);
     }
     #endregion static

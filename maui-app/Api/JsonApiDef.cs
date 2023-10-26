@@ -16,11 +16,13 @@ public class JsonApiDef : ApiDef
     public string TagKey { get; private set; }
     [JsonInclude]
     public string TagDelimiter { get; private set; }
+    // todo: move metadata to api
     [JsonInclude]
     public Dictionary<string, string> Metadata { get; private set; }
     [JsonIgnore]
     public Dictionary<string, Type> MetadataTypes { get; private set; } = new();
     [JsonIgnore]
+    // todo: purge this cache on occasion, or perhaps just load from file each time lol
     private Dictionary<string, JsonElement> _responses { get; set; } = new();
     [JsonInclude]
     public string RootPath { get; private set; }
@@ -72,27 +74,30 @@ public class JsonApiDef : ApiDef
         string apiUrl = urlSet.ApiUrl!;
         if (_responses.TryGetValue(apiUrl, out JsonElement response))
             return response;
-        JsonElement? response2 = null;
+        return await Cache(urlSet);
+    }
+    public async Task<JsonElement?> Cache(UrlSet urlSet)
+    {
+        JsonElement? response = null;
         try
         {
-            response2 = GetRoot(await MauiProgram.HttpClient.GetFromJsonAsync<JsonDocument>(apiUrl));
-        }
-        catch (Exception e)
+            response = GetRoot(await MauiProgram.HttpClient.GetFromJsonAsync<JsonDocument>(urlSet.ApiUrl));
+        } 
+        catch(Exception e)
         {
-            Utils.Log($"GetResponse({apiUrl}): {e.GetType().Name} {e.Message}");
+            Utils.Log($"Cache({urlSet.CanonUrl}): {e.GetType().Name} {e.Message}");
         }
-        if (response2 is not null)
+        if(response is not null)
         {
-            _responses[apiUrl] = response2.Value;
-            string cacheFolder = Path.Join(MauiProgram.TEMP_SAVE_LOCATION, "cache", new Uri(apiUrl).Host);
-            _ = Directory.CreateDirectory(cacheFolder);
-            File.WriteAllText(Path.Join(cacheFolder, $"{urlSet.Id}.json"), JsonSerializer.Serialize(response2));
-        }
+            _responses[urlSet.ApiUrl!] = response.Value;
+            _ = Directory.CreateDirectory(urlSet.CacheFolder);
+            File.WriteAllText(Path.Join(urlSet.CacheFolder, $"{urlSet.Id}.json"), JsonSerializer.Serialize(response));
+        } 
         else
         {
-            Utils.Log($"FileUrlAsync(): Failed to get response for {apiUrl}");
+            Utils.Log($"Cache({urlSet.CanonUrl}): Failed to get response for {urlSet.ApiUrl}");
         }
-        return response2;
+        return response;
     }
     public override async Task<string?> GetFileUrlAsync(UrlSet urlSet)
     {
@@ -108,7 +113,6 @@ public class JsonApiDef : ApiDef
             Utils.Log(e);
             return null;
         }
-
     }
     public override async Task<IEnumerable<string>?> GetTagsAsync(UrlSet urlSet)
     {
