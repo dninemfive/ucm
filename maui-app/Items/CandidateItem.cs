@@ -61,7 +61,9 @@ public class CandidateItem : IItemViewable
     }
     private static async Task<CandidateItem?> MakeFromUrlAsync(TransformedUrl tfedUrl)
     {
-        string? fileUrl = /* idk how to get this rn */ null;
+        string? fileUrl = await tfedUrl.Api.GetFileUrlAsync(tfedUrl);
+        if (fileUrl is null)
+            return null;
         byte[]? data = await fileUrl.GetBytesAsync(LocationType.Url);
         if (data is null)
             return null;
@@ -93,7 +95,7 @@ public class CandidateItem : IItemViewable
         return result is not null;
     }
     public static async Task<string?> GetFileUrlAsync(TransformedUrl tfedUrl)
-        => await tfedUrl..FileUrlFor(urlSet);
+        => await tfedUrl.Api.GetFileUrlAsync(tfedUrl);
     public override string ToString()
         => $"Candidate Item @ {Location}";
     public static async Task<ItemSource> GetItemSourceAsync(string? localPath, TransformedUrl? tfedUrl)
@@ -101,7 +103,7 @@ public class CandidateItem : IItemViewable
         if (localPath is not null)
             return new("Local Filesystem", localPath);
         else if(tfedUrl is not null)
-            return new(tfedUrl.Name, tfedUrl.Canonical, (await tfedUrl..TagsFor(urlSet))?.ToArray() ?? Array.Empty<string>());
+            return new(tfedUrl.Name, tfedUrl.Canonical, (await tfedUrl.Api.GetTagsAsync(tfedUrl))?.ToArray() ?? Array.Empty<string>());
         throw new Exception($"GetItemSourceAsync(): exactly one of `localPath` and `tfedUrl` must be non-null!");
     }
     [JsonIgnore]
