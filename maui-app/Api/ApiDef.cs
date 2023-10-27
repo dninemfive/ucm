@@ -13,7 +13,7 @@ namespace d9.ucm;
 public abstract class ApiDef
 {
 #pragma warning disable CS1998 // "lacks await": intentionally not implemented
-    public virtual async Task<string?> GetFileUrlAsync(UrlSet urlSet)
+    public virtual async Task<string?> GetFileUrlAsync(TransformedUrl summary)
         => throw new NotImplementedException();
     public virtual async Task<IEnumerable<string>?> GetTagsAsync(UrlSet urlSet)
         => throw new NotImplementedException();

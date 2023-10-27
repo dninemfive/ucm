@@ -69,9 +69,9 @@ public class JsonApiDef : ApiDef
     }
     public async Task<JsonElement?> GetResponse(UrlSet urlSet)
     {
-        if (!urlSet.IsFullyValid())
+        if (!urlSet.)
             return null;
-        string apiUrl = urlSet.ApiUrl!;
+        string apiUrl = .ApiUrl!;
         if (_responses.TryGetValue(apiUrl, out JsonElement response))
             return response;
         return await Cache(urlSet);
@@ -81,27 +81,27 @@ public class JsonApiDef : ApiDef
         JsonElement? response = null;
         try
         {
-            response = GetRoot(await MauiProgram.HttpClient.GetFromJsonAsync<JsonDocument>(urlSet.ApiUrl));
+            response = GetRoot(await MauiProgram.HttpClient.GetFromJsonAsync<JsonDocument>(.ApiUrl));
         } 
         catch(Exception e)
         {
-            Utils.Log($"Cache({urlSet.CanonUrl}): {e.GetType().Name} {e.Message}");
+            Utils.Log($"Cache({.CanonUrl}): {e.GetType().Name} {e.Message}");
         }
         if(response is not null)
         {
-            _responses[urlSet.ApiUrl!] = response.Value;
-            _ = Directory.CreateDirectory(urlSet.CacheFolder);
-            File.WriteAllText(Path.Join(urlSet.CacheFolder, $"{urlSet.Id}.json"), JsonSerializer.Serialize(response));
+            _responses[.ApiUrl!] = response.Value;
+            _ = Directory.CreateDirectory(.CacheFolder);
+            File.WriteAllText(Path.Join(.CacheFolder, $"{.Id}.json"), JsonSerializer.Serialize(response));
         } 
         else
         {
-            Utils.Log($"Cache({urlSet.CanonUrl}): Failed to get response for {urlSet.ApiUrl}");
+            Utils.Log($"Cache({.CanonUrl}): Failed to get response for {.ApiUrl}");
         }
         return response;
     }
     public override async Task<string?> GetFileUrlAsync(UrlSet urlSet)
     {
-        if (urlSet.ApiUrl is null)
+        if (.ApiUrl is null)
             return null;
         try
         {
@@ -116,7 +116,7 @@ public class JsonApiDef : ApiDef
     }
     public override async Task<IEnumerable<string>?> GetTagsAsync(UrlSet urlSet)
     {
-        if (urlSet.ApiUrl is null)
+        if (.ApiUrl is null)
             return null;
         JsonElement? response = await GetResponse(urlSet);
         return response?.GetProperty(TagKey).GetString()?.Split(TagDelimiter);

@@ -28,7 +28,7 @@ public class CandidateItem : IItemViewable
     public byte[] Data { get; private set; }
     public string? SourceUrl { get; private set; }
     public string? LocalPath { get; private set; }
-    public string Location => (LocalPath ?? UrlSet?.CanonUrl)!;
+    public string Location => (LocalPath ?? .CanonUrl)!;
     public ItemSource Source { get; private set; }
     private CandidateItem(string hash, byte[] data, ItemSource source, string? sourceUrl = null)
     {
@@ -49,24 +49,15 @@ public class CandidateItem : IItemViewable
     }
     public static async Task<CandidateItem?> MakeFromAsync(string location)
     {
-        LocationType locationType = LocationType.Invalid;
-        UrlSet? urlSet = UrlSet.From(location);
-        string? sourceLocation = null;
-        if (urlSet.IsFullyValid())
+        if (File.Exists(location))
         {
-            sourceLocation = await GetFileUrlAsync(urlSet!);
-            if(sourceLocation is null)
-            {
-                Utils.Log($"SourceLocation was null for UrlSet {urlSet}, which was allegedly fully valid.");
-                return null;
-            }
-            locationType = LocationType.Url;
-        }
-        else if(File.Exists(location))
+            return await MakeFromLocalAsync(location);
+        } 
+        else if(TransformedUrl.For(location) is TransformedUrl summary)
         {
-            sourceLocation = location;
-            locationType = LocationType.Path;
+            return await MakeFromUrlAsync(location);
         }
+        return null;
         if (sourceLocation is null || !sourceLocation.ExtensionIsSupported())
             return null;
         byte[]? data = await sourceLocation.GetBytesAsync(locationType);
@@ -76,6 +67,25 @@ public class CandidateItem : IItemViewable
         if (urlSet is not null)
             return new(urlSet!, hash, data, await GetItemSourceAsync(null, urlSet), sourceLocation);
         return new(localPath: sourceLocation, hash, data, await GetItemSourceAsync(sourceLocation, null));
+    }
+    private static async Task<CandidateItem?> MakeFromUrlAsync(string url)
+    {
+        TransformedUrl? summary = TransformedUrl.For(url);
+        if (summary is null)
+            return null;
+        
+    }
+    private static async Task<CandidateItem?> MakeFromLocalAsync(string path)
+    {
+        if (!File.Exists(path) || !path.ExtensionIsSupported())
+            return null;
+        byte[]? data = await path.GetBytesAsync(LocationType.Path);
+        if (data is null)
+            return null;
+        string? hash = await data.HashAsync();
+        if(hash is null) 
+            return null;
+        return new(localPath: path, hash, data, await GetItemSourceAsync(path, null));
     }
     public async Task<bool> SaveAsync()
     {
@@ -88,7 +98,7 @@ public class CandidateItem : IItemViewable
         return result is not null;
     }
     public static async Task<string?> GetFileUrlAsync(UrlSet urlSet)
-        => await urlSet.UrlRule.FileUrlFor(urlSet);
+        => await .UrlRule.FileUrlFor(urlSet);
     public override string ToString()
         => $"Candidate Item @ {Location}";
     public static async Task<ItemSource> GetItemSourceAsync(string? localPath, UrlSet? urlSet)
@@ -96,7 +106,7 @@ public class CandidateItem : IItemViewable
         if (localPath is not null)
             return new("Local Filesystem", localPath);
         else
-            return new(urlSet!.UrlRule.Name, urlSet!.CanonUrl!, (await urlSet.UrlRule.TagsFor(urlSet))?.ToArray() ?? Array.Empty<string>());
+            return new(.UrlRule.Name, .CanonUrl!, (await .UrlRule.TagsFor(urlSet))?.ToArray() ?? Array.Empty<string>());
     }
     [JsonIgnore]
     public Label InfoLabel => new()

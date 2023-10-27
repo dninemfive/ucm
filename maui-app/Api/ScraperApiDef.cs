@@ -39,7 +39,7 @@ internal class ScraperApiDef : ApiDef
             if (json is null)
                 return null;
             string unescaped = HttpUtility.HtmlDecode(json).Unescape();
-            unescaped = Regex.Split(unescaped.Split($"\"{urlSet.Id}\":")[1], ",\"\\d{9}")[0];
+            unescaped = Regex.Split(unescaped.Split($"\"{.Id}\":")[1], ",\"\\d{9}")[0];
             return unescaped;
         }
         string? unescaped = await Task.Run(doThing);
@@ -72,21 +72,21 @@ internal class ScraperApiDef : ApiDef
         string? response = null;
         try
         {
-            response = await MauiProgram.HttpClient.GetStringAsync(urlSet.ApiUrl);
+            response = await MauiProgram.HttpClient.GetStringAsync();
         }
         catch (Exception e)
         {
-            Utils.Log($"Cache({urlSet.CanonUrl}): {e.GetType().Name} {e.Message}");
+            Utils.Log($"Cache({}): {e.GetType().Name} {e.Message}");
         }
         if (response is not null)
         {
             // _responses[urlSet.ApiUrl!] = response.Value;
-            _ = Directory.CreateDirectory(urlSet.CacheFolder);
-            File.WriteAllText(Path.Join(urlSet.CacheFolder, $"{(urlSet.CanonUrl ?? urlSet.RawUrl).LocalPath}.html"), response);
+            _ = Directory.CreateDirectory();
+            File.WriteAllText(Path.Join(, $"{}.html"), response);
         }
         else
         {
-            Utils.Log($"Cache({urlSet.CanonUrl}): Failed to get response for {urlSet.ApiUrl}");
+            Utils.Log($"Cache({}): Failed to get response for {}");
         }
         return response;
     }

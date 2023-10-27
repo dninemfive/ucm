@@ -72,7 +72,7 @@ public class Item : IItemViewable
         {
             return new(ci.LocalPath, ci.Hash, IdManager.Register(), ci.Source);
         }
-        UrlRule? urlRule = ci.UrlSet?.UrlRule;
+        UrlRule? urlRule = ci. ?.UrlRule;
         if (urlRule is not null)
         {
             ItemId id = IdManager.Register();

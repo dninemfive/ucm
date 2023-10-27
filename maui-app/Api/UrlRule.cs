@@ -52,7 +52,7 @@ public class UrlRule
     public bool Supports(string url)
         => Regex.IsMatch(url, MatchRegex);
     public override string ToString() => Name;
-    public ApiInfoSet? InfoFor(string url) => InfoGetter.InfoFor(url, Info);
+    public UrlInfoSet? InfoFor(string url) => InfoGetter.InfoFor(url, Info);
     public static IEnumerable<UrlRule> Matching(string s) => UrlRuleManager.UrlRules.Where(x => x.Supports(s));
     // todo: allow the user to decide
     private static readonly Dictionary<string, UrlRule?> _bestFor = new();
@@ -74,12 +74,6 @@ public class UrlRule
         result = results.Any() ? results.First() : null;
         _bestFor[url] = result;
         return result;
-    }
-    public static string? BestCanonicalUrlFor(string url)
-    {
-        UrlRule? best = BestFor(url);
-        ApiInfoSet? id = best?.InfoFor(url);
-        return best?.CanonicalUrl.For(id);
     }
     #endregion static
 }

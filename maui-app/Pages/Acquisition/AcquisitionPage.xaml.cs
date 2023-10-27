@@ -50,10 +50,14 @@ public partial class AcquisitionPage : ContentPage
         // then add bookmarks after, shuffled
         _candidateLocations.AddRange(await LoadBookmarksAsync());
         Utils.Log($"Candidate count by best url rule:");
-        foreach(UrlRule rule in UrlRuleManager.UrlRules)
+        int total = 0;
+        foreach(UrlTransformerDef def in UrlTransformerDef.List)
         {
-            Utils.Log($"\t{rule.Name}\t{_candidateLocations.Count(x => UrlRule.BestFor(x)?.Name == rule.Name)})");
+            int ct = _candidateLocations.Count(x => UrlTransformerDefs.FirstMatching(x) == def);
+            total += ct;
+            Utils.Log($"\t{def.Name,-16}\t{ct})");
         }
+        Utils.Log($"\t{"(none)",-16}\t{_candidateLocations.Count - total}");
     }
     private static void LogCount(string location, int count)
     {
@@ -81,7 +85,7 @@ public partial class AcquisitionPage : ContentPage
     {        
         List<string> result = new(),
                      bookmarks = (await JsonSerializer.DeserializeAsync<List<string>>(File.OpenRead(_bookmarksPath)))!;
-        foreach (string? url in await Task.Run(() => bookmarks.Select(x => UrlRule.BestCanonicalUrlFor(x)).Distinct()))
+        foreach (string? url in await Task.Run(() => bookmarks.Select(x => TransformedUrl.For(x)?.CanonicalUrl).Distinct()))
         {
             if (url is null || _locations.Contains(url))
                 continue;

@@ -7,49 +7,60 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace d9.ucm;
-public class ApiDef2
+
+public static class UrlTransformerDefs
 {
-    [JsonInclude]
-    public string Domain { get; private set; }
-    [JsonInclude]
-    public string Name { get; private set; }
-    [JsonInclude]
-    public string MatchRegex { get; private set; }
-    // gets info from the url, e.g. a post id after a specific string
-    public Dictionary<string, string> ItemInfo;
-    // patterns which generate useful URLs, such as API endpoints or canonical URLs
-    public Dictionary<string, UrlPattern> Urls;
-    // headers to include when making requests to this API
-    public Dictionary<string, string> Headers;
-    public bool Matches(string url) => Regex.IsMatch(url, MatchRegex);
-    [JsonIgnore]
-    public static IEnumerable<ApiDef2> List;
+    public static IReadOnlyDictionary<string, UrlTransformerDef> ByName => _byName;
+    private static readonly Dictionary<string, UrlTransformerDef> _byName = new();
+    static UrlTransformerDefs()
+    {
+        foreach (UrlTransformerDef def in MauiProgram.TEMP_RULE_LOCATION.LoadAll<UrlTransformerDef>())
+        {
+            if (_byName.ContainsKey(def.Name))
+                Utils.Log($"Duplicate ApiDefs with name {def.Name}!");
+            _byName[def.Name] = def;
+        }
+        Utils.Log($"Loaded UrlRules:");
+        foreach (string name in UrlTransformerDef.List.Select(x => x.Name).Order())
+            Utils.Log($"\t{name,-16}");
+    }
+    // todo: change this to indexing each ApiDef by the uri's domain. there should be one and only one valid ApiDef per url.
+    //       the multiple results portion will be AcquisitionHandlers or smth which will handle figuring out whether it's 
+    //       a music file or a video or whatever
+    public static IEnumerable<UrlTransformerDef> Matching(string url)
+        => UrlTransformerDef.List.Where(x => x.Matches(url)).OrderBy(x => $"{x.Domain} {x.Name}");
+    public static UrlTransformerDef? FirstMatching(string url)
+    {
+        List<UrlTransformerDef> matches = Matching(url).ToList();
+        if (matches.Any())
+            return matches.First();
+        return null;
+    }
 }
-public static class ApiDefs
+public class TransformedUrl
 {
-    public static IEnumerable<ApiDef2> Matching(string url)
-        => ApiDef2.List.Where(x => x.Matches(url));
-}
-public class ApiSummary
-{
-    public ApiDef2 Def { get; private set; }
+    public UrlTransformerDef Def { get; private set; }
     public string Name => $"{Def.Domain} {Def.Name}";
-    public ApiInfoSet InfoSet;
+    public UrlInfoSet InfoSet;
     public IReadOnlyDictionary<string, string> Urls;
-    private ApiSummary(ApiDef2 def, ApiInfoSet infoSet, Dictionary<string, string> urls)
+    private TransformedUrl(UrlTransformerDef def, UrlInfoSet infoSet, Dictionary<string, string> urls)
     {
         Def = def;
         InfoSet = infoSet;
         Urls = urls;
     }
-    public static ApiSummary? For(string url, ApiDef2 def)
+    public static TransformedUrl? For(string url, UrlTransformerDef? def = null)
     {
-        if (!def.Matches(url))
+        def ??= UrlTransformerDefs.FirstMatching(url);
+        if (def is null || !def.Matches(url))
             return null;
-        ApiInfoSet? infoSet = ApiInfoSet.For(url, def.ItemInfo);
+        UrlInfoSet? infoSet = UrlInfoSet.For(url, def.ItemInfo);
         if (infoSet is null)
             return null;
-        Dictionary<string, string> urls = new();
+        Dictionary<string, string> urls = new()
+        {
+            { "raw", url }
+        };
         foreach((string key, UrlPattern pattern) in def.Urls)
         {
             string? value = pattern.For(infoSet);
@@ -59,4 +70,5 @@ public class ApiSummary
         }
         return new(def, infoSet, urls);
     }
+    public string CanonicalUrl => Urls["canonical"];
 }

@@ -15,7 +15,7 @@ public class UrlPattern
     {
         Pattern = pattern;
     }
-    public string? For(ApiInfoSet? info)
+    public string? For(UrlInfoSet? info)
     {
         if (info is null)
             return null;

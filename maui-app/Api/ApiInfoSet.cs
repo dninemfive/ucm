@@ -7,14 +7,14 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace d9.ucm;
-public class ApiInfoSet : IEnumerable<KeyValuePair<string, string?>>
+public class UrlInfoSet : IEnumerable<KeyValuePair<string, string?>>
 {
-    private Dictionary<string, string?> _dict = new();
-    private ApiInfoSet(Dictionary<string, string?> dict)
+    private readonly Dictionary<string, string?> _dict = new();
+    private UrlInfoSet(Dictionary<string, string?> dict)
     {
         _dict = dict;
     }
-    public static ApiInfoSet? For(string url, List<InfoKeyDef> infoKeys)
+    public static UrlInfoSet? For(string url, List<InfoKeyDef> infoKeys)
     {
         Dictionary<string, string?>? result = new();
         foreach ((string key, string propertyName, InfoGetterType type) in infoKeys)
@@ -30,7 +30,7 @@ public class ApiInfoSet : IEnumerable<KeyValuePair<string, string?>>
         }
         return new(result);
     }
-    public static ApiInfoSet? For(string url, Dictionary<string, string> infoKeys)
+    public static UrlInfoSet? For(string url, Dictionary<string, string> infoKeys)
     {
         Dictionary<string, string?> result = new();
         foreach((string key, string matchRegex) in infoKeys)
