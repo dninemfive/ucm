@@ -16,6 +16,7 @@ namespace d9.ucm;
 /// </summary>
 public abstract class ApiDef
 {
+    public abstract string ApiUrlKey { get; protected set; }
 #pragma warning disable CS1998 // "lacks await": intentionally not implemented
     public virtual async Task<string?> GetFileUrlAsync(TransformedUrl tfedUrl)
         => throw new NotImplementedException();

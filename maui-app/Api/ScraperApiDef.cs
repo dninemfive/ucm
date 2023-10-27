@@ -14,21 +14,24 @@ namespace d9.ucm;
 internal class ScraperApiDef : ApiDef
 {
     [JsonInclude]
+    public override string ApiUrlKey { get; protected set; }
+    [JsonInclude]
     public string JsonStartString { get; private set; }
     [JsonInclude]
     public string JsonEndString { get; private set; }
-    public ScraperApiDef(string jsonStartString, string jsonEndString)
+    public ScraperApiDef(string apiUrlKey, string jsonStartString, string jsonEndString)
     {
+        ApiUrlKey = apiUrlKey;
         JsonStartString = jsonStartString;
         JsonEndString = jsonEndString;
     }
-    public override async Task<string?> GetFileUrlAsync(UrlSet urlSet)
+    public override async Task<string?> GetFileUrlAsync(TransformedUrl tfedUrl)
     {
         // request + cache html
         // find/construct url
         // return it
         // possibly start a timeout to avoid getting rate-limited or blocked
-        string? html = await Cache(urlSet);
+        string? html = await Cache(tfedUrl);
         if(html is null)
         {
             return null;
@@ -39,7 +42,7 @@ internal class ScraperApiDef : ApiDef
             if (json is null)
                 return null;
             string unescaped = HttpUtility.HtmlDecode(json).Unescape();
-            unescaped = Regex.Split(unescaped.Split($"\"{.Id}\":")[1], ",\"\\d{9}")[0];
+            unescaped = Regex.Split(unescaped.Split($"\"{tfedUrl.Id}\":")[1], ",\"\\d{9}")[0];
             return unescaped;
         }
         string? unescaped = await Task.Run(doThing);
@@ -67,33 +70,34 @@ internal class ScraperApiDef : ApiDef
             return null;
         }
     }
-    public static async Task<string?> Cache(UrlSet urlSet)
+    public async Task<string?> Cache(TransformedUrl tfedUrl)
     {
         string? response = null;
+        if(tfedUrl.Urls.TryGetValue(ApiUrlKey, out string? apiUrl))
         try
         {
-            response = await MauiProgram.HttpClient.GetStringAsync();
+            response = await MauiProgram.HttpClient.GetStringAsync(apiUrl);
         }
         catch (Exception e)
         {
-            Utils.Log($"Cache({}): {e.GetType().Name} {e.Message}");
+            Utils.Log($"Cache({tfedUrl}): {e.GetType().Name} {e.Message}");
         }
         if (response is not null)
         {
             // _responses[urlSet.ApiUrl!] = response.Value;
-            _ = Directory.CreateDirectory();
-            File.WriteAllText(Path.Join(, $"{}.html"), response);
+            _ = Directory.CreateDirectory(tfedUrl.CacheFolder);
+            File.WriteAllText($"{tfedUrl.CacheFilePath}.html", response);
         }
         else
         {
-            Utils.Log($"Cache({}): Failed to get response for {}");
+            Utils.Log($"Cache({tfedUrl}): Failed to get response for {apiUrl}");
         }
         return response;
     }
-    public override Task<IEnumerable<string>?> GetTagsAsync(UrlSet urlSet)
+    public override Task<IEnumerable<string>?> GetTagsAsync(TransformedUrl tfedUrl)
     {
         // look at cached html
         // find tag info idk
-        return base.GetTagsAsync(urlSet);
+        throw new NotImplementedException();
     }
 }

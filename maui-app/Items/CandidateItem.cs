@@ -24,11 +24,11 @@ public class CandidateItem : IItemViewable
         }
     }
     public string Hash { get; private set; }
-    public UrlSet? UrlSet { get; private set; }
+    public TransformedUrl? TfedUrl { get; private set; }
     public byte[] Data { get; private set; }
     public string? SourceUrl { get; private set; }
     public string? LocalPath { get; private set; }
-    public string Location => (LocalPath ?? .CanonUrl)!;
+    public string Location => (LocalPath ?? TfedUrl!.Canonical)!;
     public ItemSource Source { get; private set; }
     private CandidateItem(string hash, byte[] data, ItemSource source, string? sourceUrl = null)
     {
@@ -37,10 +37,10 @@ public class CandidateItem : IItemViewable
         Data = data;
         Source = source;
     }
-    private CandidateItem(UrlSet urlSet, string hash, byte[] data, ItemSource source, string? sourceUrl = null) 
+    private CandidateItem(TransformedUrl tfedUrl, string hash, byte[] data, ItemSource source, string? sourceUrl = null) 
         : this(hash, data, source, sourceUrl)
     {
-        UrlSet = urlSet;        
+        TfedUrl = tfedUrl;        
     }
     private CandidateItem(string localPath, string hash, byte[] data, ItemSource source, string? sourceUrl = null)
         : this(hash, data, source, sourceUrl)
@@ -53,27 +53,22 @@ public class CandidateItem : IItemViewable
         {
             return await MakeFromLocalAsync(location);
         } 
-        else if(TransformedUrl.For(location) is TransformedUrl summary)
+        else if(TransformedUrl.For(location) is TransformedUrl tfedUrl)
         {
-            return await MakeFromUrlAsync(location);
+            return await MakeFromUrlAsync(tfedUrl);
         }
         return null;
-        if (sourceLocation is null || !sourceLocation.ExtensionIsSupported())
-            return null;
-        byte[]? data = await sourceLocation.GetBytesAsync(locationType);
-        string? hash = await (data?.HashAsync() ?? Task.FromResult<string?>(null));
-        if (data is null || hash is null)
-            return null;
-        if (urlSet is not null)
-            return new(urlSet!, hash, data, await GetItemSourceAsync(null, urlSet), sourceLocation);
-        return new(localPath: sourceLocation, hash, data, await GetItemSourceAsync(sourceLocation, null));
     }
-    private static async Task<CandidateItem?> MakeFromUrlAsync(string url)
+    private static async Task<CandidateItem?> MakeFromUrlAsync(TransformedUrl tfedUrl)
     {
-        TransformedUrl? summary = TransformedUrl.For(url);
-        if (summary is null)
+        string? fileUrl = /* idk how to get this rn */ null;
+        byte[]? data = await fileUrl.GetBytesAsync(LocationType.Url);
+        if (data is null)
             return null;
-        
+        string? hash = await data.HashAsync();
+        if (hash is null)
+            return null;
+        return new(tfedUrl, hash, data, await GetItemSourceAsync(null, tfedUrl), fileUrl);
     }
     private static async Task<CandidateItem?> MakeFromLocalAsync(string path)
     {
@@ -97,16 +92,17 @@ public class CandidateItem : IItemViewable
         }
         return result is not null;
     }
-    public static async Task<string?> GetFileUrlAsync(UrlSet urlSet)
-        => await .UrlRule.FileUrlFor(urlSet);
+    public static async Task<string?> GetFileUrlAsync(TransformedUrl tfedUrl)
+        => await tfedUrl..FileUrlFor(urlSet);
     public override string ToString()
         => $"Candidate Item @ {Location}";
-    public static async Task<ItemSource> GetItemSourceAsync(string? localPath, UrlSet? urlSet)
+    public static async Task<ItemSource> GetItemSourceAsync(string? localPath, TransformedUrl? tfedUrl)
     {
         if (localPath is not null)
             return new("Local Filesystem", localPath);
-        else
-            return new(..Name, .CanonUrl!, (await .UrlRule.TagsFor(urlSet))?.ToArray() ?? Array.Empty<string>());
+        else if(tfedUrl is not null)
+            return new(tfedUrl.Name, tfedUrl.Canonical, (await tfedUrl..TagsFor(urlSet))?.ToArray() ?? Array.Empty<string>());
+        throw new Exception($"GetItemSourceAsync(): exactly one of `localPath` and `tfedUrl` must be non-null!");
     }
     [JsonIgnore]
     public Label InfoLabel => new()

@@ -11,7 +11,7 @@ namespace d9.ucm;
 public class JsonApiDef : ApiDef
 {
     [JsonInclude]
-    public string ApiUrlKey { get; private set; }
+    public override string ApiUrlKey { get; protected set; }
     [JsonInclude]
     public string FileUrlKey { get; private set; }
     [JsonInclude]
@@ -83,7 +83,7 @@ public class JsonApiDef : ApiDef
         JsonElement? response = null;        
         try
         {
-            response = GetRoot(await MauiProgram.HttpClient.GetFromJsonAsync<JsonDocument>(apiUrl);
+            response = GetRoot(await MauiProgram.HttpClient.GetFromJsonAsync<JsonDocument>(apiUrl));
         } 
         catch(Exception e)
         {
