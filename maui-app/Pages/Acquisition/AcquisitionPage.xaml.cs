@@ -85,7 +85,7 @@ public partial class AcquisitionPage : ContentPage
     {        
         List<string> result = new(),
                      bookmarks = (await JsonSerializer.DeserializeAsync<List<string>>(File.OpenRead(_bookmarksPath)))!;
-        foreach (string? url in await Task.Run(() => bookmarks.Select(x => TransformedUrl.For(x)?.CanonicalUrl).Distinct()))
+        foreach (string? url in await Task.Run(() => bookmarks.Select(x => TransformedUrl.For(x)?.Canonical).Distinct()))
         {
             if (url is null || _locations.Contains(url))
                 continue;

@@ -10,12 +10,16 @@ using System.Threading.Tasks;
 using d9.utl;
 
 namespace d9.ucm;
+/// <summary>
+/// The base class for the concept of taking a url which has been parsed for information and getting the information required to present
+/// the file, and if so desired download and acquire metadata for the file.
+/// </summary>
 public abstract class ApiDef
 {
 #pragma warning disable CS1998 // "lacks await": intentionally not implemented
-    public virtual async Task<string?> GetFileUrlAsync(TransformedUrl summary)
+    public virtual async Task<string?> GetFileUrlAsync(TransformedUrl tfedUrl)
         => throw new NotImplementedException();
-    public virtual async Task<IEnumerable<string>?> GetTagsAsync(UrlSet urlSet)
+    public virtual async Task<IEnumerable<string>?> GetTagsAsync(TransformedUrl tfedUrl)
         => throw new NotImplementedException();
 #pragma warning restore CS1998
 }

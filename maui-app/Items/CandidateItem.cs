@@ -106,7 +106,7 @@ public class CandidateItem : IItemViewable
         if (localPath is not null)
             return new("Local Filesystem", localPath);
         else
-            return new(.UrlRule.Name, .CanonUrl!, (await .UrlRule.TagsFor(urlSet))?.ToArray() ?? Array.Empty<string>());
+            return new(..Name, .CanonUrl!, (await .UrlRule.TagsFor(urlSet))?.ToArray() ?? Array.Empty<string>());
     }
     [JsonIgnore]
     public Label InfoLabel => new()

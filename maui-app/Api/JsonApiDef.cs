@@ -11,6 +11,8 @@ namespace d9.ucm;
 public class JsonApiDef : ApiDef
 {
     [JsonInclude]
+    public string ApiUrlKey { get; private set; }
+    [JsonInclude]
     public string FileUrlKey { get; private set; }
     [JsonInclude]
     public string TagKey { get; private set; }
@@ -27,8 +29,9 @@ public class JsonApiDef : ApiDef
     [JsonInclude]
     public string RootPath { get; private set; }
     [JsonConstructor]
-    public JsonApiDef(string fileUrlKey, string tagKey, string tagDelimiter, Dictionary<string, string> metadata, string rootPath = "")
+    public JsonApiDef(string apiUrlKey, string fileUrlKey, string tagKey, string tagDelimiter, Dictionary<string, string> metadata, string rootPath = "")
     {
+        ApiUrlKey = apiUrlKey;
         FileUrlKey = fileUrlKey;
         TagKey = tagKey;
         TagDelimiter = tagDelimiter;
@@ -67,45 +70,42 @@ public class JsonApiDef : ApiDef
         }
         return root;
     }
-    public async Task<JsonElement?> GetResponse(UrlSet urlSet)
+    public async Task<JsonElement?> GetResponse(TransformedUrl tfedUrl)
     {
-        if (!urlSet.)
+        if (!tfedUrl.Urls.TryGetValue(ApiUrlKey, out string? apiUrl))
             return null;
-        string apiUrl = .ApiUrl!;
         if (_responses.TryGetValue(apiUrl, out JsonElement response))
             return response;
-        return await Cache(urlSet);
+        return await Cache(tfedUrl, apiUrl);
     }
-    public async Task<JsonElement?> Cache(UrlSet urlSet)
+    public async Task<JsonElement?> Cache(TransformedUrl tfedUrl, string apiUrl)
     {
-        JsonElement? response = null;
+        JsonElement? response = null;        
         try
         {
-            response = GetRoot(await MauiProgram.HttpClient.GetFromJsonAsync<JsonDocument>(.ApiUrl));
+            response = GetRoot(await MauiProgram.HttpClient.GetFromJsonAsync<JsonDocument>(apiUrl);
         } 
         catch(Exception e)
         {
-            Utils.Log($"Cache({.CanonUrl}): {e.GetType().Name} {e.Message}");
+            Utils.Log($"Cache({tfedUrl.Canonical}): {e.GetType().Name} {e.Message}");
         }
         if(response is not null)
         {
-            _responses[.ApiUrl!] = response.Value;
-            _ = Directory.CreateDirectory(.CacheFolder);
-            File.WriteAllText(Path.Join(.CacheFolder, $"{.Id}.json"), JsonSerializer.Serialize(response));
+            _responses[apiUrl] = response.Value;
+            _ = Directory.CreateDirectory(tfedUrl.CacheFolder);
+            File.WriteAllText(Path.Join($"{tfedUrl.CacheFilePath}.json"), JsonSerializer.Serialize(response));
         } 
         else
         {
-            Utils.Log($"Cache({.CanonUrl}): Failed to get response for {.ApiUrl}");
+            Utils.Log($"Cache({tfedUrl.Canonical}): Failed to get response for {apiUrl}");
         }
         return response;
     }
-    public override async Task<string?> GetFileUrlAsync(UrlSet urlSet)
+    public override async Task<string?> GetFileUrlAsync(TransformedUrl tfedUrl)
     {
-        if (.ApiUrl is null)
-            return null;
         try
         {
-            JsonElement? response = await GetResponse(urlSet);
+            JsonElement? response = await GetResponse(tfedUrl);
             return response?.GetProperty(FileUrlKey).GetString();
         }
         catch (Exception e)
@@ -114,11 +114,9 @@ public class JsonApiDef : ApiDef
             return null;
         }
     }
-    public override async Task<IEnumerable<string>?> GetTagsAsync(UrlSet urlSet)
+    public override async Task<IEnumerable<string>?> GetTagsAsync(TransformedUrl tfedUrl)
     {
-        if (.ApiUrl is null)
-            return null;
-        JsonElement? response = await GetResponse(urlSet);
+        JsonElement? response = await GetResponse(tfedUrl);
         return response?.GetProperty(TagKey).GetString()?.Split(TagDelimiter);
     }
 }
