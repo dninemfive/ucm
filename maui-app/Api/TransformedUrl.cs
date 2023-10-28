@@ -8,7 +8,7 @@ namespace d9.ucm;
 public class TransformedUrl
 {
     public UrlTransformerDef Def { get; private set; }
-    public string Name => $"{Def.Domain} {Def.Name}";
+    public string Name => Def.Name;
     public UrlInfoSet InfoSet { get; private set; }
     public IReadOnlyDictionary<string, string> Urls { get; private set; }
     private TransformedUrl(UrlTransformerDef def, UrlInfoSet infoSet, Dictionary<string, string> urls)

@@ -55,9 +55,9 @@ public partial class AcquisitionPage : ContentPage
         {
             int ct = _candidateLocations.Count(x => UrlTransformerDefs.FirstMatching(x) == def);
             total += ct;
-            Utils.Log($"\t{def.Name,-16}\t{ct})");
+            Utils.Log($"\t{def.Name,-24}\t{ct})");
         }
-        Utils.Log($"\t{"(none)",-16}\t{_candidateLocations.Count - total}");
+        Utils.Log($"\t{"(none)",-24}\t{_candidateLocations.Count - total}");
     }
     private static void LogCount(string location, int count)
     {
@@ -123,7 +123,7 @@ public partial class AcquisitionPage : ContentPage
     private async void NextItem()
     {
         SetButtonsActive(false);
-        Utils.Log($"next");
+        //Utils.Log($"next");
         _currentCandidate = null;
         while(_currentCandidate is null)
         {

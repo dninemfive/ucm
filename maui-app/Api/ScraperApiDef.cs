@@ -13,18 +13,20 @@ using HtmlAgilityPack;
 namespace d9.ucm;
 internal class ScraperApiDef : ApiDef
 {
-    [JsonInclude]
     public override string ApiUrlKey { get; protected set; }
-    [JsonInclude]
     public string JsonStartString { get; private set; }
-    [JsonInclude]
     public string JsonEndString { get; private set; }
     public ScraperApiDef(string apiUrlKey, string jsonStartString, string jsonEndString)
+        : base(new())
     {
         ApiUrlKey = apiUrlKey;
         JsonStartString = jsonStartString;
         JsonEndString = jsonEndString;
     }
+    public ScraperApiDef(Dictionary<string, string> args) : this(
+        args[nameof(ApiUrlKey)],
+        args[nameof(JsonStartString)],
+        args[nameof(JsonEndString)]) { }
     public override async Task<string?> GetFileUrlAsync(TransformedUrl tfedUrl)
     {
         // request + cache html
@@ -94,10 +96,10 @@ internal class ScraperApiDef : ApiDef
         }
         return response;
     }
-    public override Task<IEnumerable<string>?> GetTagsAsync(TransformedUrl tfedUrl)
+    public override async Task<IEnumerable<string>?> GetTagsAsync(TransformedUrl tfedUrl)
     {
         // look at cached html
         // find tag info idk
-        throw new NotImplementedException();
+        return null;
     }
 }

@@ -10,42 +10,28 @@ using System.Net.Http.Json;
 namespace d9.ucm;
 public class JsonApiDef : ApiDef
 {
-    [JsonInclude]
     public override string ApiUrlKey { get; protected set; }
-    [JsonInclude]
     public string FileUrlKey { get; private set; }
-    [JsonInclude]
     public string TagKey { get; private set; }
-    [JsonInclude]
     public string TagDelimiter { get; private set; }
-    // todo: move metadata to api
-    [JsonInclude]
-    public Dictionary<string, string> Metadata { get; private set; }
-    [JsonIgnore]
-    public Dictionary<string, Type> MetadataTypes { get; private set; } = new();
-    [JsonIgnore]
     // todo: purge this cache on occasion, or perhaps just load from file each time lol
     private Dictionary<string, JsonElement> _responses { get; set; } = new();
-    [JsonInclude]
     public string RootPath { get; private set; }
-    [JsonConstructor]
-    public JsonApiDef(string apiUrlKey, string fileUrlKey, string tagKey, string tagDelimiter, Dictionary<string, string> metadata, string rootPath = "")
+    public JsonApiDef(string apiUrlKey, string fileUrlKey, string tagKey, string tagDelimiter, string rootPath = "")
+        : base(new())
     {
         ApiUrlKey = apiUrlKey;
         FileUrlKey = fileUrlKey;
         TagKey = tagKey;
         TagDelimiter = tagDelimiter;
-        Metadata = metadata;
-        foreach ((string k, string v) in metadata)
-        {
-            Type? type = v.ToType();
-            if (type is not null)
-            {
-                MetadataTypes[k] = type;
-            }
-        }
         RootPath = rootPath;
     }
+    public JsonApiDef(Dictionary<string, string> args) : this(
+        args[nameof(ApiUrlKey)],
+        args[nameof(FileUrlKey)],
+        args[nameof(TagKey)],
+        args[nameof(TagDelimiter)],
+        args.TryGetValue(nameof(RootPath), out string? rootPath) ? rootPath : "") { }
     private JsonElement? GetRoot(JsonDocument? doc)
     {
         if (doc is null)

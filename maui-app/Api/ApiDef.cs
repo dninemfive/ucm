@@ -16,6 +16,11 @@ namespace d9.ucm;
 /// </summary>
 public abstract class ApiDef
 {
+    public static readonly Dictionary<string, Type> Types = new()
+    {
+        { "JsonApiDef", typeof(JsonApiDef) },
+        { "ScraperApiDef", typeof(ScraperApiDef) }
+    };
     public abstract string ApiUrlKey { get; protected set; }
 #pragma warning disable CS1998 // "lacks await": intentionally not implemented
     public virtual async Task<string?> GetFileUrlAsync(TransformedUrl tfedUrl)
@@ -23,4 +28,5 @@ public abstract class ApiDef
     public virtual async Task<IEnumerable<string>?> GetTagsAsync(TransformedUrl tfedUrl)
         => throw new NotImplementedException();
 #pragma warning restore CS1998
+    public ApiDef(Dictionary<string, string> args) { }
 }

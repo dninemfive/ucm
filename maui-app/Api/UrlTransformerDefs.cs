@@ -25,7 +25,7 @@ public static class UrlTransformerDefs
     //       the multiple results portion will be AcquisitionHandlers or smth which will handle figuring out whether it's 
     //       a music file or a video or whatever
     public static IEnumerable<UrlTransformerDef> Matching(string url)
-        => UrlTransformerDef.List.Where(x => x.Matches(url)).OrderBy(x => $"{x.Domain} {x.Name}");
+        => UrlTransformerDef.List.Where(x => x.Matches(url)).OrderBy(x => x.Name);
     public static UrlTransformerDef? FirstMatching(string url)
     {
         List<UrlTransformerDef> matches = Matching(url).ToList();

@@ -55,20 +55,29 @@ public static class Extensions
     public static double ScrollSpace(this ScrollView sv)
         => sv.ContentSize.Height - sv.Height;
     public static IEnumerable<T> LoadAll<T>(this string srcFolder, Func<(string path, T item), bool>? validator = null)
-    {        
+    {
         int ct = 0;
         foreach (string path in Directory.EnumerateFiles(srcFolder))
         {
             if (!(path.FileExtension() == ".json" || (path.FileExtension() == ".secret" && path.Contains(".json.secret"))))
                 continue;
-            T? item = JsonSerializer.Deserialize<T>(File.ReadAllText(path));
+            T? item = default;
+            try 
+            {
+                item = JsonSerializer.Deserialize<T>(File.ReadAllText(path));                
+            } 
+            catch(Exception e)
+            {
+                Utils.Log($"Error loading {typeof(T).Name} from `{path}`:\t\n{e.GetType().Name}: {e.Message}");
+            }
             if (item is not null && (validator is null || validator((path, item))))
             {
                 ct++;
                 yield return item;
             }
+
         }
-        Utils.Log($"Loading {ct} {typeof(T).Name.ToLower()}s from {srcFolder}.");
+        Utils.Log($"Loaded {ct} {typeof(T).Name}s from {srcFolder}.");
     }
     public static Competition.Rating? RatingAs(this Item item, string? name)
         => Competition.Named(name)?.RatingOf(item);
