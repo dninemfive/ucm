@@ -39,5 +39,5 @@ public class UrlPatternConverter : JsonConverter<UrlPattern>
     public override UrlPattern ReadAsPropertyName(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         => reader.GetString()!;
     public override void WriteAsPropertyName(Utf8JsonWriter writer, UrlPattern value, JsonSerializerOptions options)
-        => writer.WritePropertyName(value.ToString());
+        => writer.WritePropertyName(value.ToString()!);
 }

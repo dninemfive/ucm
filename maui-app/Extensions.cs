@@ -15,7 +15,18 @@ public static class Extensions
     public static async Task<string?> FileHashAsync(this string path) => await Task.Run(path.FileHash);
     public static string? Hash(this byte[] bytes) => JsonSerializer.Serialize(SHA512.HashData(bytes)).Replace("\"", "");
     public static async Task<string?> HashAsync(this byte[] bytes) => await Task.Run(bytes.Hash);
-    public static View? BestAvailableView(this string path) => Path.GetExtension(path).ToLower() switch
+    public static string FileExtension(this string path)
+    {
+        if(path.Contains("http"))
+        {
+            foreach (char delim in "#?")
+                path = path.Split(delim)[0];
+        }
+        return Path.GetExtension(path).ToLower();
+    }
+    // need list of supported extensions again smh (not available afaik)
+    // private static readonly Dictionary<string, Func<string, View>> _viewGenerators = new()
+    public static View? BestAvailableView(this string path) => path.FileExtension() switch
     {
         // https://devblogs.microsoft.com/dotnet/announcing-dotnet-maui-communitytoolkit-mediaelement/
         ".mov" or ".mp4" or ".webm" => null,
@@ -24,7 +35,7 @@ public static class Extensions
         _ => new Image() { Source = path, IsAnimationPlaying = true, Aspect = Aspect.AspectFit }
     };
     public static bool ExtensionIsSupported(this string path)
-        => Path.GetExtension(path).ToLower() is not (".mov" or ".mp4" or ".webm" or ".xcf" or ".pdf" or ".zip");
+        => path.FileExtension() is not (".mov" or ".mp4" or ".webm" or ".xcf" or ".pdf" or ".zip");
     public static double StandardDeviation(this IEnumerable<double> vals)
     {
         if (!vals.Any())
@@ -50,7 +61,6 @@ public static class Extensions
     }
     public static string? DirectoryName(this string? path) => Path.GetDirectoryName(path);
     public static string? FileName(this string? path) => Path.GetFileName(path);
-    public static string? FileExtension(this string? path) => Path.GetExtension(path);
     // https://stackoverflow.com/a/76251267
     public static double ScrollSpace(this ScrollView sv)
         => sv.ContentSize.Height - sv.Height;

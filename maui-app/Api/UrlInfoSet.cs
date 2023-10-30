@@ -63,11 +63,10 @@ public class UrlInfoSet : IEnumerable<KeyValuePair<string, string?>>
         return null;
     }
     public string? this[string key] => _dict[key];
-
     public IEnumerator<KeyValuePair<string, string?>> GetEnumerator()
         => _dict.GetEnumerator();
-
     IEnumerator IEnumerable.GetEnumerator()
         => _dict.GetEnumerator();
+    public override string ToString() => $"UrlInfoSet({_dict.Keys.Order().Select(x => $"{x}:{_dict[x].PrintNull()}").Aggregate((x, y) => $"{x}, {y}")})";
 }
 public enum InfoGetterType { Path = 0, Query = 1 }

@@ -38,51 +38,67 @@ internal class ScraperApiDef : ApiDef
         {
             return null;
         }
-        string? doThing()
+        (string? unescaped, string? err) doThing()
         {
             string? json = html.ItemBetween(JsonStartString, JsonEndString);
             if (json is null)
-                return null;
+                return (null, null);
             string unescaped = HttpUtility.HtmlDecode(json).Unescape();
-            unescaped = Regex.Split(unescaped.Split($"\"{tfedUrl.Id}\":")[1], ",\"\\d{9}")[0];
-            return unescaped;
+            try
+            {
+                unescaped = Regex.Match(unescaped, $"\"{tfedUrl.Id}\":(.+\"entityId\":{tfedUrl.Id}}})").Groups.Values.ElementAt(1).Value;
+            } 
+            catch(Exception e)
+            {
+                return (null, $"{e.GetType().Name}: {e.Message}\n{unescaped}");
+            }            
+            // unescaped = Regex.Split(unescaped.Split($"\"{tfedUrl.Id}\":")[1], ",\"\\d{9}")[0];
+            return (unescaped, null);
         }
-        string? unescaped = await Task.Run(doThing);
+        (string? unescaped, string? err) = await Task.Run(doThing);
         if (unescaped is null)
             return null;
+        if(err is not null)
+        {
+            Utils.Log(err);
+            return null;
+        }
         //Utils.Log(unescaped);
         // .Split(",\"447510389")[0];
-        Utils.Log(unescaped);
+        //Utils.Log(unescaped);
         try
         {
             JsonElement el = JsonSerializer.Deserialize<JsonElement>(unescaped)!;
-            Utils.Log(el.PrettyPrint());
+            //Utils.Log(el.PrettyPrint());
             JsonElement media = el.GetProperty("media");
             string baseUri = media.GetProperty("baseUri").GetString()!;
             string prettyName = media.GetProperty("prettyName").GetString()!;
             string token = media.GetProperty("token").EnumerateArray().First().GetString()!;
             JsonElement type = media.GetProperty("types").EnumerateArray().Where(x => x.GetProperty("t").GetString() == "preview").First();
             string resultUrl = $"{baseUri}{type.GetProperty("c").GetString()!.Replace("<prettyName>", prettyName)}?token={token}";
-            Utils.Log(resultUrl);
+            //Utils.Log(resultUrl);
             return resultUrl;
         }
         catch (Exception ex)
         {
-            Utils.Log(ex);
+            Utils.Log($"{ex.GetType().Name}: {ex.Message}\n{unescaped}");
             return null;
         }
     }
     public async Task<string?> Cache(TransformedUrl tfedUrl)
     {
+        if (File.Exists($"{tfedUrl.CacheFilePath}.html"))
+            return await Task.Run(() => File.ReadAllText($"{tfedUrl.CacheFilePath}.html"));
         string? response = null;
-        if(tfedUrl.Urls.TryGetValue(ApiUrlKey, out string? apiUrl))
+        if (!tfedUrl.Urls.TryGetValue(ApiUrlKey, out string? apiUrl))
+            return null;
         try
         {
             response = await MauiProgram.HttpClient.GetStringAsync(apiUrl);
         }
         catch (Exception e)
         {
-            Utils.Log($"Cache({tfedUrl}): {e.GetType().Name} {e.Message}");
+            // Utils.Log($"Cache({tfedUrl}): {e.GetType().Name} {e.Message}");
         }
         if (response is not null)
         {
@@ -92,7 +108,7 @@ internal class ScraperApiDef : ApiDef
         }
         else
         {
-            Utils.Log($"Cache({tfedUrl}): Failed to get response for {apiUrl}");
+            // Utils.Log($"Cache({tfedUrl}): Failed to get response for {apiUrl}");
         }
         return response;
     }

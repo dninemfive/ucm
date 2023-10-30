@@ -35,6 +35,7 @@ public class TransformedUrl
             if (value is null)
                 return null;
             urls[key] = value;
+            
         }
         return new(def, infoSet, urls);
     }
@@ -52,4 +53,5 @@ public class TransformedUrl
             return apiUrl;
         }
     }
+    public override string ToString() => $"TransformedUrl {Canonical}";
 }

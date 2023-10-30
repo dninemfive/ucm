@@ -14,8 +14,6 @@ public class JsonApiDef : ApiDef
     public string FileUrlKey { get; private set; }
     public string TagKey { get; private set; }
     public string TagDelimiter { get; private set; }
-    // todo: purge this cache on occasion, or perhaps just load from file each time lol
-    private Dictionary<string, JsonElement> _responses { get; set; } = new();
     public string RootPath { get; private set; }
     public JsonApiDef(string apiUrlKey, string fileUrlKey, string tagKey, string tagDelimiter, string rootPath = "")
         : base(new())
@@ -60,8 +58,8 @@ public class JsonApiDef : ApiDef
     {
         if (!tfedUrl.Urls.TryGetValue(ApiUrlKey, out string? apiUrl))
             return null;
-        if (_responses.TryGetValue(apiUrl, out JsonElement response))
-            return response;
+        if (File.Exists($"{tfedUrl.CacheFilePath}.json"))
+            return await Task.Run(() => JsonSerializer.Deserialize<JsonElement>(File.ReadAllText($"{tfedUrl.CacheFilePath}.json")));
         return await Cache(tfedUrl, apiUrl);
     }
     public async Task<JsonElement?> Cache(TransformedUrl tfedUrl, string apiUrl)
@@ -77,9 +75,8 @@ public class JsonApiDef : ApiDef
         }
         if(response is not null)
         {
-            _responses[apiUrl] = response.Value;
             _ = Directory.CreateDirectory(tfedUrl.CacheFolder);
-            File.WriteAllText(Path.Join($"{tfedUrl.CacheFilePath}.json"), JsonSerializer.Serialize(response));
+            File.WriteAllText($"{tfedUrl.CacheFilePath}.json", JsonSerializer.Serialize(response));
         } 
         else
         {

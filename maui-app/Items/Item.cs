@@ -78,7 +78,7 @@ public class Item : IItemViewable
             ItemId id = IdManager.Register();
             if (ci.Data is not null)
             {
-                string? newPath = Path.Join(MauiProgram.ITEM_FILE_LOCATION, $"{id}{Path.GetExtension(ci.SourceUrl)}");
+                string? newPath = Path.Join(MauiProgram.ITEM_FILE_LOCATION, $"{id}{ci.SourceUrl?.FileExtension()}");
                 File.WriteAllBytes(newPath, ci.Data);
                 return new(newPath, ci.Hash, id, ci.Source);
             }            

@@ -15,6 +15,7 @@ public partial class ItemView : ContentView
 	public ItemView()
 	{
 		InitializeComponent();
+        SourceList.HeightRequest = HeightRequest;
 	}
 	private void UpdateInfo()
 	{

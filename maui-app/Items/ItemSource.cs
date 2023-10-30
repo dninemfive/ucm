@@ -35,4 +35,5 @@ public class ItemSource
     [JsonIgnore]
     public string LabelText
         => $"Source: {Location} ({SourceName})\nAcquired at: {AcquiredAt:g}{Tags.AsBulletedList()}";
+    public override string ToString() => $"ItemSource {Location}";
 }
