@@ -3,8 +3,9 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="d9.ucm.ThumbnailView">
     <AbsoluteLayout BackgroundColor="#222222" Margin="5">
-        <Image x:Name="Thumbnail" ZIndex="0" Aspect="AspectFit" AnchorX="0" AnchorY="0"/>
-        <AbsoluteLayout ZIndex="1" AnchorX="0" AnchorY="0" BackgroundColor="Black" Opacity=".69">
+        <Image x:Name="Thumbnail" ZIndex="0" Aspect="AspectFit" AnchorX="0" AnchorY="0" InputTransparent="True"/>
+        <ImageButton x:Name="Button" ZIndex="-1" AnchorX="0" AnchorY="0" Clicked="Thumbnail_Clicked"/>
+        <AbsoluteLayout ZIndex="1" AnchorX="0" AnchorY="0" BackgroundColor="Black" Opacity=".69" InputTransparent="True">
             <Label x:Name="Label" 
                ZIndex="3" 
                VerticalOptions="Start" 

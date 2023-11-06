@@ -25,24 +25,26 @@ public static class ItemManager
             return _itemsById!;
         }
     }
-    private static Dictionary<string, Item>? _itemsByHash = null;
-    public static IReadOnlyDictionary<string, Item> ItemsByHash
+    private static Dictionary<string, ItemId>? _itemsByHash = null;
+    public static bool TryGetItemByHash(string hash, out Item? result)
     {
-        get
+        if (_itemsByHash is null)
         {
-            if(_itemsByHash is null)
-            {
-                Utils.Log($"Attempted to access ItemsByHash before loading.");
-                Load();
-            }
-            return _itemsByHash!;
+            Utils.Log($"Attempted to access ItemsByHash before loading.");
+            Load();
         }
+        if(_itemsByHash!.TryGetValue(hash, out ItemId id))
+        {
+            return _itemsById!.TryGetValue(id, out result);
+        }
+        result = null;
+        return false;
     }
     #endregion
     public static void Register(Item item)
     {
         _itemsById![item.Id] = item;
-        _itemsByHash![item.Hash] = item;
+        _itemsByHash![item.Hash] = item.Id;
     }
     public static void Load()
     {
@@ -53,6 +55,8 @@ public static class ItemManager
         _itemsByHash = new();
         foreach (Item item in MauiProgram.TEMP_SAVE_LOCATION.LoadAll<Item>(x =>
         {
+            // todo: check if item hash matches current hash
+            // if not, update but log
             (string src, Item item) = x;
             bool result = item.LocalPath.Exists;
             if (!result)
@@ -89,7 +93,7 @@ public static class ItemManager
         {
             return true;
         }
-        if(ItemsByHash.TryGetValue(ci.Hash, out Item? item) && !item.HasSourceInfoFor(ci.Location))
+        if(TryGetItemByHash(ci.Hash, out Item? item) && !item!.HasSourceInfoFor(ci.Location))
         {
             item.AddSource(ci.Source);
             // Utils.Log($"TryUpdateAnyMatchingItemAsnyc({ci}) -> {item}: {item.Sources.ListNotation()}");

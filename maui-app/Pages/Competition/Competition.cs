@@ -70,9 +70,28 @@ public class Competition
         Ratings = ratings;
     }
     // todo: find a way to drop the bottom x percentile of items
-    public bool IsIrrelevant(ItemId id) => IrrelevantItems.Contains(id) || (Ratings.TryGetValue(id, out Rating? r) && r.CiUpperBound < 0.4);
-    public Rating? RatingOf(ItemId id) => IsIrrelevant(id) ? null : Ratings.TryGetValue(id, out Rating? r) ? r : null;
-    public Rating? RatingOf(Item item) => RatingOf(item.Id);
+    public bool IsIrrelevant(ItemId id) => IrrelevantItems.Contains(id) || ItemManager.ItemsById[id].Hidden;
+    public Rating? RatingOf(ItemId id)
+        => RatingOf(ItemManager.ItemsById[id]);
+    public Rating? RatingOf(Item? item)
+    {
+        if (item is null || IsIrrelevant(item.Id))
+            return null;
+        Rating? primaryRating = Ratings.TryGetValue(item.Id, out Rating? r) ? r : null;
+        if (primaryRating is not null && item.MergeInfo is null)
+            return primaryRating;
+        IEnumerable<Rating?> otherRatings = item.MergeInfo?.ParentIds.Select(x => Ratings.TryGetValue(x, out Rating? r) ? r : null) ?? Enumerable.Empty<Rating>();
+        int timesSelected = primaryRating?.TimesSelected ?? 0;
+        int totalRatings = primaryRating?.TotalRatings ?? 0;
+        foreach(Rating? rating in otherRatings)
+        {
+            if (rating is null)
+                continue;
+            timesSelected += rating.TimesSelected;
+            totalRatings += rating.TotalRatings;
+        }
+        return new(timesSelected, totalRatings);
+    }
     public static Competition? Named(string? name) 
         => name is null ? null : CompetitionManager.CompetitionsByName.TryGetValue(name, out Competition? competition) ? competition : null;
     public static IEnumerable<string> Names => CompetitionManager.Names;
@@ -168,6 +187,8 @@ public class Competition
             _ = IrrelevantItems.Remove(id.Value);
         }
     }
+    public void ToggleIrrelevant(ItemId id)
+        => SetIrrelevant(id, !IsIrrelevant(id));
     public static async Task<Competition?> LoadOrCreateAsync(string? name)
     {
         if (name is null or "")

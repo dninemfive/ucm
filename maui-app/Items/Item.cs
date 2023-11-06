@@ -8,6 +8,11 @@ using System.Threading.Tasks;
 using System.IO;
 using d9.utl;
 using System.Runtime.CompilerServices;
+using System.Security.Cryptography.X509Certificates;
+using CoenM.ImageHash.HashAlgorithms;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
+using Image = SixLabors.ImageSharp.Image;
 
 namespace d9.ucm;
 public class Item : IItemViewable
@@ -22,6 +27,23 @@ public class Item : IItemViewable
     public string Hash { get; }
     [JsonInclude]
     public ItemId Id { get; }
+    private ulong? _perceptualHash = null;
+    [JsonIgnore]
+    public ulong PerceptualHash
+    {
+        set => _perceptualHash = value;
+        get
+        {
+            if(_perceptualHash is null)
+            {
+                DifferenceHash hashAlgorithm = new();
+                using FileStream stream = File.OpenRead(LocalPath.Value);
+                using Image<Rgba32> image = Image.Load<Rgba32>(LocalPath.Value);
+                _perceptualHash = hashAlgorithm.Hash(image);
+            }
+            return (ulong)_perceptualHash;
+        }
+    }
     [JsonIgnore]
     public View View => LocalPath.Value.BestAvailableView()!;
     [JsonIgnore]
@@ -31,27 +53,37 @@ public class Item : IItemViewable
     {
         get
         {
-            _thumbnail ??= View as Image;
+            if (_thumbnail is null)
+            {
+                Microsoft.Maui.Graphics.IImage? thumbnailImage = View as Microsoft.Maui.Graphics.IImage;
+                thumbnailImage = thumbnailImage?.Downsize(100);
+                // todo: save
+            }
             return _thumbnail;
         }
     }
-    /// <summary>
-    /// DO NOT USE THIS USE ItemSources
-    /// </summary>
     [JsonInclude]
     public List<ItemSource> Sources { get; private set; } = new();
     [JsonIgnore]
     public IEnumerable<ItemSource> ItemSources => Sources;
+    [JsonInclude]
+    public bool Deleted { get; private set; } = false;
+    [JsonIgnore]
+    public bool Hidden => Deleted || MergeInfo is not null;
+    [JsonInclude]
+    public ItemMergeInfo? MergeInfo { get; private set; } = null;
     #endregion
     #region constructors
     public Item(string path, string hash, ItemId id, params ItemSource[] sources) : this(new(path), hash, id, sources.ToList()) { }
     [JsonConstructor]
-    public Item(LocalPath localPath, string hash, ItemId id, List<ItemSource>? sources)
+    public Item(LocalPath localPath, string hash, ItemId id, List<ItemSource>? sources, ItemMergeInfo? mergeInfo = null, bool deleted = false)
     {
         LocalPath = localPath;
         Hash = hash;
         Id = IdManager.Register(id);
         Sources = sources?.ToList() ?? new() { new("Local Filesystem", localPath.Value) };
+        Deleted = deleted;
+        MergeInfo = mergeInfo;
     }
     #endregion
     public override string ToString()
@@ -85,6 +117,21 @@ public class Item : IItemViewable
         }
         Utils.Log($"Failed to make item for {ci}.");
         return null;
+    }
+    public static bool TryMerge(Item chosenItem, IEnumerable<Item> otherItems, out Item? result)
+    {
+        result = null;
+        // if already merged return false
+        List<ItemSource> sources = chosenItem.ItemSources.ToList();
+        ItemId resultId = IdManager.Register();
+        ItemMergeInfo mergeInfo = new(resultId, otherItems.Select(x => x.Id).ToList());
+        foreach (Item otherItem in otherItems)
+        {
+            sources = sources.Concat(otherItem.ItemSources).ToList();
+            otherItem.MergeInfo = mergeInfo;
+        }
+        result = new(chosenItem.LocalPath, chosenItem.Hash, IdManager.Register(), sources, mergeInfo);
+        return true;
     }
     [JsonIgnore]
     public Label InfoLabel

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="d9.ucm.SimilarityPage"
+             Title="SimilarityPage">
+    <VerticalStackLayout>
+        <Button x:Name="StartSearchButton" Text="Search for similar images" Clicked="StartSearchButton_Clicked"/>
+        <ProgressBar x:Name="ProgressBar" HorizontalOptions="Center"/>
+        <Label x:Name="ProgressLabel" HorizontalOptions="Center"/>
+        <Label x:Name="TimeElapsed" HorizontalOptions="Center"/>
+    </VerticalStackLayout>
+</ContentPage>

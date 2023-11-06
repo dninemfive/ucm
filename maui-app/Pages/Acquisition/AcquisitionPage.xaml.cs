@@ -121,7 +121,7 @@ public partial class AcquisitionPage : ContentPage
          || assert(hash is null, "hash is null")
          || assert(_indexedHashes.Contains(hash!), "indexed hash")
          || assert(!(candidate!.SourceUrl?.ExtensionIsSupported() ?? true), "unsupported extension")
-         || assert(candidate!.View is null, "no available view")
+         // || assert(candidate!.View is null, "no available view") // massive memory usage, should:tm: be duplicative of previous assertion
          || assert(candidate!.ItemSources.Any(x => x.Tags.Any(y => _tagsToSkip.Contains(y))), "skip tag(s)"))
             return null;
         log(false);

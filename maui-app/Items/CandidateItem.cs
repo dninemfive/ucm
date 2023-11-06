@@ -8,6 +8,7 @@ using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace d9.ucm;
+// todo: idisposable to make sure `Data` doesn't hang around after item is saved
 public class CandidateItem : IItemViewable
 {
     public View View => new Image()

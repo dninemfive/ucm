@@ -43,10 +43,19 @@ public partial class ThumbnailView : ContentView
         {
             Thumbnail.HeightRequest = value;
             Thumbnail.WidthRequest = value;
+            Button.HeightRequest = value;
+            Button.WidthRequest = value;
         }
     }
+    public Action? OnClick = null;
     public ThumbnailView()
     {
         InitializeComponent();
 	}
+
+    private void Thumbnail_Clicked(object sender, EventArgs e)
+    {
+        if (OnClick is not null)
+            OnClick();
+    }
 }

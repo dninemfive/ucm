@@ -27,6 +27,10 @@
         Title="Browse"
         ContentTemplate="{DataTemplate local:BrowsePage}"
         Route="Browse" />
+        <ShellContent
+        Title="Similarity"
+        ContentTemplate="{DataTemplate local:SimilarityPage}"
+        Route="Similarity" />
     </TabBar>
 
 </Shell>

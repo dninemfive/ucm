@@ -28,11 +28,15 @@ public partial class CollectionPage : ContentPage
         ItemsHolder.Children.Clear();
         if (Competition is null)
         {
-            _items = await Task.Run(() => ItemManager.Items.Where(func).OrderBy(x => x.Id).ToList());
+            _items = await Task.Run(() => ItemManager.Items.Where(func)
+                                                           .Select(x => x.Id)
+                                                           .Order()
+                                                           .ToList());
         }
         else
         {
             _items = await Task.Run(() => ItemManager.Items.Where(func)
+                                                           .Select(x => x.Id)
                                                            .OrderBy(x => Competition?.IsIrrelevant(x) ?? false)
                                                            .ThenByDescending(x => Competition?.RatingOf(x)?.CiLowerBound)
                                                            .ToList());
@@ -43,7 +47,7 @@ public partial class CollectionPage : ContentPage
         NavigationButtons.MaxPage = MaxPage;
     }
     public Competition? Competition => CompetitionSelector.Competition;
-    private List<Item>? _items = null;
+    private List<ItemId>? _items = null;
     private bool _loading = false;
     private static int _itemsPerPage = 36;
     private static List<(int a, int b)> _itemsPerPageFactors = _itemsPerPage.Factors().ToList();
@@ -75,20 +79,64 @@ public partial class CollectionPage : ContentPage
             return;
         _loading = true;
         int start = _pageIndex * ItemsPerPage;
-        ItemsHolder.Clear();
-        for (int i = start; i < start + ItemsPerPage; i++)
+        // ItemsHolder.Clear();
+        if(!ItemsHolder.Any())
         {
-            if(i >= _items!.Count) break;
-            Item item = _items![i];
-            ItemsHolder.Add(new ThumbnailView()
+            for(int i = start; i < start + ItemsPerPage; i++)
             {
-                Item = item,
-                OverlayText = $"{Competition?.RatingOf(item)}" ?? item.Id.ToString(),
-                IsIrrelevant = Competition?.IsIrrelevant(item) ?? false,
-                Size = 100
-            });
+                Item? item = i < _items!.Count ? ItemManager.ItemsById[_items![i]] : null;
+                ThumbnailView thumbnail = new()
+                {
+                    Item = item,
+                    OverlayText = $"{Competition?.RatingOf(item)}" ?? "",
+                    IsIrrelevant = item is not null && (Competition?.IsIrrelevant(item) ?? false),
+                    Size = 100
+                };
+                if (Competition is not null && item is not null)
+                {
+                    thumbnail.OnClick = async () =>
+                    {
+                        Competition.ToggleIrrelevant(item.Id);
+                        await Competition.SaveAsync();
+                        thumbnail.IsIrrelevant = !thumbnail.IsIrrelevant;
+                    };
+                }
+                ItemsHolder.Add(thumbnail);
+            }
+            CalculateItemSize();
         }
-        CalculateItemSize();
+        else
+        {
+            for (int i = start; i < start + ItemsPerPage; i++)
+            {
+                Item? item = i < _items!.Count ? ItemManager.ItemsById[_items![i]] : null;
+                ThumbnailView thumbnail = (ItemsHolder[i - start] as ThumbnailView)!;
+                thumbnail.Item = item;
+                if (item is not null)
+                {
+                    thumbnail.OverlayText = $"{Competition?.RatingOf(item)?.ToString() ?? ""}";
+                    thumbnail.IsIrrelevant = Competition?.IsIrrelevant(item) ?? false;
+                }
+                else
+                {
+                    thumbnail.OverlayText = null;
+                    thumbnail.IsIrrelevant = false;
+                }
+                if (Competition is not null && item is not null)
+                {
+                    thumbnail.OnClick = async () =>
+                    {
+                        Competition.ToggleIrrelevant(item.Id);
+                        await Competition.SaveAsync();
+                        thumbnail.IsIrrelevant = !thumbnail.IsIrrelevant;
+                    };
+                }
+                else
+                {
+                    thumbnail.OnClick = null;
+                }
+            }
+        } 
         _loading = false;
     }
     private double _itemSize = 100;
