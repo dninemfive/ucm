@@ -7,6 +7,7 @@ using Image = SixLabors.ImageSharp.Image;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using System.Text.Json;
+using System.Collections.Concurrent;
 
 namespace d9.ucm;
 
@@ -37,13 +38,14 @@ public partial class SimilarityPage : ContentPage
 		});
 		StartTimer();
 		string path = Path.Join(MauiProgram.TEMP_BASE_FOLDER, "perceptualHashes.json");
-		Dictionary<ItemId, ulong> hashDict;
+		ConcurrentDictionary<ItemId, ulong> hashDict;
         int total = ItemManager.Items.Count(), ct = 0;
         if (File.Exists(path))
         {
             StatusLabel.Text = "Loading perceptual hashes...";
-            hashDict = await Task.Run(() => JsonSerializer.Deserialize<Dictionary<ItemId, ulong>>(File.ReadAllText(path))!);
-		}
+            hashDict = await Task.Run(() => JsonSerializer.Deserialize<ConcurrentDictionary<ItemId, ulong>>(File.ReadAllText(path))!);
+            StatusLabel.Text = "Loading perceptual hashes... Done!";
+        }
 		else
 		{
             StatusLabel.Text = "Generating perceptual hashes...";
@@ -60,14 +62,20 @@ public partial class SimilarityPage : ContentPage
 		int min = 0, max = 20;
 		total = (int)(Math.Pow(ItemManager.Items.Count() - min, 2) / 2) - max * max / 2;
         ct = 0;
+        StatusLabel.Text = "Calculating similarities...2";
 		HashSet<ItemPair> similarPairs = new();
-        foreach (ItemPair pair in await Task.Run(() => AllItemPairs(min, max)))
+        foreach (Task<(ItemPair, double)> task in GenerateSimilarityTasks(hashDict, min, max))
         {
+            StatusLabel.Text = "Calculating similarities...3";
             ((IProgress<(int, int, string)>)progress).Report((ct++, total, ""));
-            double similarity = await Task.Run(() => CompareHash.Similarity(hashDict[pair.IdA], hashDict[pair.IdB]));
+            StatusLabel.Text = "Calculating similarities...4";
+			(ItemPair pair, double similarity) = await task;
+            StatusLabel.Text = "Calculating similarities...5";
             if (similarity > 90)
 				similarPairs.Add(pair);
+            StatusLabel.Text = "Calculating similarities...6";
         }
+        StatusLabel.Text = "Calculating similarities...7";
         log(nameof(similarPairs), similarPairs);
         StatusLabel.Text = "Generating pools...";
 		ct = 0;
@@ -131,7 +139,11 @@ public partial class SimilarityPage : ContentPage
 			yield return GeneratePerceptualHashAsync(item);
 		}
 	}
-	private static IEnumerable<ItemPair> AllItemPairs(ItemId? min = null, ItemId? max = null)
+	private static async Task<(ItemPair pair, double similarity)> CalculateSimilarityAsync(ItemId idA, ItemId idB, ConcurrentDictionary<ItemId, ulong> hashes)
+	{
+		return (new(idA, idB), await Task.Run(() => CompareHash.Similarity(hashes[idA], hashes[idB])));
+	}
+	private static IEnumerable<Task<(ItemPair, double)>> GenerateSimilarityTasks(ConcurrentDictionary<ItemId, ulong> hashes, ItemId? min = null, ItemId? max = null)
 	{
 		ItemId minId = min ?? ItemManager.ItemsById.Keys.Min(), 
 			   maxId = max ?? ItemManager.ItemsById.Keys.Max();
@@ -144,7 +156,7 @@ public partial class SimilarityPage : ContentPage
 			{
 				if (!ItemManager.ItemsById.ContainsKey(idB))
 					continue;
-				yield return new(idA, idB);
+				yield return CalculateSimilarityAsync(idA, idB, hashes);
 			}
 		}
 	}
