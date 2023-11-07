@@ -145,17 +145,15 @@ public partial class SimilarityPage : ContentPage
 	}
 	private static IEnumerable<Task<(ItemPair, double)>> GenerateSimilarityTasks(ConcurrentDictionary<ItemId, ulong> hashes, ItemId? min = null, ItemId? max = null)
 	{
-		ItemId minId = min ?? ItemManager.ItemsById.Keys.Min(), 
-			   maxId = max ?? ItemManager.ItemsById.Keys.Max();
-		ItemId max2 = ItemManager.ItemsById.Keys.Max();
-		for(ItemId idA = minId; idA < maxId; idA++)
+		int skipA = min is null ? 0 : (int)min.Value.Value;
+		List<ItemId> orderedIds = ItemManager.ItemsById.Keys.Order().ToList();
+		int skipB = 0;
+		foreach(ItemId idA in orderedIds.Skip(skipA).SkipLast(1))
 		{
-			if (!ItemManager.ItemsById.ContainsKey(idA))
-				continue;
-			for (ItemId idB = idA + 1; idB <= max2; idB++)
+			skipB++;
+			if(idA > max) break;
+			foreach(ItemId idB in orderedIds.Skip(skipB))
 			{
-				if (!ItemManager.ItemsById.ContainsKey(idB))
-					continue;
 				yield return CalculateSimilarityAsync(idA, idB, hashes);
 			}
 		}
