@@ -65,15 +65,16 @@ public partial class SimilarityPage : ContentPage
         }
         updateLabel("Calculating similarities...");
 		int min = 0, max = 20;
-		// total = (int)(Math.Pow(ItemManager.Items.Count() - min, 2) / 2) - max * max / 2;
+		total = (int)(Math.Pow(ItemManager.Items.Count() - min, 2) / 2) - max * max / 2;
         ct = 0;
         updateLabel("Calculating similarities...2");
 		HashSet<ItemPair> similarPairs = new();
-		IEnumerable<(ItemPair, double)> similarityTasks = GenerateSimilarityTasks(hashDict, min, max);
-		total = similarityTasks.Count();
+		IAsyncEnumerable<(ItemPair, double)> similarityTasks = GenerateSimilarityTasks(hashDict, min, max);
 		updateLabel("Calculating similarities...2.5");
-        foreach ((ItemPair pair, double similarity) in similarityTasks)
+        await foreach ((ItemPair pair, double similarity) in similarityTasks)
         {
+			if (ct % 1000 == 0)
+				Utils.Log($"{ct} / {total}");
             ((IProgress<(int, int, string)>)progress).Report((ct++, total, ""));
 			// (ItemPair pair, double similarity) = await task;
 			await Task.Run(() => {
@@ -145,18 +146,18 @@ public partial class SimilarityPage : ContentPage
 			yield return GeneratePerceptualHashAsync(item);
 		}
 	}
-	private static IEnumerable<(ItemPair, double)> GenerateSimilarityTasks(Dictionary<ItemId, ulong> hashes, ItemId? min = null, ItemId? max = null)
+	private static async IAsyncEnumerable<(ItemPair, double)> GenerateSimilarityTasks(Dictionary<ItemId, ulong> hashes, ItemId? min = null, ItemId? max = null)
 	{
 		int skipA = min is null ? 0 : (int)min.Value.Value;
 		List<ItemId> orderedIds = ItemManager.ItemsById.Keys.Order().ToList();
 		int skipB = 0;
-		foreach(ItemId idA in orderedIds.Skip(skipA).SkipLast(1))
+		foreach(ItemId idA in await Task.Run(() => orderedIds.Skip(skipA).SkipLast(1)))
 		{
 			skipB++;
 			if(idA > max) break;
-			foreach(ItemId idB in orderedIds.Skip(skipB))
+			foreach(ItemId idB in await Task.Run(() => orderedIds.Skip(skipB)))
 			{
-                yield return (new(idA, idB), CompareHash.Similarity(hashes[idA], hashes[idB]));
+                yield return (new(idA, idB), await Task.Run(() => CompareHash.Similarity(hashes[idA], hashes[idB])));
             }
 		}
 	}
