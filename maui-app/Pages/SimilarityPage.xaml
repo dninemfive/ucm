@@ -5,7 +5,7 @@
              Title="SimilarityPage">
     <VerticalStackLayout>
         <Button x:Name="StartSearchButton" Text="Search for similar images" Clicked="StartSearchButton_Clicked"/>
-        <ProgressBar x:Name="ProgressBar" HorizontalOptions="Center"/>
+        <ProgressBar x:Name="ProgressBar"/>
         <Label x:Name="ProgressLabel" HorizontalOptions="Center"/>
         <Label x:Name="StatusLabel" HorizontalOptions="Center"/>
         <Label x:Name="TimeElapsed" HorizontalOptions="Center"/>

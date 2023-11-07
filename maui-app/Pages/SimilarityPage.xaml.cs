@@ -56,28 +56,20 @@ public partial class SimilarityPage : ContentPage
             }
             File.WriteAllText(path, JsonSerializer.Serialize(hashDict));
         } 
-		// IEnumerable<(ItemId id, ulong hash)> hashes = await Task.WhenAll(GeneratePerceptualHashTasks());
-        StatusLabel.Text = "Generating perceptual hashes... Done!";
-        //  Utils.Log($"hashDict: {hashDict.Select(x => (x.Key, x.Value)).ListNotation()}");
-        // Dictionary<ItemId, ulong> hashDict = hashes.ToDictionary();
         StatusLabel.Text = "Calculating similarities...";
-		//IEnumerable<(ItemPair pair, double similarity)> similarities = await Task.WhenAll(GenerateSimilarityTasks(AllItemPairs(), hashDict));
-		IEnumerable<Task<(ItemPair, double)>> similarityTasks = GenerateSimilarityTasks(await Task.Run(() => AllItemPairs(0, 20)), hashDict);
-        total = similarityTasks.Count();
-		ct = 0;
+		int min = 0, max = 20;
+		total = (int)(Math.Pow(ItemManager.Items.Count() - min, 2) / 2) - max * max / 2;
+        ct = 0;
 		HashSet<ItemPair> similarPairs = new();
-        await foreach (Task<(ItemPair, double)> task in similarityTasks.ToAsyncEnumerable())
+        foreach (ItemPair pair in await Task.Run(() => AllItemPairs(min, max)))
         {
             ((IProgress<(int, int, string)>)progress).Report((ct++, total, ""));
-            (ItemPair pair, double similarity) = await task;
-			if (similarity > 90)
+            double similarity = await Task.Run(() => CompareHash.Similarity(hashDict[pair.IdA], hashDict[pair.IdB]));
+            if (similarity > 90)
 				similarPairs.Add(pair);
-		}
-		// Dictionary<ItemPair, double> similarityDict = similarities.ToDictionary();
-		log(nameof(similarPairs), similarPairs);
-        StatusLabel.Text = "Finding similar pairs...";
+        }
+        log(nameof(similarPairs), similarPairs);
         StatusLabel.Text = "Generating pools...";
-		// now for the more linear task: go through pairs and find sets of similar items
 		ct = 0;
 		total = similarPairs.Count;
         List<HashSet<ItemId>> pools = await Task.Run(() =>
@@ -154,17 +146,6 @@ public partial class SimilarityPage : ContentPage
 					continue;
 				yield return new(idA, idB);
 			}
-		}
-	}
-	private static async Task<(ItemPair pair, double similarity)> CalculateSimilarityAsync(ItemPair pair, ulong hashA, ulong hashB)
-	{
-		return (pair, await Task.Run(() => CompareHash.Similarity(hashA, hashB)));
-	}
-	private static IEnumerable<Task<(ItemPair pair, double similarity)>> GenerateSimilarityTasks(IEnumerable<ItemPair> pairs, Dictionary<ItemId, ulong> hashDict)
-	{
-		foreach(ItemPair pair in pairs)
-		{
-			yield return CalculateSimilarityAsync(pair, hashDict[pair.IdA], hashDict[pair.IdB]);
 		}
 	}
 	private readonly struct ItemPair
