@@ -43,12 +43,12 @@ public partial class SimilarityPage : ContentPage
 		});
 		StartTimer();
 		string path = Path.Join(MauiProgram.TEMP_BASE_FOLDER, "perceptualHashes.json");
-		Dictionary<ItemId, ulong> hashDict;
+		ConcurrentDictionary<ItemId, ulong> hashDict;
         int total = ItemManager.Items.Count(), ct = 0;
         if (File.Exists(path))
         {
             updateLabel("Loading perceptual hashes...");
-            hashDict = await Task.Run(() => JsonSerializer.Deserialize<Dictionary<ItemId, ulong>>(File.ReadAllText(path))!);
+            hashDict = await Task.Run(() => JsonSerializer.Deserialize<ConcurrentDictionary<ItemId, ulong>>(File.ReadAllText(path))!);
             updateLabel("Loading perceptual hashes... Done!");
         }
 		else
@@ -67,14 +67,10 @@ public partial class SimilarityPage : ContentPage
 		int min = 0, max = 20;
 		total = (int)(Math.Pow(ItemManager.Items.Count() - min, 2) / 2) - max * max / 2;
         ct = 0;
-        updateLabel("Calculating similarities...2");
-		HashSet<ItemPair> similarPairs = new();
+		ConcurrentBag<ItemPair> similarPairs = new();
 		IAsyncEnumerable<(ItemPair, double)> similarityTasks = GenerateSimilarityTasks(hashDict, min, max);
-		updateLabel("Calculating similarities...2.5");
         await foreach ((ItemPair pair, double similarity) in similarityTasks)
         {
-			if (ct % 1000 == 0)
-				Utils.Log($"{ct} / {total}");
             ((IProgress<(int, int, string)>)progress).Report((ct++, total, ""));
 			// (ItemPair pair, double similarity) = await task;
 			await Task.Run(() => {
@@ -146,7 +142,7 @@ public partial class SimilarityPage : ContentPage
 			yield return GeneratePerceptualHashAsync(item);
 		}
 	}
-	private static async IAsyncEnumerable<(ItemPair, double)> GenerateSimilarityTasks(Dictionary<ItemId, ulong> hashes, ItemId? min = null, ItemId? max = null)
+	private static async IAsyncEnumerable<(ItemPair, double)> GenerateSimilarityTasks(ConcurrentDictionary<ItemId, ulong> hashes, ItemId? min = null, ItemId? max = null)
 	{
 		int skipA = min is null ? 0 : (int)min.Value.Value;
 		List<ItemId> orderedIds = ItemManager.ItemsById.Keys.Order().ToList();
