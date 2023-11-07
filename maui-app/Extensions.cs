@@ -162,6 +162,14 @@ public static class Extensions
         }
         return s.Replace("\\", "");
     }
+    public static Dictionary<K, V> ToDictionary<K, V>(this IEnumerable<(K k, V v)> kvps)
+        where K : notnull
+    {
+        Dictionary<K, V> result = new();
+        foreach ((K k, V v) in kvps)
+            result[k] = v;
+        return result;
+    }
 }
 public enum LocationType
 {

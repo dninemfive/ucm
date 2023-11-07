@@ -29,22 +29,6 @@ public class Item : IItemViewable
     public ItemId Id { get; }
     private ulong? _perceptualHash = null;
     [JsonIgnore]
-    public ulong PerceptualHash
-    {
-        set => _perceptualHash = value;
-        get
-        {
-            if(_perceptualHash is null)
-            {
-                DifferenceHash hashAlgorithm = new();
-                using FileStream stream = File.OpenRead(LocalPath.Value);
-                using Image<Rgba32> image = Image.Load<Rgba32>(LocalPath.Value);
-                _perceptualHash = hashAlgorithm.Hash(image);
-            }
-            return (ulong)_perceptualHash;
-        }
-    }
-    [JsonIgnore]
     public View View => LocalPath.Value.BestAvailableView()!;
     [JsonIgnore]
     private Image? _thumbnail = null;
