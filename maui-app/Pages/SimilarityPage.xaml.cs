@@ -27,7 +27,12 @@ public partial class SimilarityPage : ContentPage
 			{
 				Utils.Log($"\t{item}");
 			} 
-		} 
+		}
+		void updateLabel(string msg)
+		{
+			StatusLabel.Text = msg;
+			Utils.Log(msg);
+		}
 		StartSearchButton.IsEnabled = false;
 		ItemId maxId = ItemManager.ItemsById.Keys.Max();
 		Progress<(int ct, int total, string desc)> progress = new(value =>
@@ -38,17 +43,17 @@ public partial class SimilarityPage : ContentPage
 		});
 		StartTimer();
 		string path = Path.Join(MauiProgram.TEMP_BASE_FOLDER, "perceptualHashes.json");
-		ConcurrentDictionary<ItemId, ulong> hashDict;
+		Dictionary<ItemId, ulong> hashDict;
         int total = ItemManager.Items.Count(), ct = 0;
         if (File.Exists(path))
         {
-            StatusLabel.Text = "Loading perceptual hashes...";
-            hashDict = await Task.Run(() => JsonSerializer.Deserialize<ConcurrentDictionary<ItemId, ulong>>(File.ReadAllText(path))!);
-            StatusLabel.Text = "Loading perceptual hashes... Done!";
+            updateLabel("Loading perceptual hashes...");
+            hashDict = await Task.Run(() => JsonSerializer.Deserialize<Dictionary<ItemId, ulong>>(File.ReadAllText(path))!);
+            updateLabel("Loading perceptual hashes... Done!");
         }
 		else
 		{
-            StatusLabel.Text = "Generating perceptual hashes...";
+            updateLabel("Generating perceptual hashes...");
             hashDict = new();
             foreach (Task<(ItemId, ulong)> task in GeneratePerceptualHashTasks())
             {
@@ -57,25 +62,27 @@ public partial class SimilarityPage : ContentPage
                 hashDict[id] = hash;
             }
             File.WriteAllText(path, JsonSerializer.Serialize(hashDict));
-        } 
-        StatusLabel.Text = "Calculating similarities...";
+        }
+        updateLabel("Calculating similarities...");
 		int min = 0, max = 20;
 		total = (int)(Math.Pow(ItemManager.Items.Count() - min, 2) / 2) - max * max / 2;
         ct = 0;
-        StatusLabel.Text = "Calculating similarities...2";
+        updateLabel("Calculating similarities...2");
 		HashSet<ItemPair> similarPairs = new();
-        foreach (Task<(ItemPair, double)> task in GenerateSimilarityTasks(hashDict, min, max))
+		IAsyncEnumerable<(ItemPair, double)> similarityTasks = GenerateSimilarityTasks(hashDict, min, max);
+		updateLabel("Calculating similarities...2.5");
+        await foreach ((ItemPair pair, double similarity) in similarityTasks)
         {
-            StatusLabel.Text = "Calculating similarities...3";
+			if (ct % 1000 == 0)
+				Utils.Log($"{ct} / {total}");
             ((IProgress<(int, int, string)>)progress).Report((ct++, total, ""));
-            StatusLabel.Text = "Calculating similarities...4";
-			(ItemPair pair, double similarity) = await task;
-            StatusLabel.Text = "Calculating similarities...5";
-            if (similarity > 90)
-				similarPairs.Add(pair);
-            StatusLabel.Text = "Calculating similarities...6";
+			// (ItemPair pair, double similarity) = await task;
+			await Task.Run(() => {
+                if (similarity > 90)
+                    similarPairs.Add(pair);
+            });
         }
-        StatusLabel.Text = "Calculating similarities...7";
+        updateLabel("Calculating similarities...7");
         log(nameof(similarPairs), similarPairs);
         StatusLabel.Text = "Generating pools...";
 		ct = 0;
@@ -139,23 +146,19 @@ public partial class SimilarityPage : ContentPage
 			yield return GeneratePerceptualHashAsync(item);
 		}
 	}
-	private static async Task<(ItemPair pair, double similarity)> CalculateSimilarityAsync(ItemId idA, ItemId idB, ConcurrentDictionary<ItemId, ulong> hashes)
-	{
-		return (new(idA, idB), await Task.Run(() => CompareHash.Similarity(hashes[idA], hashes[idB])));
-	}
-	private static IEnumerable<Task<(ItemPair, double)>> GenerateSimilarityTasks(ConcurrentDictionary<ItemId, ulong> hashes, ItemId? min = null, ItemId? max = null)
+	private static async IAsyncEnumerable<(ItemPair, double)> GenerateSimilarityTasks(Dictionary<ItemId, ulong> hashes, ItemId? min = null, ItemId? max = null)
 	{
 		int skipA = min is null ? 0 : (int)min.Value.Value;
 		List<ItemId> orderedIds = ItemManager.ItemsById.Keys.Order().ToList();
 		int skipB = 0;
-		foreach(ItemId idA in orderedIds.Skip(skipA).SkipLast(1))
+		foreach(ItemId idA in await Task.Run(() => orderedIds.Skip(skipA).SkipLast(1)))
 		{
 			skipB++;
 			if(idA > max) break;
-			foreach(ItemId idB in orderedIds.Skip(skipB))
+			foreach(ItemId idB in await Task.Run(() => orderedIds.Skip(skipB)))
 			{
-				yield return CalculateSimilarityAsync(idA, idB, hashes);
-			}
+                yield return (new(idA, idB), await Task.Run(() => CompareHash.Similarity(hashes[idA], hashes[idB])));
+            }
 		}
 	}
 	private readonly struct ItemPair
