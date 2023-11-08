@@ -14,11 +14,11 @@ public partial class BrowsePage : ContentPage
 	}
     private void Previous(object sender, EventArgs e)
     {
-        ItemView.Item = _items.PreviousItem();
+        ItemView.IItem = _items.PreviousItem();
     }
     private void Next(object sender, EventArgs e)
     {
-        ItemView.Item = _items.NextItem();
+        ItemView.IItem = _items.NextItem();
     }
     private void UpdateVisibility()
     {
@@ -30,7 +30,7 @@ public partial class BrowsePage : ContentPage
         if(Selected.Competition is null)
         {
             _items.Clear();
-            ItemView.Item = null;
+            ItemView.IItem = null;
         } else
         {
             List<(Item item, Competition.Rating? rating)> pairs = ItemManager.Items.Zip(ItemManager.Items.Select(Selected.Competition.RatingOf))
@@ -38,7 +38,7 @@ public partial class BrowsePage : ContentPage
             _items = new(pairs.Where(x => x.rating?.CiLowerBound > 0.7)
                               .Shuffled()
                               .Select(x => x.item));
-            ItemView.Item = _items.First();
+            ItemView.IItem = _items.First();
         }        
         UpdateVisibility();
     }

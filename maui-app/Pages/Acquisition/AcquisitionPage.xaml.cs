@@ -154,7 +154,7 @@ public partial class AcquisitionPage : ContentPage
             if (_currentCandidate is null)
                 continue;
             _ = _indexedHashes.Add(_currentCandidate.Hash);
-            ItemView.Item = _currentCandidate;
+            ItemView.IItem = _currentCandidate;
             string ct = (_candidateLocations?.Count).PrintNull(), location = (_currentCandidate?.Location).PrintNull();
             CurrentPendingItemInfo.Text = $"{Index}/{ct} ({progress:P1}) | {IdManager.CurrentId}\t{location}\t{_currentCandidate?.SourceUrl?.FileExtension()}";
             SetButtonsActive(true);

@@ -14,7 +14,7 @@
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             <Label x:Name="CurrentPendingItemInfo" Grid.Row="0"/>
-            <local:ItemView x:Name="ItemView" Grid.Row="1" HeightRequest="850"/>
+            <local:IItemView x:Name="ItemView" Grid.Row="1" HeightRequest="850"/>
             <HorizontalStackLayout HorizontalOptions="Center" Grid.Row="2">
                 <Button x:Name="Accept" Text="Accept" Clicked="Accept_Clicked"/>
                 <Button x:Name="Skip" Text="Skip" Clicked="Skip_Clicked"/>

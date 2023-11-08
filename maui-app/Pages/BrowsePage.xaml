@@ -6,7 +6,7 @@
              Title="BrowsePage">
     <VerticalStackLayout>
         <local:CompetitionSelector x:Name="Selected" CompetitionSelected="CompetitionSelected"/>
-        <local:ItemView x:Name="ItemView" Grid.Row="1" HeightRequest="800"/>
+        <local:IItemView x:Name="ItemView" Grid.Row="1" HeightRequest="800"/>
         <HorizontalStackLayout HorizontalOptions="Center" x:Name="Buttons">
             <Button Text="Previous" Clicked="Previous" WidthRequest="100"/>
             <Button Text="Next" Clicked="Next" WidthRequest="100"/>

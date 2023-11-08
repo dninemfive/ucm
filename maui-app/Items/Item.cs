@@ -27,7 +27,6 @@ public class Item : IItemViewable
     public string Hash { get; }
     [JsonInclude]
     public ItemId Id { get; }
-    private ulong? _perceptualHash = null;
     [JsonIgnore]
     public View View => LocalPath.Value.BestAvailableView()!;
     [JsonIgnore]
@@ -53,7 +52,7 @@ public class Item : IItemViewable
     [JsonInclude]
     public bool Deleted { get; private set; } = false;
     [JsonIgnore]
-    public bool Hidden => Deleted || MergeInfo is not null;
+    public bool Hidden => Deleted || !(MergeInfo?.IsResult(Id) ?? true);
     [JsonInclude]
     public ItemMergeInfo? MergeInfo { get; private set; } = null;
     #endregion
@@ -102,20 +101,24 @@ public class Item : IItemViewable
         Utils.Log($"Failed to make item for {ci}.");
         return null;
     }
-    public static bool TryMerge(Item chosenItem, IEnumerable<Item> otherItems, out Item? result)
+    public static async Task<Item> MergeAsync(Item chosenItem, IEnumerable<Item> otherItems)
     {
-        result = null;
-        // if already merged return false
         List<ItemSource> sources = chosenItem.ItemSources.ToList();
         ItemId resultId = IdManager.Register();
-        ItemMergeInfo mergeInfo = new(resultId, otherItems.Select(x => x.Id).ToList());
-        foreach (Item otherItem in otherItems)
+        List<Item> relevantItems = otherItems.Append(chosenItem)
+                                             .OrderBy(x => x.Id)
+                                             .ToList();
+        ItemMergeInfo mergeInfo = new(resultId, relevantItems.Select(x => x.Id).ToList());
+        foreach (Item item in relevantItems)
         {
-            sources = sources.Concat(otherItem.ItemSources).ToList();
-            otherItem.MergeInfo = mergeInfo;
+            sources = sources.Concat(item.ItemSources).ToList();
+            item.MergeInfo = mergeInfo;
+            await item.SaveAsync();
         }
-        result = new(chosenItem.LocalPath, chosenItem.Hash, IdManager.Register(), sources, mergeInfo);
-        return true;
+        Item result = new(chosenItem.LocalPath, chosenItem.Hash, resultId, sources, mergeInfo);
+        ItemManager.Register(result);
+        await result.SaveAsync();
+        return result;
     }
     [JsonIgnore]
     public Label InfoLabel

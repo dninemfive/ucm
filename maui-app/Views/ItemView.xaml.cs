@@ -1,18 +1,18 @@
 ﻿using CommunityToolkit.Maui.Core;
 namespace d9.ucm;
-public partial class ItemView : ContentView
+public partial class IItemView : ContentView
 {
-	private IItemViewable? _item = null;
-	public IItemViewable? Item
+	private IItemViewable? _iitem = null;
+	public IItemViewable? IItem
 	{
-		get => _item;
+		get => _iitem;
 		set
 		{
-			_item = value;
+			_iitem = value;
             UpdateInfo();
 		}
 	}
-	public ItemView()
+	public IItemView()
 	{
 		InitializeComponent();
         SourceList.HeightRequest = HeightRequest;
@@ -20,14 +20,14 @@ public partial class ItemView : ContentView
 	private void UpdateInfo()
 	{
         SourceList.Children.Clear();
-        if (_item is null)
+        if (_iitem is null)
         {
             ContentHolder.Content = null;
             return;
         }
-        ContentHolder.Content = _item!.View;        
-        SourceList.Add(_item.InfoLabel);
-        foreach (string labelText in _item.ItemSources.Select(x => x.LabelText))
+        ContentHolder.Content = _iitem!.View;        
+        SourceList.Add(_iitem.InfoLabel);
+        foreach (string labelText in _iitem.ItemSources.Select(x => x.LabelText))
         {
             SourceList.Add(new Label()
             {
@@ -44,4 +44,6 @@ public partial class ItemView : ContentView
 			return;
 		ExpanderHeaderText.Text = e.IsExpanded ? "◀" : "▶";
     }
+    public T? IItemAs<T>() where T : class, IItemViewable
+        => IItem as T;
 }

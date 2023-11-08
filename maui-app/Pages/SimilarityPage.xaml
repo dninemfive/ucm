@@ -1,13 +1,32 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:d9.ucm"
              x:Class="d9.ucm.SimilarityPage"
              Title="SimilarityPage">
     <VerticalStackLayout>
-        <Button x:Name="StartSearchButton" Text="Search for similar images" Clicked="StartSearchButton_Clicked"/>
+        <local:IItemView x:Name="ItemView" HeightRequest="800"/>
+        <Button x:Name="NextItemButton" Text="Next Id" Clicked="NextItemButton_Clicked"/>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+            <Button x:Name="PreviousButton" Text="Previous" Clicked="Previous_Clicked" Grid.Column="0" Grid.Row="0"/>
+            <Entry x:Name="IdEntry" Completed="IdEntry_Completed" Grid.Column="1" Grid.Row="0"/>
+            <Button x:Name="NextButton" Text="Next" Clicked="Next_Clicked" Grid.Column="2" Grid.Row="0"/>
+            <VerticalStackLayout Grid.Column="1" Grid.Row="1">
+                <Label x:Name="ProgressLabel" HorizontalOptions="Center"/>
+                <Label x:Name="StatusLabel" HorizontalOptions="Center"/>
+                <Label x:Name="TimeElapsed" HorizontalOptions="Center"/>
+            </VerticalStackLayout>
+            <Button x:Name="MergeButton" Text="Merge" Clicked="MergeButton_Clicked" Grid.Column="0" Grid.Row="1"/>
+        </Grid>
         <ProgressBar x:Name="ProgressBar"/>
-        <Label x:Name="ProgressLabel" HorizontalOptions="Center"/>
-        <Label x:Name="StatusLabel" HorizontalOptions="Center"/>
-        <Label x:Name="TimeElapsed" HorizontalOptions="Center"/>
     </VerticalStackLayout>
 </ContentPage>

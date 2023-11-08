@@ -72,7 +72,7 @@ public class Competition
     // todo: find a way to drop the bottom x percentile of items
     public bool IsIrrelevant(ItemId id) => IrrelevantItems.Contains(id) || ItemManager.ItemsById[id].Hidden;
     public Rating? RatingOf(ItemId id)
-        => RatingOf(ItemManager.ItemsById[id]);
+        => RatingOf(ItemManager.TryGetItemById(id));
     public Rating? RatingOf(Item? item)
     {
         if (item is null || IsIrrelevant(item.Id))

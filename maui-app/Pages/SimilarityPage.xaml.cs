@@ -16,107 +16,9 @@ public partial class SimilarityPage : ContentPage
 	public SimilarityPage()
 	{
 		InitializeComponent();
+        UpdateButtons();
 	}
 	private CancellationTokenSource _cancellationTokenSource = new();
-    private async void StartSearchButton_Clicked(object sender, EventArgs e)
-    {
-		static void log<T>(string varName, IEnumerable<T> enumerable)
-		{
-			Utils.Log($"{varName}:");
-			foreach(T item in enumerable)
-			{
-				Utils.Log($"\t{item}");
-			} 
-		}
-		void updateLabel(string msg)
-		{
-			StatusLabel.Text = msg;
-			Utils.Log(msg);
-		}
-		StartSearchButton.IsEnabled = false;
-		ItemId maxId = ItemManager.ItemsById.Keys.Max();
-		Progress<(int ct, int total, string desc)> progress = new(value =>
-		{
-			double pct = value.ct / (double)value.total;
-            ProgressBar.Progress = pct;
-			ProgressLabel.Text = $"{value.ct}/{value.total} ({pct:P2})";
-		});
-		StartTimer();
-		string path = Path.Join(MauiProgram.TEMP_BASE_FOLDER, "perceptualHashes.json");
-		ConcurrentDictionary<ItemId, ulong> hashDict;
-        int total = ItemManager.Items.Count(), ct = 0;
-        if (File.Exists(path))
-        {
-            updateLabel("Loading perceptual hashes...");
-            hashDict = await Task.Run(() => JsonSerializer.Deserialize<ConcurrentDictionary<ItemId, ulong>>(File.ReadAllText(path))!);
-            updateLabel("Loading perceptual hashes... Done!");
-        }
-		else
-		{
-            updateLabel("Generating perceptual hashes...");
-            hashDict = new();
-            foreach (Task<(ItemId, ulong)> task in GeneratePerceptualHashTasks())
-            {
-                ((IProgress<(int, int, string)>)progress).Report((ct++, total, ""));
-                (ItemId id, ulong hash) = await task;
-                hashDict[id] = hash;
-            }
-            File.WriteAllText(path, JsonSerializer.Serialize(hashDict));
-        }
-        updateLabel("Calculating similarities...");
-		int min = 0, max = 20;
-		total = (int)(Math.Pow(ItemManager.Items.Count() - min, 2) / 2) - max * max / 2;
-        ct = 0;
-		ConcurrentBag<ItemPair> similarPairs = new();
-		IAsyncEnumerable<(ItemPair, double)> similarityTasks = GenerateSimilarityTasks(hashDict, min, max);
-        await foreach ((ItemPair pair, double similarity) in similarityTasks)
-        {
-            ((IProgress<(int, int, string)>)progress).Report((ct++, total, ""));
-			// (ItemPair pair, double similarity) = await task;
-			await Task.Run(() => {
-                if (similarity > 90)
-                    similarPairs.Add(pair);
-            });
-        }
-        updateLabel("Calculating similarities...7");
-        log(nameof(similarPairs), similarPairs);
-        StatusLabel.Text = "Generating pools...";
-		ct = 0;
-		total = similarPairs.Count;
-        List<HashSet<ItemId>> pools = await Task.Run(() =>
-        {
-            ((IProgress<(int, int, string)>)progress).Report((ct++, total, ""));
-            List<HashSet<ItemId>> result = new();
-            foreach(ItemPair pair in similarPairs)
-            {
-                bool found = false;
-                foreach(HashSet<ItemId> pool in result)
-                {
-                    if(pool.Contains(pair.IdA) || pool.Contains(pair.IdB))
-                    {
-                        _ = pool.Add(pair.IdA);
-                        _ = pool.Add(pair.IdB);
-                        found = true;
-                        break;
-                    }
-                }
-                if(!found)
-                {
-                    result.Add(new() { pair.IdA, pair.IdB });
-                }
-            }
-			return result;
-        });
-        StatusLabel.Text = "Outputting pools...";
-		Utils.Log($"Found {pools.Count} sets of potentially duplicate items:");
-        foreach (HashSet<ItemId> pool in pools)
-		{
-			Utils.Log(pool.Order().ListNotation());
-		}
-		_cancellationTokenSource.Cancel();
-        StatusLabel.Text = "Done!";
-        StartSearchButton.IsEnabled = true;
-    }
     // https://mallibone.com/post/dotnetmaui-countdown-button
     private async void StartTimer()
     {
@@ -135,28 +37,70 @@ public partial class SimilarityPage : ContentPage
 		image.Dispose();
 		return (item.Id, result);
     }
-	private static IEnumerable<Task<(ItemId, ulong)>> GeneratePerceptualHashTasks()
+	private static IEnumerable<Task<(ItemId, ulong)>> GeneratePerceptualHashTasks(HashSet<ItemId> ignoreIds)
 	{
 		foreach(Item item in ItemManager.Items)
 		{
+            if (ignoreIds.Contains(item.Id))
+                continue;
 			yield return GeneratePerceptualHashAsync(item);
 		}
 	}
-	private static async IAsyncEnumerable<(ItemPair, double)> GenerateSimilarityTasks(ConcurrentDictionary<ItemId, ulong> hashes, ItemId? min = null, ItemId? max = null)
+    private List<ItemId> _similarItemIds = new();
+	private async Task SearchForSimilarImagesAsync()
 	{
-		int skipA = min is null ? 0 : (int)min.Value.Value;
-		List<ItemId> orderedIds = ItemManager.ItemsById.Keys.Order().ToList();
-		int skipB = 0;
-		foreach(ItemId idA in await Task.Run(() => orderedIds.Skip(skipA).SkipLast(1)))
-		{
-			skipB++;
-			if(idA > max) break;
-			foreach(ItemId idB in await Task.Run(() => orderedIds.Skip(skipB)))
-			{
-                yield return (new(idA, idB), await Task.Run(() => CompareHash.Similarity(hashes[idA], hashes[idB])));
+        void updateLabel(string msg)
+        {
+            StatusLabel.Text = msg;
+            Utils.Log(msg);
+        }
+        ItemId maxId = ItemManager.ItemsById.Keys.Max();
+        Progress<(int ct, int total, string desc)> progress = new(value =>
+        {
+            double pct = value.ct / (double)value.total;
+            ProgressBar.Progress = pct;
+            ProgressLabel.Text = $"{value.ct}/{value.total} ({pct:P2})";
+        });
+        StartTimer();
+        string path = Path.Join(MauiProgram.TEMP_BASE_FOLDER, "perceptualHashes.json");
+        ConcurrentDictionary<ItemId, ulong> hashDict;
+        if (File.Exists(path))
+        {
+            updateLabel("Loading perceptual hashes...");
+            hashDict = await Task.Run(() => JsonSerializer.Deserialize<ConcurrentDictionary<ItemId, ulong>>(File.ReadAllText(path))!);
+            updateLabel("Loading perceptual hashes... Done!");
+        }
+        else
+        {
+            hashDict = new();
+        }
+        updateLabel("Generating perceptual hashes...");
+        HashSet<ItemId> idsToSkip = hashDict.Keys.ToHashSet();
+        int total = ItemManager.Items.Count() - idsToSkip.Count, ct = 0;
+        foreach (Task<(ItemId, ulong)> task in GeneratePerceptualHashTasks(idsToSkip))
+        {
+            ((IProgress<(int, int, string)>)progress).Report((ct++, total, ""));
+            (ItemId id, ulong hash) = await task;
+            hashDict[id] = hash;
+        }
+        updateLabel("Calculating similarities...");
+        _similarItemIds.Clear();
+        if (ItemView.IItem is Item curItem)
+        {
+            foreach (Item otherItem in ItemManager.Items.Where(x => x != curItem))
+            {
+                await Task.Run(() =>
+                {
+                    double similarity = CompareHash.Similarity(hashDict[curItem.Id], hashDict[otherItem.Id]);
+                    if (similarity > 90)
+                        _similarItemIds.Add(otherItem.Id);
+                });
             }
-		}
-	}
+        }
+        _cancellationTokenSource.Cancel();
+        _similarItemIds = _similarItemIds.Order().ToList();
+        updateLabel(_similarItemIds.ListNotation());
+    }
 	private readonly struct ItemPair
 	{
 		public readonly ItemId IdA, IdB;
@@ -176,5 +120,76 @@ public partial class SimilarityPage : ContentPage
 		public static implicit operator ItemPair((ItemId a, ItemId b) tuple) => new(tuple.a, tuple.b);
 		public override string ToString()
 			=> $"pair({IdA}, {IdB})";
+    }
+
+    private async void IdEntry_Completed(object sender, EventArgs e)
+    {
+		ItemId? id = null;
+		try
+		{
+			id = (sender as Entry)!.Text.ToUpper();
+		} catch { }
+        await SwitchToItem(id);
+        (sender as Entry)!.Text = "";
+    }
+    private async Task SwitchToItem(ItemId? id)
+    {
+        Item? item = ItemManager.TryGetItemById(id);
+        ItemView.IItem = item;
+        if(item is not null)
+        {
+            await SearchForSimilarImagesAsync();
+        }
+        IdEntry.Text = ItemView.IItemAs<Item>()?.Id ?? "";
+        UpdateButtons();
+    }
+    private void UpdateButtons()
+    {
+        NextItemButton.IsEnabled = ItemView.IItem is not null;
+        bool anySimilarImages = ItemView.IItem is not null && _similarItemIds.Any();
+        PreviousButton.IsEnabled = anySimilarImages;
+        NextButton.IsEnabled = anySimilarImages;
+        MergeButton.IsEnabled = anySimilarImages;
+    }
+    private async void NextItemButton_Clicked(object sender, EventArgs e)
+    {
+        NextItemButton.IsEnabled = false;
+        ItemId currentId;
+        if(ItemView.IItem is null)
+        {
+            return;
+        }
+        else
+        {
+            currentId = (ItemView.IItem as Item)!.Id + 1;
+        }
+        await SwitchToItem(currentId);
+        while (!_similarItemIds.Any())
+        {
+            await SwitchToItem(++currentId);
+        }
+        NextItemButton.IsEnabled = true;
+    }
+
+    private async void Previous_Clicked(object sender, EventArgs e)
+    {
+        await SwitchToItem(_similarItemIds.Last());
+    }
+
+    private async void Next_Clicked(object sender, EventArgs e)
+    {
+        await SwitchToItem(_similarItemIds.First());
+    }
+    private async void MergeButton_Clicked(object sender, EventArgs e)
+    {
+        Item? curItem = ItemView.IItemAs<Item>();
+        if(curItem is not null)
+        {
+            Item? nextItem = await Item.MergeAsync(curItem, _similarItemIds.Select(x => ItemManager.TryGetItemById(x)).Where(x => x is not null)!);
+            if(nextItem is not null)
+            {
+                await SwitchToItem(nextItem.Id);
+            }
+        }
     }
 }

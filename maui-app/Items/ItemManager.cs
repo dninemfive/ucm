@@ -10,7 +10,7 @@ public static class ItemManager
 {
     private static bool _loaded = false;
     #region properties
-    public static IEnumerable<Item> Items => ItemsById.Values;
+    public static IEnumerable<Item> Items => ItemsById.Values.Where(x => !x.Hidden);
     public static IAsyncEnumerable<Item> GetItemsAsync() => Items.ToAsyncEnumerable();
     private static Dictionary<ItemId, Item>? _itemsById = null;
     public static IReadOnlyDictionary<ItemId, Item> ItemsById
@@ -101,5 +101,13 @@ public static class ItemManager
             return true;
         }
         return false;
+    }
+    public static Item? TryGetItemById(ItemId? id, bool returnHidden = false)
+    {
+        if(id is not null && ItemsById.TryGetValue(id.Value, out Item? item) && (returnHidden || !item.Hidden))
+        {
+            return item;
+        }
+        return null;
     }
 }

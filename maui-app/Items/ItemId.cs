@@ -63,6 +63,7 @@ public readonly struct ItemId : IComparable<ItemId>
     public static implicit operator ItemId(ulong ul) => new(ul);
     public static implicit operator ItemId(int z) => new((ulong)z);
     public static implicit operator ulong(ItemId id) => id.Value;
+    public static implicit operator string(ItemId id) => id.ToString();
     #endregion
 }
 // https://learn.microsoft.com/en-us/dotnet/standard/serialization/system-text-json/converters-how-to?pivots=dotnet-7-0#sample-basic-converter

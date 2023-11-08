@@ -18,4 +18,6 @@ public class ItemMergeInfo
         ResultId = resultId;
         ParentIds = parentIds;
     }
+    public bool IsResult(ItemId itemId)
+        => itemId == ResultId;
 }
