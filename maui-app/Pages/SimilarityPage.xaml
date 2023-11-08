@@ -6,7 +6,7 @@
              Title="SimilarityPage">
     <VerticalStackLayout>
         <local:IItemView x:Name="ItemView" HeightRequest="800"/>
-        <Button x:Name="NextItemButton" Text="Next Id" Clicked="NextItemButton_Clicked"/>
+        <Button x:Name="NextItemButton" Text="Next Similar Set" Clicked="NextItemButton_Clicked"/>
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition/>
@@ -19,7 +19,7 @@
             </Grid.RowDefinitions>
             <Button x:Name="PreviousButton" Text="Previous" Clicked="Previous_Clicked" Grid.Column="0" Grid.Row="0"/>
             <Entry x:Name="IdEntry" Completed="IdEntry_Completed" Grid.Column="1" Grid.Row="0"/>
-            <Button x:Name="NextButton" Text="Next" Clicked="Next_Clicked" Grid.Column="2" Grid.Row="0"/>
+            <Button x:Name="NextButton" Text="Next" Clicked="Next_Clicked" Grid.Column="2" Grid.Row="0" IsEnabled="False"/>
             <VerticalStackLayout Grid.Column="1" Grid.Row="1">
                 <Label x:Name="ProgressLabel" HorizontalOptions="Center"/>
                 <Label x:Name="StatusLabel" HorizontalOptions="Center"/>

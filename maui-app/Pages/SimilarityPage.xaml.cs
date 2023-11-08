@@ -47,6 +47,7 @@ public partial class SimilarityPage : ContentPage
 		}
 	}
     private List<ItemId> _similarItemIds = new();
+    private ConcurrentDictionary<ItemId, ulong>? _hashDict = null;
 	private async Task SearchForSimilarImagesAsync()
 	{
         void updateLabel(string msg)
@@ -63,26 +64,29 @@ public partial class SimilarityPage : ContentPage
         });
         StartTimer();
         string path = Path.Join(MauiProgram.TEMP_BASE_FOLDER, "perceptualHashes.json");
-        ConcurrentDictionary<ItemId, ulong> hashDict;
-        if (File.Exists(path))
+        if(_hashDict is null)
         {
-            updateLabel("Loading perceptual hashes...");
-            hashDict = await Task.Run(() => JsonSerializer.Deserialize<ConcurrentDictionary<ItemId, ulong>>(File.ReadAllText(path))!);
-            updateLabel("Loading perceptual hashes... Done!");
-        }
-        else
-        {
-            hashDict = new();
-        }
+            if (File.Exists(path))
+            {
+                updateLabel("Loading perceptual hashes...");
+                _hashDict = await Task.Run(() => JsonSerializer.Deserialize<ConcurrentDictionary<ItemId, ulong>>(File.ReadAllText(path))!);
+            }
+            else
+            {
+                _hashDict = new();
+            }
+        } 
         updateLabel("Generating perceptual hashes...");
-        HashSet<ItemId> idsToSkip = hashDict.Keys.ToHashSet();
-        int total = ItemManager.Items.Count() - idsToSkip.Count, ct = 0;
-        foreach (Task<(ItemId, ulong)> task in GeneratePerceptualHashTasks(idsToSkip))
+        HashSet<ItemId> idsToSkip = _hashDict.Keys.ToHashSet();
+        IEnumerable<Task<(ItemId, ulong)>> perceptualTasks = GeneratePerceptualHashTasks(idsToSkip);
+        int total = perceptualTasks.Count(), ct = 0;
+        foreach (Task<(ItemId, ulong)> task in perceptualTasks)
         {
             ((IProgress<(int, int, string)>)progress).Report((ct++, total, ""));
             (ItemId id, ulong hash) = await task;
-            hashDict[id] = hash;
+            _hashDict[id] = hash;
         }
+        await Task.Run(() => File.WriteAllText(path, JsonSerializer.Serialize(_hashDict)));
         updateLabel("Calculating similarities...");
         _similarItemIds.Clear();
         if (ItemView.IItem is Item curItem)
@@ -91,13 +95,15 @@ public partial class SimilarityPage : ContentPage
             {
                 await Task.Run(() =>
                 {
-                    double similarity = CompareHash.Similarity(hashDict[curItem.Id], hashDict[otherItem.Id]);
+                    double similarity = CompareHash.Similarity(_hashDict[curItem.Id], _hashDict[otherItem.Id]);
                     if (similarity > 90)
                         _similarItemIds.Add(otherItem.Id);
                 });
             }
         }
+        ProgressLabel.Text = "";
         _cancellationTokenSource.Cancel();
+        TimeElapsed.Text = "";
         _similarItemIds = _similarItemIds.Order().ToList();
         updateLabel(_similarItemIds.ListNotation());
     }
@@ -132,7 +138,8 @@ public partial class SimilarityPage : ContentPage
         await SwitchToItem(id);
         (sender as Entry)!.Text = "";
     }
-    private async Task SwitchToItem(ItemId? id)
+    private ItemId _lastId = 0;
+    private async Task SwitchToItem(ItemId? id, bool ignoreForHistory = false)
     {
         Item? item = ItemManager.TryGetItemById(id);
         ItemView.IItem = item;
@@ -141,11 +148,19 @@ public partial class SimilarityPage : ContentPage
             await SearchForSimilarImagesAsync();
         }
         IdEntry.Text = ItemView.IItemAs<Item>()?.Id ?? "";
+        if (!ignoreForHistory)
+        {
+            NextItemButton.IsEnabled = ItemView.IItem is not null;
+            if(ItemView.IItemAs<Item>() is Item curItem)
+            {
+                _lastId = curItem;
+            }
+        }
         UpdateButtons();
     }
     private void UpdateButtons()
     {
-        NextItemButton.IsEnabled = ItemView.IItem is not null;
+        // NextItemButton.IsEnabled = ItemView.IItem is not null;
         bool anySimilarImages = ItemView.IItem is not null && _similarItemIds.Any();
         PreviousButton.IsEnabled = anySimilarImages;
         NextButton.IsEnabled = anySimilarImages;
@@ -153,32 +168,32 @@ public partial class SimilarityPage : ContentPage
     }
     private async void NextItemButton_Clicked(object sender, EventArgs e)
     {
+        await NextSimilarSet();
+    }
+    private async Task NextSimilarSet(ItemId? currentId = null)
+    {
         NextItemButton.IsEnabled = false;
-        ItemId currentId;
-        if(ItemView.IItem is null)
+        if (currentId is null && ItemView.IItem is null)
         {
             return;
         }
-        else
-        {
-            currentId = (ItemView.IItem as Item)!.Id + 1;
-        }
-        await SwitchToItem(currentId);
+        else currentId ??= (ItemView.IItem as Item)!.Id + 1;
+        _similarItemIds.Clear();
         while (!_similarItemIds.Any())
         {
-            await SwitchToItem(++currentId);
+            await SwitchToItem(currentId!++, ignoreForHistory: true);
         }
+        _lastId = currentId.Value;
         NextItemButton.IsEnabled = true;
     }
-
     private async void Previous_Clicked(object sender, EventArgs e)
     {
-        await SwitchToItem(_similarItemIds.Last());
+        await SwitchToItem(_similarItemIds.Last(), ignoreForHistory: true);
     }
 
     private async void Next_Clicked(object sender, EventArgs e)
     {
-        await SwitchToItem(_similarItemIds.First());
+        await SwitchToItem(_similarItemIds.First(), ignoreForHistory: true);
     }
     private async void MergeButton_Clicked(object sender, EventArgs e)
     {
@@ -188,7 +203,8 @@ public partial class SimilarityPage : ContentPage
             Item? nextItem = await Item.MergeAsync(curItem, _similarItemIds.Select(x => ItemManager.TryGetItemById(x)).Where(x => x is not null)!);
             if(nextItem is not null)
             {
-                await SwitchToItem(nextItem.Id);
+                // await SwitchToItem(id);
+                await NextSimilarSet(_lastId + 1);
             }
         }
     }
