@@ -37,7 +37,7 @@ public class Competition
         public double MarginOfError
             => (CiUpperBound - CiLowerBound) / 2;
         [JsonIgnore]
-        public double Weight => Math.Pow(2, -TotalRatings) * CiUpperBound;
+        public double Weight => TotalRatings > 0 ? CiCenter / Math.Log(TotalRatings) : 1;
         [JsonIgnore]
         public bool ShouldShow => true; // TotalRatings < 7 || CiUpperBound >= 0.42;
         [JsonConstructor]
@@ -70,7 +70,7 @@ public class Competition
         Ratings = ratings;
     }
     // todo: find a way to drop the bottom x percentile of items
-    public bool IsIrrelevant(ItemId id) => IrrelevantItems.Contains(id) || ItemManager.ItemsById[id].Hidden;
+    public bool IsIrrelevant(ItemId id) => IrrelevantItems.Contains(id) || !ItemManager.ItemsById.TryGetValue(id, out Item? item) || item.Hidden;
     public Rating? RatingOf(ItemId id)
         => RatingOf(ItemManager.TryGetItemById(id));
     public Rating? RatingOf(Item? item)
@@ -114,7 +114,6 @@ public class Competition
     }
     public void Choose(Side side)
     {
-        Utils.Log($"Choose({side})");
         ItemId chosenId = this[side].Id, rejectedId = this[side.Opposite()].Id;
 #pragma warning disable CA1854 // "prefer TryGetValue": need reference access to object
         if (Ratings.ContainsKey(chosenId))
@@ -138,7 +137,6 @@ public class Competition
     }
     public void Choose(ItemId? id)
     {
-        Utils.Log($"Choose({id.PrintNull()})");
         if (this[Side.Left].Id == id)
         {
             Choose(Side.Left);

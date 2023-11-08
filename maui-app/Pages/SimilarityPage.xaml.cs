@@ -53,7 +53,7 @@ public partial class SimilarityPage : ContentPage
         void updateLabel(string msg)
         {
             StatusLabel.Text = msg;
-            Utils.Log(msg);
+            //Utils.Log(msg);
         }
         ItemId maxId = ItemManager.ItemsById.Keys.Max();
         Progress<(int ct, int total, string desc)> progress = new(value =>
@@ -89,6 +89,7 @@ public partial class SimilarityPage : ContentPage
         await Task.Run(() => File.WriteAllText(path, JsonSerializer.Serialize(_hashDict)));
         updateLabel("Calculating similarities...");
         _similarItemIds.Clear();
+        List<double> highSimilarities = new();
         if (ItemView.IItem is Item curItem)
         {
             foreach (Item otherItem in ItemManager.Items.Where(x => x != curItem))
@@ -96,8 +97,11 @@ public partial class SimilarityPage : ContentPage
                 await Task.Run(() =>
                 {
                     double similarity = CompareHash.Similarity(_hashDict[curItem.Id], _hashDict[otherItem.Id]);
-                    if (similarity > 90)
+                    if (similarity > 95)
+                    {
                         _similarItemIds.Add(otherItem.Id);
+                        highSimilarities.Add(similarity);
+                    }
                 });
             }
         }
@@ -105,7 +109,7 @@ public partial class SimilarityPage : ContentPage
         _cancellationTokenSource.Cancel();
         TimeElapsed.Text = "";
         _similarItemIds = _similarItemIds.Order().ToList();
-        updateLabel(_similarItemIds.ListNotation());
+        updateLabel(_similarItemIds.Zip(highSimilarities).Select(x => $"{x.First} {x.Second:F1}%").ListNotation());
     }
 	private readonly struct ItemPair
 	{
@@ -141,6 +145,7 @@ public partial class SimilarityPage : ContentPage
     private ItemId _lastId = 0;
     private async Task SwitchToItem(ItemId? id, bool ignoreForHistory = false)
     {
+        Utils.Log($"SwitchToItem({id.PrintNull()}, {ignoreForHistory})");
         Item? item = ItemManager.TryGetItemById(id);
         ItemView.IItem = item;
         if(item is not null)
@@ -186,14 +191,28 @@ public partial class SimilarityPage : ContentPage
         _lastId = currentId.Value;
         NextItemButton.IsEnabled = true;
     }
+    private async Task NextOrPrevious(bool previous)
+    {
+        int offset = previous ? -1 : 1;
+        NextButton.IsEnabled = false;
+        PreviousButton.IsEnabled = false;
+        ItemId curId = ItemView.IItemAs<Item>()!.Id;
+        List<ItemId> similarIdsAndCurrentId = _similarItemIds.Append(curId)
+                                                             .Order()
+                                                             .ToList();
+        int index = (similarIdsAndCurrentId.IndexOf(curId) + offset).Wrap(0, _similarItemIds.Count + 1);
+        await SwitchToItem(similarIdsAndCurrentId[index], ignoreForHistory: true);
+        NextButton.IsEnabled = true;
+        PreviousButton.IsEnabled = true;
+    }
     private async void Previous_Clicked(object sender, EventArgs e)
     {
-        await SwitchToItem(_similarItemIds.Last(), ignoreForHistory: true);
+        await NextOrPrevious(true);
     }
 
     private async void Next_Clicked(object sender, EventArgs e)
     {
-        await SwitchToItem(_similarItemIds.First(), ignoreForHistory: true);
+        await NextOrPrevious(false);
     }
     private async void MergeButton_Clicked(object sender, EventArgs e)
     {
@@ -204,7 +223,7 @@ public partial class SimilarityPage : ContentPage
             if(nextItem is not null)
             {
                 // await SwitchToItem(id);
-                await NextSimilarSet(_lastId + 1);
+                await NextSimilarSet(_lastId);
             }
         }
     }

@@ -26,6 +26,7 @@ public static class MauiProgram
 			{
 				fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
 				fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
+				fonts.AddFont("cour.ttf", "CourierNew");
 			});		
 		Utils.DefaultLog = new(TEMP_LOG_PATH, mode: Log.Mode.WriteImmediate);
         ItemManager.Load();

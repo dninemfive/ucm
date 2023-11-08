@@ -103,6 +103,7 @@ public class Item : IItemViewable
     }
     public static async Task<Item> MergeAsync(Item chosenItem, IEnumerable<Item> otherItems)
     {
+        Utils.Log($"Merge({chosenItem}, {otherItems.ListNotation()})");
         List<ItemSource> sources = chosenItem.ItemSources.ToList();
         ItemId resultId = IdManager.Register();
         List<Item> relevantItems = otherItems.Append(chosenItem)

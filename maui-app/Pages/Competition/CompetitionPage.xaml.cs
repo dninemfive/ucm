@@ -18,11 +18,6 @@ public partial class CompetitionPage : ContentPage
         LeftItemView.SelectButtonClicked += UpdateViews;
         RightItemView.SelectButtonClicked += UpdateViews;
     }
-    private async void Left_Clicked(object sender, EventArgs e)
-    {
-        Competition!.Choose(Side.Left);
-        await UpdateViews();
-    }
     private async Task Skip()
     {
         Competition!.NextItems();

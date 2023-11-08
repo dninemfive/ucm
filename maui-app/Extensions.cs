@@ -169,7 +169,14 @@ public static class Extensions
         foreach ((K k, V v) in kvps)
             result[k] = v;
         return result;
+    
     }
+    public static int Wrap(this int n, int min, int max) => (n >= min, n < max) switch
+    {
+        (true, true) => n,
+        (_, false) => min,
+        (false, _) => max - 1
+    };
 }
 public enum LocationType
 {

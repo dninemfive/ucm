@@ -12,7 +12,7 @@ public partial class ConsolePage : ContentPage, IConsole
         if(!LabelHolder.Any() || LabelHolder.Last() is not Label)
         {
             // todo: get monospaced font
-            Label label = new() { Text = $"{obj}" };
+            Label label = new() { Text = $"{obj}", FontFamily = "CourierNew" };
             LabelHolder.Add(label);
         }
         else
