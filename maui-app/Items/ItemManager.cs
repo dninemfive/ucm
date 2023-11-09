@@ -78,7 +78,7 @@ public static class ItemManager
     {
         get
         {
-            foreach(Item item in Items)
+            foreach(Item item in ItemsById.Values)
             {
                 string localPath = item.LocalPath.Value;
                 yield return localPath;

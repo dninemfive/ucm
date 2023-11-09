@@ -57,7 +57,7 @@ public class Competition
     [JsonInclude]
     public Dictionary<ItemId, Rating> Ratings { get; set; } = new();
     [JsonIgnore]
-    public IEnumerable<Rating> RelevantRatings => Ratings.Where(x => !IsIrrelevant(x.Key)).Select(x => x.Value);
+    public IEnumerable<Rating> RelevantRatings => RelevantItems.Select(RatingOf).Where(x => x is not null)!;
     public double ThresholdPercentile { get; set; } = 0;
     [JsonIgnore]
     public IEnumerable<Rating> ShownRatings
@@ -65,7 +65,7 @@ public class Competition
         get
         {
             double threshold = RelevantRatings.Select(x => x.CiLowerBound).Percentile(ThresholdPercentile);
-            return RelevantRatings.Where(x => x.CiLowerBound > threshold).Concat(RelevantUnratedItems.Select(RatingOf))!;
+            return RelevantRatings.Where(x => x.CiLowerBound > threshold); //.Concat(RelevantUnratedItems.Select(RatingOf))!;
         }
     }
     public Competition(string name)
@@ -161,8 +161,6 @@ public class Competition
     }
     [JsonIgnore]
     public IEnumerable<Item> RelevantItems => ItemManager.Items.Where(x => !IsIrrelevant(x.Id));
-    [JsonIgnore]
-    public IEnumerable<Item> RelevantUnratedItems => RelevantItems.Where(x => RatingOf(x) is null);
     private Item? _previousItem = null;
     [JsonIgnore]
     public Item NextItem

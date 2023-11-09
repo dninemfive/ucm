@@ -62,44 +62,11 @@ public partial class MainPage : ContentPage
 
     private async void TestUrlThing(object sender, EventArgs e)
     {
-        (sender as Button)!.IsEnabled = false;
-        static string doThing()
+        foreach(Item item in ItemManager.ItemsById.Values.OrderBy(x => x.Id))
         {
-            string html = File.ReadAllText(MauiProgram.TEMP_BASE_FOLDER + "img.html");
-            string json = html.Split("window.__INITIAL_STATE__ = JSON.parse(\"")[1].Split("\");\n            window.__URL_CONFIG__")[0];
-            string unescaped = HttpUtility.HtmlDecode(json)
-                                          .Replace("\\\\u002F", "/")
-                                          .Replace("\\\\u003C", "<")
-                                          .Replace("\\\\u003E", ">")
-                                          .Replace("\\","");
-            return unescaped;
+            if (item.Hidden)
+                Utils.Log($"{item.Id,3}\t{item.Deleted}\t{item.MergeInfo?.ResultId.PrintNull()}");
         }
-
-//HtmlDocument doc = new();
-//doc.LoadHtml(html);
-//Utils.Log(doc.DocumentNode.SelectSingleNode("//script[@nonce="));
-        string unescaped = await Task.Run(doThing);
-        //Utils.Log(unescaped);
-        unescaped = unescaped.Split("\"446163267\":")[1].Split(",\"447510389")[0];
-        Utils.Log(unescaped);
-        try
-        {
-            JsonElement el = JsonSerializer.Deserialize<JsonElement>(unescaped)!;
-            Utils.Log(el.PrettyPrint());
-            JsonElement media = el.GetProperty("media");
-            string baseUri = media.GetProperty("baseUri").GetString()!;
-            string prettyName = media.GetProperty("prettyName").GetString()!;
-            string token = media.GetProperty("token").EnumerateArray().First().GetString()!;
-            JsonElement type = media.GetProperty("types").EnumerateArray().Where(x => x.GetProperty("t").GetString() == "preview").First();
-            string resultUrl = $"{baseUri}{type.GetProperty("c").GetString()!.Replace("<prettyName>", prettyName)}?token={token}";
-            Utils.Log(resultUrl);
-        } 
-        catch(Exception ex)
-        {
-            Utils.Log(ex);
-        }
-        
-        (sender as Button)!.IsEnabled = true;
     }
 }
 

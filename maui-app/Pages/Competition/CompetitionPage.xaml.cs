@@ -84,6 +84,7 @@ public partial class CompetitionPage : ContentPage
     private void ThresholdEntry_Completed(object sender, EventArgs e)
     {
         Competition!.ThresholdPercentile = double.Parse(ThresholdEntry.Text);
+        Utils.Log($"0-rating item count: {Competition.ShownRatings.Where(x => x.TotalRatings == 0).Count()}");
         Histogram.ReplaceData(Competition!.ShownRatings.Select(x => (double)x.TotalRatings), 1);
     }
 }
