@@ -164,8 +164,12 @@ public class Competition
         }
     }
     private Item? _previousItem = null;
+    public event EventHandler? ItemsUpdated;
     public void NextItems()
-        => (Left, Right) = (NextItem, NextItem);
+    {
+        (Left, Right) = (NextItem, NextItem);
+        ItemsUpdated?.Invoke(this, new EventArgs());
+    }
     public void SetIrrelevant(ItemId? id, bool value)
     {
         if (id is null)

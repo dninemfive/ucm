@@ -2,8 +2,23 @@ namespace d9.ucm;
 
 public partial class CompetitionItemView : ContentView
 {
-	public Item? Item { get; private set; }
-	private bool _isIrrelevant = false;
+	public Item? Item => Competition?[Side];
+	public Side Side { get; set; }
+	private Competition? _competition = null;
+    public Competition? Competition
+	{
+		get => _competition;
+		set
+		{
+			if(value is not null)
+			{
+				// todo: ensure that this is subscribed to exactly one competition's event exactly once
+				value.ItemsUpdated += (sender, e) => Update();
+			}
+			_competition = value;
+		}
+	}
+    private bool _isIrrelevant = false;
 	public bool IsIrrelevant
 	{
 		get => _isIrrelevant;
@@ -25,21 +40,16 @@ public partial class CompetitionItemView : ContentView
 			SelectButton.IsEnabled = value;
 		}
 	}
-	public Competition? Competition { get; set; } = null;
 	public CompetitionItemView()
 	{
 		InitializeComponent();
 	}
-	public void UpdateWith(Item item, string? extraTooltipInfo, bool isIrrelevant = false)
+	public void Update()
 	{
-		Item = item;
-		ItemHolder.Content = item.View;
+		ItemHolder.Content = Item?.View;
 		ItemHolder.WidthRequest = WidthRequest;
 		ItemHolder.HeightRequest = HeightRequest - IrrelevantButton.HeightRequest - SelectButton.HeightRequest;
-		if (extraTooltipInfo is not null)
-			extraTooltipInfo = $"\n\n{extraTooltipInfo}";
-		ToolTipProperties.SetText(ItemHolder, $"{item}{extraTooltipInfo}");
-		IsIrrelevant = isIrrelevant;
+		ToolTipProperties.SetText(ItemHolder, $"{Item}\n\n{Competition?.RatingOf(Item)}");
     }
 	public event EventHandler? IrrelevantButtonClicked;
     private void IrrelevantButton_Clicked(object sender, EventArgs e)

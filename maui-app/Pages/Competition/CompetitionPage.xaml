@@ -7,8 +7,8 @@
     <VerticalStackLayout x:Name="MainLayout">
         <local:CompetitionSelector x:Name="CompetitionCreation" AllowNewItem="True" HeightRequest="50"/>
         <HorizontalStackLayout x:Name="ItemViews" IsVisible="False">
-            <local:CompetitionItemView x:Name="LeftItemView" WidthRequest="960"/>
-            <local:CompetitionItemView x:Name="RightItemView" WidthRequest="960"/>
+            <local:CompetitionItemView x:Name="LeftItemView" WidthRequest="960" Side="Left"/>
+            <local:CompetitionItemView x:Name="RightItemView" WidthRequest="960" Side="Right"/>
         </HorizontalStackLayout>
         <VerticalStackLayout x:Name="BottomDock" toolkit:DockLayout.DockPosition="Bottom" IsVisible="False">
             <Button x:Name="SkipButton" Text="Skip" Clicked="Skip_Clicked" HeightRequest="50" WidthRequest="1920"/>

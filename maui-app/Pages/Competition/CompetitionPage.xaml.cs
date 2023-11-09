@@ -43,27 +43,24 @@ public partial class CompetitionPage : ContentPage
         BottomDock.IsVisible = Competition is not null;
         if(Competition is not null)
         {
-            // CompetitionCreation.IsVisible = false;
+            LeftItemView.Competition = Competition;
+            RightItemView.Competition = Competition;
             Competition.NextItems();
             await UpdateViews();
         }        
     }
-    public void Update(CompetitionItemView itemView, Side side)
+    public void Update(CompetitionItemView itemView)
     {
-        if (Competition is null)
-            return;        
         itemView.WidthRequest = Window.Width / 2;
         itemView.HeightRequest = Height - BottomDock.HeightRequest - CompetitionCreation.HeightRequest;
-        itemView.Competition = Competition;
-        itemView.UpdateWith(Competition[side], $"Ratings: {Competition.RatingOf(side)?.TotalRatings ?? 0}");
     }
     private async Task UpdateViews()
     {
         BottomDock.HeightRequest = SkipButton.HeightRequest + Histogram.HeightRequest;
         UpdateChildrenLayout();
         await Competition!.SaveAsync();
-        Update(LeftItemView, Side.Left);
-        Update(RightItemView, Side.Right);
+        Update(LeftItemView);
+        Update(RightItemView);
         await UpdateButtonActivation();
         Histogram.ReplaceData(Competition!.ShownRatings.Select(x => (double)x.TotalRatings), 1);
     }
