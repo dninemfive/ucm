@@ -43,8 +43,8 @@ public partial class CompetitionPage : ContentPage
         BottomDock.IsVisible = Competition is not null;
         if(Competition is not null)
         {
-            CompetitionCreation.IsVisible = false;
-            Competition.NextItems();            
+            // CompetitionCreation.IsVisible = false;
+            Competition.NextItems();
             await UpdateViews();
         }        
     }
@@ -53,7 +53,7 @@ public partial class CompetitionPage : ContentPage
         if (Competition is null)
             return;        
         itemView.WidthRequest = Window.Width / 2;
-        itemView.HeightRequest = Height - BottomDock.HeightRequest;
+        itemView.HeightRequest = Height - BottomDock.HeightRequest - CompetitionCreation.HeightRequest;
         itemView.Competition = Competition;
         itemView.UpdateWith(Competition[side], $"Ratings: {Competition.RatingOf(side)?.TotalRatings ?? 0}");
     }
@@ -65,9 +65,25 @@ public partial class CompetitionPage : ContentPage
         Update(LeftItemView, Side.Left);
         Update(RightItemView, Side.Right);
         await UpdateButtonActivation();
-        List<double> data = Competition!.RelevantRatings.Select(x => x.TotalRatings).Select(x => (double)x).ToList();
-        data.AddRange(Competition!.RelevantUnratedItems.Select(x => 0.0));
-        Histogram.ReplaceData(data, 1);
+        Histogram.ReplaceData(Competition!.ShownRatings.Select(x => (double)x.TotalRatings), 1);
     }
     private async void UpdateViews(object? sender, EventArgs e) => await UpdateViews();
+
+    private void HistogramModePicker_SelectedIndexChanged(object sender, EventArgs e)
+    {
+        Histogram.BinHeightFunction = HistogramModePicker.SelectedIndex switch
+        {
+            0 => null,
+            1 => Competition.Rating.WeightFunction,
+            _ => throw new Exception("Selected index out of range.")
+        };
+        Histogram.UseProportion = HistogramModePicker.SelectedIndex == 1;
+        Histogram.Update();
+    }
+
+    private void ThresholdEntry_Completed(object sender, EventArgs e)
+    {
+        Competition!.ThresholdPercentile = double.Parse(ThresholdEntry.Text);
+        Histogram.ReplaceData(Competition!.ShownRatings.Select(x => (double)x.TotalRatings), 1);
+    }
 }

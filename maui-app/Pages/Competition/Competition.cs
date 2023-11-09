@@ -37,7 +37,8 @@ public class Competition
         public double MarginOfError
             => (CiUpperBound - CiLowerBound) / 2;
         [JsonIgnore]
-        public double Weight => TotalRatings > 0 ? CiCenter / (TotalRatings * TotalRatings) : 10;
+        public double Weight => WeightFunction(TotalRatings);
+        public static double WeightFunction(int i) => i > 0 ? 1 / (double)(i * i) : 10.0;
         public bool ShouldShow(double percentile) => CiLowerBound > percentile; // TotalRatings < 7 || CiUpperBound >= 0.42;
         [JsonConstructor]
         public Rating(int timesSelected, int totalRatings)
@@ -57,14 +58,14 @@ public class Competition
     public Dictionary<ItemId, Rating> Ratings { get; set; } = new();
     [JsonIgnore]
     public IEnumerable<Rating> RelevantRatings => Ratings.Where(x => !IsIrrelevant(x.Key)).Select(x => x.Value);
-    private const double _percentile = 0.7;
+    public double ThresholdPercentile { get; set; } = 0;
     [JsonIgnore]
     public IEnumerable<Rating> ShownRatings
     {
         get
         {
-            double threshold = RelevantRatings.Select(x => x.CiLowerBound).Percentile(_percentile);
-            return RelevantRatings.Where(x => x.CiLowerBound > threshold);
+            double threshold = RelevantRatings.Select(x => x.CiLowerBound).Percentile(ThresholdPercentile);
+            return RelevantRatings.Where(x => x.CiLowerBound > threshold).Concat(RelevantUnratedItems.Select(RatingOf))!;
         }
     }
     public Competition(string name)
@@ -168,9 +169,10 @@ public class Competition
     {
         get
         {
-            double threshold = RelevantRatings.Select(x => x.CiLowerBound).Percentile(_percentile);
+            double threshold = RelevantRatings.Select(x => x.CiLowerBound).Percentile(ThresholdPercentile);
+            Utils.Log($"Threshold: {threshold:F2}");
             Item result = RelevantItems.Where(x => x.Id != _previousItem?.Id && (RatingOf(x)?.ShouldShow(threshold) ?? true))
-                                       .WeightedRandomElement(x => RatingOf(x)?.Weight ?? 1);
+                                       .WeightedRandomElement(x => RatingOf(x)?.Weight ?? Rating.WeightFunction(0));
             Utils.Log($"NextItem -> {result} {(ulong)result.Id}");
             _previousItem = result;
             return result;

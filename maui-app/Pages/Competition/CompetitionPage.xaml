@@ -5,7 +5,7 @@
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              x:Class="d9.ucm.CompetitionPage">
     <VerticalStackLayout x:Name="MainLayout">
-        <local:CompetitionSelector x:Name="CompetitionCreation" AllowNewItem="True" toolkit:DockLayout.DockPosition="Top"/>
+        <local:CompetitionSelector x:Name="CompetitionCreation" AllowNewItem="True" HeightRequest="50"/>
         <HorizontalStackLayout x:Name="ItemViews" IsVisible="False">
             <local:CompetitionItemView x:Name="LeftItemView" WidthRequest="960"/>
             <local:CompetitionItemView x:Name="RightItemView" WidthRequest="960"/>
@@ -18,13 +18,14 @@
                     <ColumnDefinition/>
                     <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
+                <Entry Grid.Column="0" x:Name="ThresholdEntry" Completed="ThresholdEntry_Completed"></Entry>
                 <local:HistogramView x:Name="Histogram"
                                  HorizontalOptions="Center"
                                  HeightRequest="50" 
                                  ForegroundColor="#EE6900"
                                  ForcedLowerBound="0"
                                  Grid.Column="1"/>
-                <Picker x:Name="HistogramModePicker" Grid.Column="2">
+                <Picker x:Name="HistogramModePicker" Grid.Column="2" SelectedIndexChanged="HistogramModePicker_SelectedIndexChanged">
                     <Picker.Items>
                         <x:String>Count</x:String>
                         <x:String>Probability</x:String>
