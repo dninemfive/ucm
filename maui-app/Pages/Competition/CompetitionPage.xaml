@@ -12,11 +12,25 @@
         </HorizontalStackLayout>
         <VerticalStackLayout x:Name="BottomDock" toolkit:DockLayout.DockPosition="Bottom" IsVisible="False">
             <Button x:Name="SkipButton" Text="Skip" Clicked="Skip_Clicked" HeightRequest="50" WidthRequest="1920"/>
-            <local:HistogramView x:Name="Histogram"
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <local:HistogramView x:Name="Histogram"
                                  HorizontalOptions="Center"
                                  HeightRequest="50" 
                                  ForegroundColor="#EE6900"
-                                 ForcedLowerBound="0"/>
+                                 ForcedLowerBound="0"
+                                 Grid.Column="1"/>
+                <Picker x:Name="HistogramModePicker" Grid.Column="2">
+                    <Picker.Items>
+                        <x:String>Count</x:String>
+                        <x:String>Probability</x:String>
+                    </Picker.Items>
+                </Picker>
+            </Grid>
         </VerticalStackLayout>
     </VerticalStackLayout>
 </ContentPage>

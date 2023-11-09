@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
@@ -177,6 +178,20 @@ public static class Extensions
         (_, false) => min,
         (false, _) => max - 1
     };
+    public static T Percentile<T>(this IEnumerable<T> numbers, double percentile)
+        where T : INumberBase<T>
+    {
+        IEnumerable<T> sorted = numbers.Order();
+        int target = (int)(sorted.Count() * percentile + 0.5);
+        int ct = 0;
+        foreach(T number in sorted)
+        {
+            if (ct == target)
+                return number;
+            ct++;
+        }
+        return sorted.Last();
+    }
 }
 public enum LocationType
 {

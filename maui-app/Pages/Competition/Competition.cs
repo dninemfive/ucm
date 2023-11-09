@@ -37,9 +37,8 @@ public class Competition
         public double MarginOfError
             => (CiUpperBound - CiLowerBound) / 2;
         [JsonIgnore]
-        public double Weight => TotalRatings > 0 ? CiCenter / Math.Log(TotalRatings) : 1;
-        [JsonIgnore]
-        public bool ShouldShow => true; // TotalRatings < 7 || CiUpperBound >= 0.42;
+        public double Weight => TotalRatings > 0 ? CiCenter / (TotalRatings * TotalRatings) : 10;
+        public bool ShouldShow(double percentile) => CiLowerBound > percentile; // TotalRatings < 7 || CiUpperBound >= 0.42;
         [JsonConstructor]
         public Rating(int timesSelected, int totalRatings)
         {
@@ -58,6 +57,16 @@ public class Competition
     public Dictionary<ItemId, Rating> Ratings { get; set; } = new();
     [JsonIgnore]
     public IEnumerable<Rating> RelevantRatings => Ratings.Where(x => !IsIrrelevant(x.Key)).Select(x => x.Value);
+    private const double _percentile = 0.7;
+    [JsonIgnore]
+    public IEnumerable<Rating> ShownRatings
+    {
+        get
+        {
+            double threshold = RelevantRatings.Select(x => x.CiLowerBound).Percentile(_percentile);
+            return RelevantRatings.Where(x => x.CiLowerBound > threshold);
+        }
+    }
     public Competition(string name)
     {
         Name = name;
@@ -69,7 +78,6 @@ public class Competition
         IrrelevantItems = irrelevantItems;
         Ratings = ratings;
     }
-    // todo: find a way to drop the bottom x percentile of items
     public bool IsIrrelevant(ItemId id) => IrrelevantItems.Contains(id) || !ItemManager.ItemsById.TryGetValue(id, out Item? item) || item.Hidden;
     public Rating? RatingOf(ItemId id)
         => RatingOf(ItemManager.TryGetItemById(id));
@@ -160,8 +168,10 @@ public class Competition
     {
         get
         {
-            Item result = RelevantItems.Where(x => x.Id != _previousItem?.Id && (RatingOf(x)?.ShouldShow ?? true))
+            double threshold = RelevantRatings.Select(x => x.CiLowerBound).Percentile(_percentile);
+            Item result = RelevantItems.Where(x => x.Id != _previousItem?.Id && (RatingOf(x)?.ShouldShow(threshold) ?? true))
                                        .WeightedRandomElement(x => RatingOf(x)?.Weight ?? 1);
+            Utils.Log($"NextItem -> {result} {(ulong)result.Id}");
             _previousItem = result;
             return result;
         }
