@@ -48,10 +48,8 @@ public class Competition
         get
         {
             double threshold = RelevantRatings.Select(x => x.CiLowerBound).Percentile(ThresholdPercentile);
-            Utils.Log($"Threshold: {threshold:F2}");
             Item result = RelevantItems.Where(x => x.Id != _previousItem?.Id && (RatingOf(x)?.ShouldShow(threshold) ?? true))
                                        .WeightedRandomElement(x => RatingOf(x)?.Weight ?? Rating.WeightFunction(0));
-            Utils.Log($"NextItem -> {result} {(ulong)result.Id}");
             _previousItem = result;
             return result;
         }
@@ -66,7 +64,7 @@ public class Competition
         get
         {
             double threshold = RelevantRatings.Select(x => x.CiLowerBound).Percentile(ThresholdPercentile);
-            return RelevantRatings.Where(x => x.CiLowerBound > threshold);
+            return RelevantRatings.Where(x => x.CiLowerBound >= threshold);
         }
     }
     [JsonIgnore]
@@ -161,7 +159,6 @@ public class Competition
     public void NextItems()
     {
         (Left, Right) = (NextItem, NextItem);
-        Utils.Log($"Compoetition {Name} invoking its ItemsUpdated event.");
         ItemsUpdated?.Invoke(this, new EventArgs());
     }
     public void SetIrrelevant(ItemId? id, bool value)
