@@ -53,6 +53,8 @@ public partial class CompetitionPage : ContentPage
     {
         itemView.WidthRequest = Window.Width / 2;
         itemView.HeightRequest = Height - BottomDock.HeightRequest - CompetitionCreation.HeightRequest;
+        itemView.Update();
+        Utils.Log($"ItemView HeightRequest {itemView.HeightRequest}");
     }
     private async Task UpdateViews()
     {

@@ -5,7 +5,7 @@
 
     <VerticalStackLayout>
         <ContentView x:Name="ItemHolder"/>
-        <Button x:Name="IrrelevantButton" Clicked="IrrelevantButton_Clicked" HeightRequest="50"/>
+        <Button x:Name="IrrelevantButton" Clicked="IrrelevantButton_Clicked" HeightRequest="50" Loaded="IrrelevantButton_Loaded"/>
         <Button x:Name="SelectButton" Text="Select" Clicked="SelectButton_Clicked" HeightRequest="50"/>
     </VerticalStackLayout>
 </ContentView>

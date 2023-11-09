@@ -108,7 +108,7 @@
 	  <MauiXaml Update="Pages\SimilarityPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Views\CompetitionItemView.xaml">
+	  <MauiXaml Update="Pages\Competition\CompetitionItemView.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Views\CompetitionSelector.xaml">

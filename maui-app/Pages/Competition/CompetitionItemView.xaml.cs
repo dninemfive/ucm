@@ -14,6 +14,7 @@ public partial class CompetitionItemView : ContentView
 			{
 				// todo: ensure that this is subscribed to exactly one competition's event exactly once
 				value.ItemsUpdated += (sender, e) => Update();
+				Utils.Log($"{Side} CompetitionItemView subscribed to competition {value.Name}'s ItemsUpdated event.");
 			}
 			_competition = value;
 		}
@@ -46,10 +47,12 @@ public partial class CompetitionItemView : ContentView
 	}
 	public void Update()
 	{
+		Utils.Log($"{Side} CompetitionItemView Update(): item {Item.PrintNull()}");
 		ItemHolder.Content = Item?.View;
 		ItemHolder.WidthRequest = WidthRequest;
 		ItemHolder.HeightRequest = HeightRequest - IrrelevantButton.HeightRequest - SelectButton.HeightRequest;
 		ToolTipProperties.SetText(ItemHolder, $"{Item}\n\n{Competition?.RatingOf(Item)}");
+		Utils.Log($"HeightRequest = {HeightRequest}");
     }
 	public event EventHandler? IrrelevantButtonClicked;
     private void IrrelevantButton_Clicked(object sender, EventArgs e)
@@ -61,7 +64,12 @@ public partial class CompetitionItemView : ContentView
     public event EventHandler? SelectButtonClicked;
     private void SelectButton_Clicked(object sender, EventArgs e)
     {
-		Competition!.Choose(Item?.Id);
+		Competition!.Choose(Side);
         SelectButtonClicked?.Invoke(sender, e);
+    }
+    private void IrrelevantButton_Loaded(object sender, EventArgs e)
+    {
+        IrrelevantButton.Text = _isIrrelevant ? "Mark relevant" : "Mark irrelevant";
+        SelectButton.IsEnabled = !_isIrrelevant && Selectable;
     }
 }

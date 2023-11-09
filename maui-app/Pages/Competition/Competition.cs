@@ -14,6 +14,10 @@ public class Competition
     public Competition(string name)
     {
         Name = name;
+        foreach(Item item in ItemManager.Items)
+        {
+            Ratings[item.Id] = new(0, 0);
+        }
     }
     [JsonConstructor]
     public Competition(string name, HashSet<ItemId> irrelevantItems, Dictionary<ItemId, Rating> ratings)
@@ -21,6 +25,10 @@ public class Competition
         Name = name;
         IrrelevantItems = irrelevantItems;
         Ratings = ratings;
+        foreach(Item item in ItemManager.Items.Where(x => !ratings.ContainsKey(x.Id)))
+        {
+            Ratings[item.Id] = new(0, 0);
+        }
     }
     #endregion constructors
     #region serialized properties
@@ -58,7 +66,7 @@ public class Competition
         get
         {
             double threshold = RelevantRatings.Select(x => x.CiLowerBound).Percentile(ThresholdPercentile);
-            return RelevantRatings.Where(x => x.CiLowerBound > threshold); //.Concat(RelevantUnratedItems.Select(RatingOf))!;
+            return RelevantRatings.Where(x => x.CiLowerBound > threshold);
         }
     }
     [JsonIgnore]
@@ -86,7 +94,7 @@ public class Competition
     public static IEnumerable<string> Names => CompetitionManager.Names;
     public static string PathFor(string name) => Path.Join(MauiProgram.TEMP_COMP_LOCATION, $"{name}.json");
     #endregion static properties/methods
-    public bool IsIrrelevant(ItemId id) => IrrelevantItems.Contains(id) || !ItemManager.ItemsById.TryGetValue(id, out Item? item) || item.Hidden;
+    public bool IsIrrelevant(ItemId id) => IrrelevantItems.Contains(id) || ItemManager.TryGetItemById(id) is null;
     public Rating? RatingOf(ItemId id)
         => RatingOf(ItemManager.TryGetItemById(id));
     public Rating? RatingOf(Item? item)
@@ -148,26 +156,12 @@ public class Competition
 #pragma warning restore CA1854
         NextItems();
     }
-    public void Choose(ItemId? id)
-    {
-        if (this[Side.Left].Id == id)
-        {
-            Choose(Side.Left);
-        } 
-        else if (this[Side.Right].Id == id)
-        {
-            Choose(Side.Right);
-        }
-        else
-        {
-            throw new ArgumentException($"Neither the left ({this[Side.Left].Id}) or right ({this[Side.Right].Id}) ids match {id.PrintNull()}!");
-        }
-    }
     private Item? _previousItem = null;
     public event EventHandler? ItemsUpdated;
     public void NextItems()
     {
         (Left, Right) = (NextItem, NextItem);
+        Utils.Log($"Compoetition {Name} invoking its ItemsUpdated event.");
         ItemsUpdated?.Invoke(this, new EventArgs());
     }
     public void SetIrrelevant(ItemId? id, bool value)
@@ -189,8 +183,6 @@ public class Competition
     {
         await File.WriteAllTextAsync(FilePath, JsonSerializer.Serialize(this, new JsonSerializerOptions() { WriteIndented = true }));
     }
-    public Rating? RatingOf(Side side) 
-        => RatingOf(this[side].Id);
     public class Rating
     {
         [JsonInclude]
