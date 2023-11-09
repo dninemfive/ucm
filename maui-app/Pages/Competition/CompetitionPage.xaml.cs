@@ -20,6 +20,7 @@ public partial class CompetitionPage : ContentPage
     }
     private async Task Skip()
     {
+        Competition!.NextItems();
         await UpdateViews();
     }
     private async void Skip_Clicked(object? sender, EventArgs e)
@@ -42,26 +43,27 @@ public partial class CompetitionPage : ContentPage
         BottomDock.IsVisible = Competition is not null;
         if(Competition is not null)
         {
+            // CompetitionCreation.IsVisible = false;
+            Competition.NextItems();
             await UpdateViews();
         }        
     }
-    public void Update(CompetitionItemView itemView, Item item)
+    public void Update(CompetitionItemView itemView, Side side)
     {
         if (Competition is null)
             return;        
         itemView.WidthRequest = Window.Width / 2;
         itemView.HeightRequest = Height - BottomDock.HeightRequest - CompetitionCreation.HeightRequest;
         itemView.Competition = Competition;
-        itemView.UpdateWith(item, $"Ratings: {Competition.RatingOf(item)?.TotalRatings ?? 0}");
+        itemView.UpdateWith(Competition[side], $"Ratings: {Competition.RatingOf(side)?.TotalRatings ?? 0}");
     }
     private async Task UpdateViews()
     {
         BottomDock.HeightRequest = SkipButton.HeightRequest + Histogram.HeightRequest;
         UpdateChildrenLayout();
         await Competition!.SaveAsync();
-        (Item leftItem, Item rightItem) = Competition.NextItems();
-        Update(LeftItemView, leftItem);
-        Update(RightItemView, rightItem);
+        Update(LeftItemView, Side.Left);
+        Update(RightItemView, Side.Right);
         await UpdateButtonActivation();
         Histogram.ReplaceData(Competition!.ShownRatings.Select(x => (double)x.TotalRatings), 1);
     }

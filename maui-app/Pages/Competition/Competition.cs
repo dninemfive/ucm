@@ -148,29 +148,24 @@ public class Competition
 #pragma warning restore CA1854
         NextItems();
     }
-    public void Choose(ItemId? chosenId, ItemId? rejectedId)
+    public void Choose(ItemId? id)
     {
-        if (chosenId is null || rejectedId is null)
-            Utils.Log($"Attempted to Choose() with null arguments!");
-        if(Ratings.TryGetValue(chosenId!.Value, out Rating? rating))
+        if (this[Side.Left].Id == id)
         {
-            rating.Increment(true);
+            Choose(Side.Left);
         } 
-        else
+        else if (this[Side.Right].Id == id)
         {
-            Ratings[chosenId.Value] = new(1, 1);
-        }
-        if (Ratings.TryGetValue(rejectedId!.Value, out Rating? rating2))
-        {
-            rating2.Increment(true);
+            Choose(Side.Right);
         }
         else
         {
-            Ratings[rejectedId.Value] = new(0, 1);
+            throw new ArgumentException($"Neither the left ({this[Side.Left].Id}) or right ({this[Side.Right].Id}) ids match {id.PrintNull()}!");
         }
     }
     private Item? _previousItem = null;
-    public (Item left, Item right) NextItems() => (NextItem, NextItem);
+    public void NextItems()
+        => (Left, Right) = (NextItem, NextItem);
     public void SetIrrelevant(ItemId? id, bool value)
     {
         if (id is null)
