@@ -54,6 +54,7 @@ public partial class CompetitionPage : ContentPage
         itemView.WidthRequest = Window.Width / 2;
         itemView.HeightRequest = Height - BottomDock.HeightRequest - CompetitionCreation.HeightRequest;
         itemView.Update();
+        // EXCEEDINGLY IMPORTANT TODO: this gets stuck in a loop when two items are marked irrelevant (possibly when any NextItems() thing happens?)
         Utils.Log($"ItemView HeightRequest {itemView.HeightRequest}");
     }
     private async Task UpdateViews()

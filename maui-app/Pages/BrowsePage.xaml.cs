@@ -35,7 +35,7 @@ public partial class BrowsePage : ContentPage
         {
             List<(Item item, Competition.Rating? rating)> pairs = ItemManager.Items.Zip(ItemManager.Items.Select(Selected.Competition.RatingOf))
                                                                                    .ToList();
-            _items = new(pairs.Where(x => x.rating?.CiLowerBound > 0.7)
+            _items = new(pairs.Where(x => x.rating?.CiLowerBound > 0.9)
                               .Shuffled()
                               .Select(x => x.item));
             ItemView.IItem = _items.First();

@@ -50,6 +50,7 @@ public partial class CompetitionItemView : ContentView
 		ItemHolder.WidthRequest = WidthRequest;
 		ItemHolder.HeightRequest = HeightRequest - IrrelevantButton.HeightRequest - SelectButton.HeightRequest;
 		ToolTipProperties.SetText(ItemHolder, $"{Item}\n\n{Competition?.RatingOf(Item)}");
+		IsIrrelevant = false;
     }
 	public event EventHandler? IrrelevantButtonClicked;
     private void IrrelevantButton_Clicked(object sender, EventArgs e)

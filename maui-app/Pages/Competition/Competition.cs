@@ -158,6 +158,7 @@ public class Competition
     public event EventHandler? ItemsUpdated;
     public void NextItems()
     {
+        Utils.Log($"NewItems()");
         (Left, Right) = (NextItem, NextItem);
         ItemsUpdated?.Invoke(this, new EventArgs());
     }
