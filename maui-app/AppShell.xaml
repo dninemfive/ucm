@@ -20,12 +20,8 @@
         ContentTemplate="{DataTemplate local:CompetitionPage}"
         Route="Competition" />
         <ShellContent
-        Title="Collection"
-        ContentTemplate="{DataTemplate local:CollectionPage}"
-        Route="Collection" />
-        <ShellContent
         Title="Browse"
-        ContentTemplate="{DataTemplate local:BrowsePage}"
+        ContentTemplate="{DataTemplate local:CollectionPage}"
         Route="Browse" />
         <ShellContent
         Title="Similarity"
