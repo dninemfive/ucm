@@ -72,8 +72,8 @@
 	  <Compile Update="Pages\Acquisition\AcquisitionPage.xaml.cs">
 	    <DependentUpon>AcquisitionPage.xaml</DependentUpon>
 	  </Compile>
-	  <Compile Update="Pages\CollectionPage.xaml.cs">
-	    <DependentUpon>CollectionPage.xaml</DependentUpon>
+	  <Compile Update="Pages\Browsing\BrowsePage.xaml.cs">
+	    <DependentUpon>BrowsePage.xaml</DependentUpon>
 	  </Compile>
 	  <Compile Update="Views\CompetitionSelector.xaml.cs">
 	    <DependentUpon>CompetitionSelector.xaml</DependentUpon>
@@ -90,16 +90,13 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <MauiXaml Update="Pages\BrowsePage.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
 	  <MauiXaml Update="Pages\Competition\CompetitionPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Pages\Acquisition\AcquisitionPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Pages\CollectionPage.xaml">
+	  <MauiXaml Update="Pages\Browsing\BrowsePage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Pages\ConsolePage.xaml">

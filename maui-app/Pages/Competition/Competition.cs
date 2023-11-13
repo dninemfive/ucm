@@ -58,15 +58,24 @@ public class Competition
     public IEnumerable<Item> RelevantItems => ItemManager.Items.Where(x => !IsIrrelevant(x.Id));
     [JsonIgnore]
     public IEnumerable<Rating> RelevantRatings => RelevantItems.Select(RatingOf).Where(x => x is not null)!;
+    private IEnumerable<Item>? _shownItems = null;
     [JsonIgnore]
-    public IEnumerable<Rating> ShownRatings
+    public IEnumerable<Item> ShownItems
     {
         get
         {
-            double threshold = RelevantRatings.Select(x => x.CiLowerBound).Percentile(ThresholdPercentile);
-            return RelevantRatings.Where(x => x.CiLowerBound >= threshold);
+            if(_shownItems is null)
+            {
+                double threshold = RelevantRatings.Select(x => x.CiLowerBound).Percentile(ThresholdPercentile);
+                _shownItems = RelevantItems.Where(x => RatingOf(x)?.CiLowerBound >= threshold);
+            }
+            return _shownItems!;
         }
+        private set => _shownItems = value;
     }
+    [JsonIgnore]
+    public IEnumerable<Rating> ShownRatings
+        => ShownItems.Select(x => RatingOf(x)!);
     [JsonIgnore]
     public double ThresholdPercentile { get; set; } = 0;
     #endregion nonserialized properties
@@ -152,6 +161,7 @@ public class Competition
             Ratings[rejectedId] = new(0, 1);
         }
 #pragma warning restore CA1854
+        _shownItems = null;
         NextItems();
     }
     private Item? _previousItem = null;
@@ -206,7 +216,7 @@ public class Competition
         [JsonIgnore]
         public double Weight => WeightFunction(TotalRatings);
         public static double WeightFunction(int i) => i > 0 ? 1 / (double)(i * i) : 10.0;
-        public bool ShouldShow(double percentile) => CiLowerBound > percentile; // TotalRatings < 7 || CiUpperBound >= 0.42;
+        public bool ShouldShow(double percentile) => CiLowerBound >= percentile; // TotalRatings < 7 || CiUpperBound >= 0.42;
         [JsonConstructor]
         public Rating(int timesSelected, int totalRatings)
         {

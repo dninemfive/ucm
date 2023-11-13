@@ -21,7 +21,7 @@
         Route="Competition" />
         <ShellContent
         Title="Browse"
-        ContentTemplate="{DataTemplate local:CollectionPage}"
+        ContentTemplate="{DataTemplate local:BrowsePage}"
         Route="Browse" />
         <ShellContent
         Title="Similarity"
