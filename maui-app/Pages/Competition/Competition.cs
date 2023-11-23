@@ -215,8 +215,8 @@ public class Competition
             => (CiUpperBound - CiLowerBound) / 2;
         [JsonIgnore]
         public double Weight => WeightFunction(TotalRatings);
-        public static double WeightFunction(int i) => i > 0 ? 1 / (double)(i * i) : 10.0;
-        public bool ShouldShow(double percentile) => CiLowerBound >= percentile; // TotalRatings < 7 || CiUpperBound >= 0.42;
+        public static double WeightFunction(int i) => Math.Pow(2, -i);
+        public bool ShouldShow(double percentile) => CiLowerBound >= percentile;
         [JsonConstructor]
         public Rating(int timesSelected, int totalRatings)
         {

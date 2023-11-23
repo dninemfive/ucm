@@ -57,6 +57,7 @@
 	  <PackageReference Include="HtmlAgilityPack" Version="1.11.54" />
 	  <PackageReference Include="SixLabors.ImageSharp" Version="3.0.2" />
 	  <PackageReference Include="System.Linq.Async" Version="6.0.1" />
+	  <PackageReference Include="System.Linq.Expressions" Version="4.3.0" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -112,6 +113,9 @@
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Views\HistogramView.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Views\ItemFilterView\ItemFilterview.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Views\ItemView.xaml">

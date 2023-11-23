@@ -36,6 +36,9 @@
     <MauiXaml Update="Views\HistogramView.xaml">
       <SubType>Designer</SubType>
     </MauiXaml>
+    <MauiXaml Update="Views\ItemFilterView\ItemFilterview.xaml">
+      <SubType>Designer</SubType>
+    </MauiXaml>
     <MauiXaml Update="Views\ItemView.xaml">
       <SubType>Designer</SubType>
     </MauiXaml>
