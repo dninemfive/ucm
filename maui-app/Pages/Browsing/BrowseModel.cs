@@ -62,7 +62,18 @@ public class BrowseModel
     }
     public async Task Update()
     {
-        _itemIds = await Task.Run(() => SortOrder(ItemManager.NonHiddenItems.Where(async x => MatchesSearch(x)).Select(x => x.Id)).ToList());
+        _itemIds = await Task.Run(async () =>
+        {
+            List<ItemId> result = new();
+            foreach(Item item in ItemManager.NonHiddenItems)
+            {
+                if(await MatchesSearch(item))
+                {
+                    result.Add(item.Id);
+                }
+            }
+            return SortOrder(result).ToList();
+        });
     }
     #endregion methods
 }
