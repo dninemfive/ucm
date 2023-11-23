@@ -52,17 +52,17 @@ public class BrowseModel
             return result;
         });
     }
-    private bool MatchesSearch(Item item)
+    private async Task<bool> MatchesSearch(Item item)
     {
         bool result = true;
-        foreach (Func<Item, bool> match in SearchTokens)
-            if (!match(item))
+        foreach (Func<Item, Task<bool>> match in SearchTokens)
+            if (!(await match(item)))
                 result = false;
         return InvertSearch ? !result : result;
     }
     public async Task Update()
     {
-        _itemIds = await Task.Run(() => SortOrder(ItemManager.Items.Where(MatchesSearch).Select(x => x.Id)).ToList());
+        _itemIds = await Task.Run(() => SortOrder(ItemManager.NonHiddenItems.Where(async x => MatchesSearch(x)).Select(x => x.Id)).ToList());
     }
     #endregion methods
 }

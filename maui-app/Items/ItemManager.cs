@@ -10,8 +10,9 @@ public static class ItemManager
 {
     private static bool _loaded = false;
     #region properties
-    public static IEnumerable<Item> Items => ItemsById.Values.Where(x => !x.Hidden);
-    public static IAsyncEnumerable<Item> GetItemsAsync() => Items.ToAsyncEnumerable();
+    public static IEnumerable<Item> NonHiddenItems => AllItems.Where(x => !x.Hidden);
+    public static IEnumerable<Item> AllItems => ItemsById.Values;
+    public static IAsyncEnumerable<Item> GetItemsAsync() => NonHiddenItems.ToAsyncEnumerable();
     private static Dictionary<ItemId, Item>? _itemsById = null;
     public static IReadOnlyDictionary<ItemId, Item> ItemsById
     {
@@ -74,18 +75,19 @@ public static class ItemManager
         _loaded = false;
         Load();
     }
-    public static IEnumerable<string> AllLocations
+    public static async Task<HashSet<string>> GetAllLocationsAsync()
     {
-        get
+        HashSet<string> result = new();
+        foreach (Item item in ItemsById.Values)
         {
-            foreach(Item item in ItemsById.Values)
+            string localPath = item.LocalPath.Value;
+            result.Add(localPath);
+            foreach (string location in await item.GetLocationsAsync())
             {
-                string localPath = item.LocalPath.Value;
-                yield return localPath;
-                foreach (string location in item.Locations)
-                    if(location != localPath) yield return location;
+                result.Add(location);
             }
         }
+        return result;
     }
     public static async Task<bool> TryUpdateAnyMatchingItemAsync(CandidateItem? ci)
     {
@@ -93,9 +95,9 @@ public static class ItemManager
         {
             return true;
         }
-        if(TryGetItemByHash(ci.Hash, out Item? item) && !item!.HasSourceInfoFor(ci.Location))
+        if(TryGetItemByHash(ci.Hash, out Item? item) && !(await item!.HasSourceInfoFor(ci.Location)))
         {
-            item.AddSource(ci.Source);
+            await item.AddSource(ci.Source);
             // Utils.Log($"TryUpdateAnyMatchingItemAsnyc({ci}) -> {item}: {item.Sources.ListNotation()}");
             await item.SaveAsync();
             return true;

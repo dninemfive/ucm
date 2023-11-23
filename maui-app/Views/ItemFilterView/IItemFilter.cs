@@ -28,5 +28,5 @@ public class ItemFilter_Tag : IItemFilter
     }
     public string Tag { get; private set; }
     public Expression<Func<Item, bool>> Expression
-        => (item) => item.AllTags.Contains(Tag);
+        => throw new NotImplementedException();
 }

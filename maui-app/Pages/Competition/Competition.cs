@@ -14,7 +14,7 @@ public class Competition
     public Competition(string name)
     {
         Name = name;
-        foreach(Item item in ItemManager.Items)
+        foreach(Item item in ItemManager.NonHiddenItems)
         {
             Ratings[item.Id] = new(0, 0);
         }
@@ -25,7 +25,7 @@ public class Competition
         Name = name;
         IrrelevantItems = irrelevantItems;
         Ratings = ratings;
-        foreach(Item item in ItemManager.Items.Where(x => !ratings.ContainsKey(x.Id)))
+        foreach(Item item in ItemManager.NonHiddenItems.Where(x => !ratings.ContainsKey(x.Id)))
         {
             Ratings[item.Id] = new(0, 0);
         }
@@ -55,7 +55,7 @@ public class Competition
         }
     }
     [JsonIgnore]
-    public IEnumerable<Item> RelevantItems => ItemManager.Items.Where(x => !IsIrrelevant(x.Id));
+    public IEnumerable<Item> RelevantItems => ItemManager.NonHiddenItems.Where(x => !IsIrrelevant(x.Id));
     [JsonIgnore]
     public IEnumerable<Rating> RelevantRatings => RelevantItems.Select(RatingOf).Where(x => x is not null)!;
     private IEnumerable<Item>? _shownItems = null;

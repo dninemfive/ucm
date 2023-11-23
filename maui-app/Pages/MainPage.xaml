@@ -14,7 +14,8 @@
             <Button x:Name="TestHashThingButton" Text="check for duplicate hashes" Clicked="TestHashThing"/>
             <ProgressBar x:Name="ProgressBar"/>
             <Button Text="Open Debug Console" Clicked="OpenDebugConsole"/>
-            <Button Text="Test Url Thing" Clicked="TestUrlThing"/>
+            <Button Text="Check Deleted Items" Clicked="CheckDeletedItems"/>
+            <Button x:Name="SaveItemSourcesButton" Text="Save Item Sources" Clicked="SaveItemSources"/>
         </VerticalStackLayout>
     </ScrollView>
 

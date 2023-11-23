@@ -14,6 +14,7 @@ public static class Constants
         public static string TEMP_Competitions => Path.Join(TEMP_Base, "competitions");
         public static string TEMP_Cache => Path.Join(TEMP_Base, "cache");
         public static string TEMP_Rules => @"C:\Users\dninemfive\Documents\workspaces\misc\ucm\common\urlrule";
+        public static string TEMP_Sources => Path.Join(TEMP_Data, "sources");
     }
     public static class Files
     {

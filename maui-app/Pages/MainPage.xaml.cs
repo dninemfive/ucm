@@ -21,10 +21,10 @@ public partial class MainPage : ContentPage
     {
         ResaveButton.Text = "Saving...";
         ResaveButton.IsEnabled = false;
-        foreach ((Item item, int i) in ItemManager.Items.WithProgress())
+        foreach ((Item item, int i) in ItemManager.NonHiddenItems.WithProgress())
         {
             await item.SaveAsync();
-            ProgressBar.Progress = i / (double)ItemManager.Items.Count();
+            ProgressBar.Progress = i / (double)ItemManager.NonHiddenItems.Count();
         }
         ResaveButton.IsEnabled = true;
         ResaveButton.Text = "Resave All Items";
@@ -35,9 +35,9 @@ public partial class MainPage : ContentPage
         (sender as Button)!.IsEnabled = false;
         static void checkHashes()
         {
-            foreach (Item item in ItemManager.Items)
+            foreach (Item item in ItemManager.NonHiddenItems)
             {
-                foreach (Item item2 in ItemManager.Items.Where(x => x.Id > item.Id))
+                foreach (Item item2 in ItemManager.NonHiddenItems.Where(x => x.Id > item.Id))
                 {
                     if (item.Hash == item2.Hash)
                         Utils.Log($"Conflicting hashes! Items:\n\t{item}\n\t{item2}");
@@ -60,13 +60,26 @@ public partial class MainPage : ContentPage
         Application.Current?.OpenWindow(DebugConsole);
     }
 
-    private async void TestUrlThing(object sender, EventArgs e)
+    private async void CheckDeletedItems(object sender, EventArgs e)
     {
         foreach(Item item in ItemManager.ItemsById.Values.OrderBy(x => x.Id))
         {
             if (item.Hidden)
                 Utils.Log($"{item.Id,3}\t{item.Deleted}\t{item.MergeInfo?.ResultId.PrintNull()}");
         }
+    }
+
+    private async void SaveItemSources(object sender, EventArgs e)
+    {
+        SaveItemSourcesButton.IsEnabled = false;
+        foreach((Item item, int i) in ItemManager.AllItems.WithProgress())
+        {
+            await Task.Run(async () 
+                => File.WriteAllText(Path.Join(Constants.Folders.TEMP_Sources, $"{item.Id}.json"), 
+                                     JsonSerializer.Serialize(await item.GetSourcesAsync())));
+            ProgressBar.Progress = i / (double)ItemManager.NonHiddenItems.Count();
+        }
+        SaveItemSourcesButton.IsEnabled = true;
     }
 }
 

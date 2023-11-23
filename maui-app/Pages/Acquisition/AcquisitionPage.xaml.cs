@@ -46,7 +46,7 @@ public partial class AcquisitionPage : ContentPage
     private async Task LoadCandidatesAsync()
     {
         _candidateLocations.Clear();
-        _locations = ItemManager.AllLocations.ToHashSet();
+        _locations = await ItemManager.GetAllLocationsAsync();
         _tagsToSkip = await Task.Run(() => File.ReadAllLines(Constants.Files.TEMP_TagsToSkip).ToHashSet());
         // load local paths first,
         _candidateLocations = await LoadLocalPathsAsync();

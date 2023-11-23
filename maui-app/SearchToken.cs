@@ -11,15 +11,15 @@ namespace d9.ucm;
 // 
 public class SearchToken
 {
-    private Func<Item, bool> _matchFunction;
+    private readonly Func<Item, Task<bool>> _matchFunction;
     public SearchToken(string str)
     {
         string[] split = str.Split("::");
         _matchFunction = split.Length switch
         {
-            1 => (item) => item.AllTags.Contains(str.TagNormalize()),
+            1 => async (item) => (await item.GetAllTagsAsync()).Contains(str.TagNormalize()),
         };
     }
-    public static implicit operator Func<Item, bool>(SearchToken st) => st._matchFunction;
+    public static implicit operator Func<Item, Task<bool>>(SearchToken st) => st._matchFunction;
     public static IEnumerable<SearchToken> Tokenize(string s) => s.Split(" ").Select(x => new SearchToken(x));
 }

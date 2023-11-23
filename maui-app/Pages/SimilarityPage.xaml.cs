@@ -39,7 +39,7 @@ public partial class SimilarityPage : ContentPage
     }
 	private static IEnumerable<Task<(ItemId, ulong)>> GeneratePerceptualHashTasks(HashSet<ItemId> ignoreIds)
 	{
-		foreach(Item item in ItemManager.Items)
+		foreach(Item item in ItemManager.NonHiddenItems)
 		{
             if (ignoreIds.Contains(item.Id))
                 continue;
@@ -91,7 +91,7 @@ public partial class SimilarityPage : ContentPage
         List<double> highSimilarities = new();
         if (ItemView.IItem is Item curItem)
         {
-            foreach (Item otherItem in ItemManager.Items.Where(x => x != curItem))
+            foreach (Item otherItem in ItemManager.NonHiddenItems.Where(x => x != curItem))
             {
                 await Task.Run(() =>
                 {

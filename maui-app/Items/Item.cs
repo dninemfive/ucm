@@ -13,6 +13,7 @@ using CoenM.ImageHash.HashAlgorithms;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using Image = SixLabors.ImageSharp.Image;
+using System.Collections;
 
 namespace d9.ucm;
 public class Item : IItemViewable
@@ -45,10 +46,8 @@ public class Item : IItemViewable
             return _thumbnail;
         }
     }
-    [JsonInclude]
-    public List<ItemSource> Sources { get; private set; } = new();
-    [JsonIgnore]
-    public IEnumerable<ItemSource> ItemSources => Sources;
+    public async Task<IEnumerable<ItemSource>> GetItemSourcesAsync()
+        => await this.GetSourcesAsync() ?? Enumerable.Empty<ItemSource>();
     [JsonInclude]
     public bool Deleted { get; private set; } = false;
     [JsonIgnore]
@@ -58,13 +57,19 @@ public class Item : IItemViewable
     #endregion
     #region constructors
     public Item(string path, string hash, ItemId id, params ItemSource[] sources) : this(new(path), hash, id, sources.ToList()) { }
+    public Item(LocalPath path, string hash, ItemId id, List<ItemSource>? sources, ItemMergeInfo? mergeInfo = null, bool deleted = false)
+        : this(path, hash, id, mergeInfo, deleted)
+    {
+#pragma warning disable CS4014 // "this runs synchronously" bruh it's a constructor what do you want from me
+        ItemSourceManager.SaveSourcesAsync(id, sources ?? new() { new("Local Filesystem", path.Value) });
+#pragma warning restore CS4014
+    }
     [JsonConstructor]
-    public Item(LocalPath localPath, string hash, ItemId id, List<ItemSource>? sources, ItemMergeInfo? mergeInfo = null, bool deleted = false)
+    public Item(LocalPath localPath, string hash, ItemId id, ItemMergeInfo? mergeInfo = null, bool deleted = false)
     {
         LocalPath = localPath;
         Hash = hash;
         Id = IdManager.Register(id);
-        Sources = sources?.ToList() ?? new() { new("Local Filesystem", localPath.Value) };
         Deleted = deleted;
         MergeInfo = mergeInfo;
     }
@@ -75,12 +80,12 @@ public class Item : IItemViewable
     {
         await File.WriteAllTextAsync(Path.Join(Constants.Folders.TEMP_Data, $"{Id}.json"),
                                      JsonSerializer.Serialize(this, new JsonSerializerOptions { WriteIndented = true }));
+        await ItemSourceManager.SaveSourcesAsync(Id);
     }
-    public bool HasSourceInfoFor(string location)
-        => Sources.Any(x => x.Location == location);
-    [JsonIgnore]
-    public IEnumerable<string> Locations
-        => Sources.Select(x => x.Location);
+    public async Task<bool> HasSourceInfoFor(string location)
+        => (await this.GetSourcesAsync())?.Any(x => x.Location == location) ?? false;
+    public async Task<IEnumerable<string>> GetLocationsAsync()
+        => (await this.GetSourcesAsync())?.Select(x => x.Location) ?? Enumerable.Empty<string>();
     public static Item? From(CandidateItem ci)
     {        
         if(ci.LocalPath is not null)
@@ -104,7 +109,7 @@ public class Item : IItemViewable
     public static async Task<Item> MergeAsync(Item chosenItem, IEnumerable<Item> otherItems)
     {
         Utils.Log($"Merge({chosenItem}, {otherItems.ListNotation()})");
-        List<ItemSource> sources = chosenItem.ItemSources.ToList();
+        List<ItemSource> sources = await chosenItem.GetSourcesAsync() ?? new();
         ItemId resultId = IdManager.Register();
         List<Item> relevantItems = otherItems.Append(chosenItem)
                                              .OrderBy(x => x.Id)
@@ -112,11 +117,11 @@ public class Item : IItemViewable
         ItemMergeInfo mergeInfo = new(resultId, relevantItems.Select(x => x.Id).ToList());
         foreach (Item item in relevantItems)
         {
-            sources = sources.Concat(item.ItemSources).ToList();
+            await resultId.AddSourcesAsync(await item.GetSourcesAsync());
             item.MergeInfo = mergeInfo;
             await item.SaveAsync();
         }
-        Item result = new(chosenItem.LocalPath, chosenItem.Hash, resultId, sources, mergeInfo);
+        Item result = new(chosenItem.LocalPath, chosenItem.Hash, resultId, mergeInfo);
         ItemManager.Register(result);
         await result.SaveAsync();
         return result;
@@ -141,30 +146,26 @@ public class Item : IItemViewable
     public static implicit operator ItemId(Item item) => item.Id;
     [JsonIgnore]
     private HashSet<string>? _allTags = null;
-    [JsonIgnore]
-    public HashSet<string> AllTags
+    public async Task<HashSet<string>> GetAllTagsAsync()
     {
-        get
+        if (_allTags is null)
         {
-            if(_allTags is null)
+            _allTags = new();
+            foreach (ItemSource source in (await ItemSourceManager.GetSourcesAsync(this))!)
             {
-                _allTags = new();
-                foreach(ItemSource source in Sources)
+                foreach (string tag in source.Tags)
                 {
-                    foreach (string tag in source.Tags)
-                    {
-                        if (tag.Contains(' '))
-                            Utils.Log($"Item {Id} has tag `{tag}` from source {source.SourceName}. This tag includes spaces, meaning it cannot be searched for!");
-                        _ = _allTags.Add(tag.TagNormalize());
-                    }
+                    if (tag.Contains(' '))
+                        Utils.Log($"Item {Id} has tag `{tag}` from source {source.SourceName}. This tag includes spaces, meaning it cannot be searched for!");
+                    _ = _allTags.Add(tag.TagNormalize());
                 }
             }
-            return _allTags!;
         }
+        return _allTags!;
     }
-    public void AddSource(ItemSource source)
+    public async Task AddSource(ItemSource source)
     {
-        Sources.Add(source);
+        await Id.AddSourceAsync(source, true);
         _allTags = null;
     }
 }

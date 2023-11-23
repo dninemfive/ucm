@@ -17,7 +17,7 @@ public partial class IItemView : ContentView
 		InitializeComponent();
         SourceList.HeightRequest = HeightRequest;
 	}
-	private void UpdateInfo()
+	private async void UpdateInfo()
 	{
         SourceList.Children.Clear();
         if (_iitem is null)
@@ -27,7 +27,7 @@ public partial class IItemView : ContentView
         }
         ContentHolder.Content = _iitem!.View;        
         SourceList.Add(_iitem.InfoLabel);
-        foreach (string labelText in _iitem.ItemSources.Select(x => x.LabelText))
+        foreach (string labelText in (await _iitem.GetItemSourcesAsync()).Select(x => x.LabelText))
         {
             SourceList.Add(new Label()
             {
