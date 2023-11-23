@@ -73,7 +73,7 @@ public class Item : IItemViewable
         => $"Item {Id} @ {LocalPath}";
     public async Task SaveAsync()
     {
-        await File.WriteAllTextAsync(@$"{MauiProgram.TEMP_SAVE_LOCATION}\{Id}.json",
+        await File.WriteAllTextAsync(Path.Join(Constants.Folders.TEMP_Data, $"{Id}.json"),
                                      JsonSerializer.Serialize(this, new JsonSerializerOptions { WriteIndented = true }));
     }
     public bool HasSourceInfoFor(string location)

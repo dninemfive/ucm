@@ -53,7 +53,6 @@ public partial class SimilarityPage : ContentPage
         void updateLabel(string msg)
         {
             StatusLabel.Text = msg;
-            //Utils.Log(msg);
         }
         ItemId maxId = ItemManager.ItemsById.Keys.Max();
         Progress<(int ct, int total, string desc)> progress = new(value =>
@@ -63,7 +62,7 @@ public partial class SimilarityPage : ContentPage
             ProgressLabel.Text = $"{value.ct}/{value.total} ({pct:P2})";
         });
         StartTimer();
-        string path = Path.Join(MauiProgram.TEMP_BASE_FOLDER, "perceptualHashes.json");
+        string path = Constants.Files.TEMP_PerceptualHashes;
         if(_hashDict is null)
         {
             if (File.Exists(path))

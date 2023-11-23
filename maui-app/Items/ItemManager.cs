@@ -53,7 +53,7 @@ public static class ItemManager
         _loaded = true;
         _itemsById = new();
         _itemsByHash = new();
-        foreach (Item item in MauiProgram.TEMP_SAVE_LOCATION.LoadAll<Item>(x =>
+        foreach (Item item in Constants.Folders.TEMP_Data.LoadAll<Item>(x =>
         {
             // todo: check if item hash matches current hash
             // if not, update but log

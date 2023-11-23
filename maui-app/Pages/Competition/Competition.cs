@@ -99,7 +99,7 @@ public class Competition
     public static Competition? Named(string? name)
         => name is null ? null : CompetitionManager.CompetitionsByName.TryGetValue(name, out Competition? competition) ? competition : null;
     public static IEnumerable<string> Names => CompetitionManager.Names;
-    public static string PathFor(string name) => Path.Join(MauiProgram.TEMP_COMP_LOCATION, $"{name}.json");
+    public static string PathFor(string name) => Path.Join(Constants.Folders.TEMP_Competitions, $"{name}.json");
     #endregion static properties/methods
     public bool IsIrrelevant(ItemId id) => IrrelevantItems.Contains(id) || ItemManager.TryGetItemById(id) is null;
     public Rating? RatingOf(ItemId id)

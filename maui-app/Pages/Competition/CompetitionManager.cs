@@ -28,7 +28,7 @@ public static class CompetitionManager
             return;
         _loaded = true;
         _competitionsByName = new();
-        foreach (Competition c in MauiProgram.TEMP_COMP_LOCATION.LoadAll<Competition>())
+        foreach (Competition c in Constants.Folders.TEMP_Competitions.LoadAll<Competition>())
         {
             _competitionsByName[c.Name] = c;
         }

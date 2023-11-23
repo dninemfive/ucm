@@ -29,16 +29,16 @@ public partial class AcquisitionPage : ContentPage
     #region misc methods
     private async Task LoadHashesAsync()
     {
-        if (File.Exists(MauiProgram.REJECTED_HASH_FILE))
+        if (File.Exists(Constants.Files.TEMP_RejectedHashes))
         {
-            await foreach (string s in File.ReadLinesAsync(MauiProgram.REJECTED_HASH_FILE))
+            await foreach (string s in File.ReadLinesAsync(Constants.Files.TEMP_RejectedHashes))
             {
                 _ = _indexedHashes.Add(s);
             }
         }
         else
         {
-            _ = File.Create(MauiProgram.REJECTED_HASH_FILE);
+            _ = File.Create(Constants.Files.TEMP_RejectedHashes);
         }
     }
     private HashSet<string> _locations = new();
@@ -47,7 +47,7 @@ public partial class AcquisitionPage : ContentPage
     {
         _candidateLocations.Clear();
         _locations = ItemManager.AllLocations.ToHashSet();
-        _tagsToSkip = (await Task.Run(() => File.ReadAllLines(Path.Join(MauiProgram.TEMP_BASE_FOLDER, "tags_to_skip.txt")))).ToHashSet();
+        _tagsToSkip = await Task.Run(() => File.ReadAllLines(Constants.Files.TEMP_TagsToSkip).ToHashSet());
         // load local paths first,
         _candidateLocations = await LoadLocalPathsAsync();
         // then add bookmarks after, shuffled
@@ -88,7 +88,7 @@ public partial class AcquisitionPage : ContentPage
     {        
         List<string> result = new(),
                      bookmarks = (await JsonSerializer.DeserializeAsync<List<string>>(File.OpenRead(_bookmarksPath)))!;
-        bookmarks.AddRange(await Task.Run(() => File.ReadAllLines(Path.Join(MauiProgram.TEMP_BASE_FOLDER, "old", "stuff.txt"))));
+        bookmarks.AddRange(await Task.Run(() => File.ReadAllLines(Path.Join(Constants.Folders.TEMP_Base, "old", "stuff.txt"))));
         foreach (string? url in await Task.Run(() => bookmarks.Select(x => TransformedUrl.For(x)?.Canonical).Distinct()))
         {
             if (url is null || _locations.Contains(url))
@@ -187,7 +187,7 @@ public partial class AcquisitionPage : ContentPage
     private void Reject_Clicked(object sender, EventArgs e)
     {
         Utils.Log($"🚫");
-        File.AppendAllText(MauiProgram.REJECTED_HASH_FILE, $"{_currentCandidate!.Hash}\n");
+        File.AppendAllText(Constants.Files.TEMP_RejectedHashes, $"{_currentCandidate!.Hash}\n");
         _ = _indexedHashes.Add(_currentCandidate.Hash);
         NextItem();
     }

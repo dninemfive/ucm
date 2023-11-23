@@ -56,7 +56,7 @@ public partial class MainPage : ContentPage
         {
             Page = console
         };
-        Utils.DefaultLog = new(MauiProgram.TEMP_LOG_PATH, console, false, Log.Mode.WriteImmediate);
+        Utils.DefaultLog = new(Constants.Files.TEMP_Log, console, false, Log.Mode.WriteImmediate);
         Application.Current?.OpenWindow(DebugConsole);
     }
 

@@ -12,12 +12,12 @@ public partial class BrowsePage : ContentPage
         SizeChanged += PageSizedChanged;
         NavigationButtons.Navigated += GoToPage;
         TagSearchBar.TagSearchedFor += TagSearchBar_TagSearchedFor;
-        Model = new(itemsPerPage: 36);
+        Model = new();
     }
     private void TagSearchBar_TagSearchedFor(IEnumerable<SearchToken> tokens, bool invert)
     {
         Model.SearchTokens = tokens.ToList();
-        Model.Invert = invert;
+        Model.InvertSearch = invert;
     }
     private async Task LoadItems(Func<Item, bool>? func = null)
     {
@@ -59,7 +59,7 @@ public partial class BrowsePage : ContentPage
         thumbnail.Item = item;
         if (item is not null)
         {
-            thumbnail.OverlayText = $"{Competition?.RatingOf(item)?.TotalRatings.ToString() ?? ""}";
+            thumbnail.OverlayText = $"{Competition?.RatingOf(item)?.ToString() ?? ""}";
             thumbnail.IsIrrelevant = Competition?.IsIrrelevant(item) ?? false;
         }
         else
@@ -129,8 +129,7 @@ public partial class BrowsePage : ContentPage
         // "best" being the size which leaves the least empty space
         // which i guess is the one with the least remainder for screen width / n or screen height / n
         // where 0 < n < ItemsPerScreen with an additional constraint based on screen proportions
-        // probably constrain size to avoid items which are too large or small  
-        Utils.Log($"ItemSpace: {ItemSpace}, {Grid.RowDefinitions[1].Height}");
+        // probably constrain size to avoid items which are too large or small
         double smallSize = Math.Min(ItemSpace.width, ItemSpace.height),
                largeSize = Math.Max(ItemSpace.width, ItemSpace.height),
                ratio = largeSize / smallSize;

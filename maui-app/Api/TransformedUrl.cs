@@ -42,7 +42,7 @@ public class TransformedUrl
     public string Raw => Urls["raw"];
     public string Canonical => Urls["canonical"];
     public string Id => InfoSet["id"]!;
-    public string CacheFolder => Path.Join(MauiProgram.TEMP_BASE_FOLDER, "cache", new Uri(Raw).Host);
+    public string CacheFolder => Path.Join(Constants.Folders.TEMP_Cache, new Uri(Raw).Host);
     public string CacheFilePath => Path.Join(CacheFolder, Id);
     public ApiDef Api => Def.Api;
     public string? ApiUrl

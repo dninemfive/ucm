@@ -11,7 +11,7 @@ public static class UrlTransformerDefs
     private static readonly Dictionary<string, UrlTransformerDef> _byName = new();
     static UrlTransformerDefs()
     {
-        foreach (UrlTransformerDef def in MauiProgram.TEMP_RULE_LOCATION.LoadAll<UrlTransformerDef>())
+        foreach (UrlTransformerDef def in Constants.Folders.TEMP_Rules.LoadAll<UrlTransformerDef>())
         {
             if (_byName.ContainsKey(def.Name))
                 Utils.Log($"Duplicate ApiDefs with name {def.Name}!");
