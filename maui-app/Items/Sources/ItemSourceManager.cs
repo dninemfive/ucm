@@ -24,6 +24,7 @@ public static class ItemSourceManager
         {
             Utils.Log($"Found no sources for item {id}.");
         }
+        Utils.Log($"GetSourcesAsync(): Caching sources for {id}.");
         _cache[id] = sources;
         return sources;
     }
@@ -47,6 +48,7 @@ public static class ItemSourceManager
         await File.WriteAllTextAsync(PathFor(id), JsonSerializer.Serialize(sources, new JsonSerializerOptions() { WriteIndented = true }));
         if (cache)
         {
+            Utils.Log($"SaveSourcesAsync(): Caching sources for {id}.");
             _cache[id] = sources;
         }
         else
